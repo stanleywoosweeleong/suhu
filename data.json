@@ -1,5 +1,5 @@
 {
-  "generated": "2026-07-16T09:02:34.780Z",
+  "generated": "2026-07-16T08:38:48.287Z",
   "snapshotDate": "16 July 2026",
   "note": "Written by the cloud pipeline (fetch-data.js via GitHub Actions). Values are a real snapshot; the workflow overwrites this on each scheduled run.",
   "banner": {
@@ -30,11 +30,11 @@
       "key": "enso",
       "h": "ENSO — Ocean",
       "name": "Niño 3.4 SST anomaly",
-      "value": "+1.5°C",
+      "value": "+1.7°C",
       "cls": "s-hot",
-      "status": "Strong El Niño",
+      "status": "Moderate El Niño · strengthening",
       "interp": "Pacific warming toward a strong event. For Malaysia: hotter, drier bias.",
-      "gauge": 88,
+      "gauge": 85,
       "gcol": "var(--hot)",
       "src": "NOAA CPC · weekly (mid-Jun) · fallback BoM"
     },
@@ -53,7 +53,7 @@
     {
       "key": "soi",
       "h": "ENSO — Atmosphere",
-      "name": "SOI (30-day)",
+      "name": "SOI (monthly, Troup)",
       "value": "−25.8",
       "cls": "s-dry",
       "status": "Strongly El Niño-coupled",
@@ -121,8 +121,7 @@
       "Apr",
       "May",
       "Jun",
-      "Jul*",
-      "Jul"
+      "Jul*"
     ],
     "values": [
       0.3,
@@ -131,8 +130,7 @@
       1,
       1.3,
       1.7,
-      1.8,
-      1.5
+      1.8
     ]
   },
   "sources": [
@@ -141,7 +139,7 @@
       "NOAA CPC",
       "NOAA PSL · BoM",
       "live",
-      "just now"
+      "2 h ago"
     ],
     [
       "SOI",
