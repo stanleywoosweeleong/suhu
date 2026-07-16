@@ -30,9 +30,6 @@
     display:flex;align-items:center;justify-content:center;font-weight:800;font-size:19px;color:#fff}
   h1{font-size:20px;margin:0}
   .sub{color:var(--muted);font-size:12px;margin-top:2px}
-  .toggle{margin-left:auto;display:flex;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:3px}
-  .toggle button{background:none;border:none;color:var(--muted);padding:7px 14px;border-radius:999px;cursor:pointer;font-size:13px;font-weight:600}
-  .toggle button.on{background:var(--accent);color:#fff}
   #installBtn{display:none;margin-left:8px;background:var(--wet);border:none;color:#04220f;font-weight:700;
     padding:8px 14px;border-radius:999px;cursor:pointer;font-size:13px}
   .statusbar{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--muted);margin:8px 0 16px;
@@ -90,7 +87,6 @@
   th{color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.5px}
   .dot{width:8px;height:8px;border-radius:99px;display:inline-block;margin-right:6px}
   .live-dot{background:var(--wet)} .stale-dot{background:var(--dry)}
-  .tech{display:none} body.show-tech .tech{display:block} body.show-tech .grid.tech{display:grid}
   .foot{color:#6b7a97;font-size:11.5px;margin-top:24px;border-top:1px solid var(--line);padding-top:16px}
   .foot b{color:var(--muted)}
   .about p{font-size:13px;color:var(--muted);margin:0 0 10px}
@@ -145,11 +141,7 @@
       <h1>SUHU <span style="color:var(--muted);font-weight:500;font-size:14px">· ENSO Monitor</span></h1>
       <div class="sub">Malaysia &amp; the Maritime Continent · Multi-source</div>
     </div>
-    <div class="toggle">
-      <button id="btnPublic" class="on" onclick="setView('public')">Public</button>
-      <button id="btnTech" onclick="setView('tech')">Forecaster</button>
-    </div>
-    <button class="hbtn" onclick="openGuide()">ⓘ Guide</button>
+    <button class="hbtn" onclick="openGuide()" style="margin-left:auto">ⓘ Guide</button>
     <button id="installBtn" onclick="doInstall()">⬇ Install</button>
   </header>
 
@@ -191,13 +183,6 @@
     </div>
   </div>
 
-  <div class="tech">
-    <div class="section-title">Source health &amp; redundancy</div>
-    <div class="panel"><table id="sources"></table>
-      <div class="gsrc" style="margin-top:10px">Every indicator has a primary + fallback. No single agency (NOAA included) is a point of failure.</div>
-    </div>
-  </div>
-
   <div class="section-title">Local impact — <span id="locName">Kuala Lumpur</span></div>
   <div class="panel">
     <div class="impact-ctrl">
@@ -214,10 +199,6 @@
     <div class="gsrc" style="margin-top:10px">Air quality &amp; heat: Open-Meteo (modeled, updates live per location). Fire hotspots: NASA FIRMS (VIIRS). Malaysia's official index: <a href="https://eqms.doe.gov.my" target="_blank">DOE MyEQMS · APIMS ↗</a>.</div>
   </div>
 
-  <div class="foot">
-    <b>SUHU</b> · installable, offline-capable PWA · cloud-refreshed, no server needed. New here? Open the <a href="#" onclick="openGuide();return false">ⓘ Guide</a> for how to read every card.<br>
-    Multi-source ENSO + IOD + MJO + monsoon interpretation for Malaysia. Attribution: NOAA · BoM · JAMSTEC · JMA/JAXA · ECMWF · MetMalaysia.
-  </div>
 </div>
 
 <!-- Info Guide modal -->
@@ -260,6 +241,10 @@
       <p>SUHU combines the ENSO sign, the IOD and the monsoon calendar into the banner and regional outlook. These are the rules it applies:</p>
       <table id="rules"></table>
 
+      <h3>Source health &amp; redundancy</h3>
+      <p>Every indicator has a primary source and at least one fallback, so no single agency (NOAA included) is a point of failure. Live status:</p>
+      <table id="sources"></table>
+
       <h3>How this differs from NOAA</h3>
       <ul>
         <li><b>Multi-driver, not ENSO-only</b> — ENSO + IOD + MJO + monsoon, the drivers that govern Malaysian rain.</li>
@@ -281,7 +266,7 @@ let chart;
 
 function render(D){
   document.getElementById('snapText').innerHTML =
-    `📌 <b>Snapshot: ${D.snapshotDate||'—'}</b> · toggle <b>Forecaster</b> for the technical layer`;
+    `📌 <b>Snapshot: ${D.snapshotDate||'—'}</b> · tap <b>ⓘ Guide</b> to learn the cards`;
   const b=D.banner;
   document.getElementById('banner').className='banner tone-'+(b.tone||'warm');
   document.getElementById('bTag').textContent=b.tag;
@@ -294,7 +279,7 @@ function render(D){
     <div class="name">${d.name}</div>
     <div class="val">${d.value}</div><div class="status ${d.cls}">${d.status}</div>
     <div class="gauge"><div class="fill" style="width:${d.gauge}%;background:${d.gcol}"></div></div>
-    <div class="interp">${d.interp}</div><div class="gsrc tech">Source: ${d.src}</div></div>`).join('');
+    <div class="interp">${d.interp}</div></div>`).join('');
 
   document.getElementById('regions').innerHTML=D.regions.map(r=>`
     <div class="region"><div class="rn">${r.rn}</div>
@@ -381,11 +366,6 @@ async function load(){
     });
 })();
 
-function setView(v){
-  document.body.classList.toggle('show-tech',v==='tech');
-  document.getElementById('btnTech').classList.toggle('on',v==='tech');
-  document.getElementById('btnPublic').classList.toggle('on',v==='public');
-}
 
 // Online/offline indicator
 function netUpdate(){
