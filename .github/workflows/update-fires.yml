@@ -1,0 +1,38 @@
+name: Update fire hotspots
+
+# Counts NASA FIRMS active fires on GitHub's servers — never on your computer.
+on:
+  schedule:
+    - cron: '30 */6 * * *'   # every 6 hours (VIIRS passes ~twice daily)
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fires
+  cancel-in-progress: false
+
+jobs:
+  fires:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Fetch FIRMS hotspots
+        env:
+          FIRMS_MAP_KEY: ${{ secrets.FIRMS_MAP_KEY }}
+        run: node fetch-fires.js
+
+      - name: Commit fire data
+        run: |
+          git config user.name  "suhu-bot"
+          git config user.email "suhu-bot@users.noreply.github.com"
+          git add -A impact/
+          git commit -m "chore: fire hotspots $(date -u +%FT%TZ)" || echo "no changes"
+          git pull --rebase origin main || true
+          git push
