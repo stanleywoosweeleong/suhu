@@ -189,9 +189,13 @@ async function main() {
 
   await runDriver(data, 'enso', 'Niño', fetchNino34, (rest, card, d) => {
     const h = d.nino34history;
-    const label = now.toLocaleDateString('en-GB', { month: 'short' });
-    if (h.labels[h.labels.length - 1] !== label) { h.labels.push(label); h.values.push(rest.anom); }
-    else { h.values[h.values.length - 1] = rest.anom; }
+    const cur = now.toLocaleDateString('en-GB', { month: 'short' }); // e.g. "Jul"
+    const lastBase = (h.labels[h.labels.length - 1] || '').replace('*', '');
+    if (lastBase === cur) { h.values[h.values.length - 1] = rest.anom; } // same month -> update
+    else { h.labels.push(cur); h.values.push(rest.anom); }              // new month -> append
+    // keep exactly one trailing "*" marking the current (partial) month
+    for (let i = 0; i < h.labels.length; i++) h.labels[i] = h.labels[i].replace('*', '');
+    h.labels[h.labels.length - 1] += '*';
     while (h.labels.length > 12) { h.labels.shift(); h.values.shift(); }
   });
   await runDriver(data, 'soi', 'SOI', fetchSOI);
