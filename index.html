@@ -76,6 +76,7 @@
   .sat{aspect-ratio:16/10;border-radius:10px;background:#060a14 center/cover;position:relative;display:flex;align-items:center;justify-content:center;text-align:center;overflow:hidden;border:1px solid var(--line)}
   .sat .live{position:absolute;top:8px;left:8px;font-size:10px;font-weight:800;letter-spacing:1px;background:var(--red);color:#fff;padding:3px 8px;border-radius:5px}
   .sat .msg{color:var(--muted);font-size:12.5px;padding:20px}
+  .satstamp{position:absolute;bottom:8px;left:8px;right:8px;font-size:10.5px;color:#dfe8f7;background:rgba(6,10,20,.6);padding:4px 8px;border-radius:6px}
   .btnrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
   .btn{font-size:12px;font-weight:600;padding:7px 12px;border-radius:8px;background:var(--panel2);border:1px solid var(--line);color:var(--ink);cursor:pointer}
   .btn:hover{border-color:var(--accent)}
@@ -87,6 +88,14 @@
   .tech{display:none} body.show-tech .tech{display:block} body.show-tech .grid.tech{display:grid}
   .foot{color:#6b7a97;font-size:11.5px;margin-top:24px;border-top:1px solid var(--line);padding-top:16px}
   .foot b{color:var(--muted)}
+  .about p{font-size:13px;color:var(--muted);margin:0 0 10px}
+  .about strong{color:var(--ink)}
+  .about details{margin:6px 0 4px}
+  .about summary{cursor:pointer;font-weight:700;font-size:13px;color:var(--accent);padding:4px 0}
+  .about ul{margin:8px 0 0;padding-left:18px}
+  .about li{font-size:12.5px;color:var(--muted);margin:6px 0}
+  .about li b{color:var(--ink)}
+  .credits{font-size:11.5px;color:#6b7a97;margin-top:12px;border-top:1px solid var(--line);padding-top:10px;line-height:1.7}
 </style>
 </head>
 <body>
@@ -125,14 +134,14 @@
   <div class="section-title">Nowcast &amp; trend</div>
   <div class="two">
     <div class="panel">
-      <h4>Himawari-9 · Southeast Asia (live convection)</h4>
-      <div class="sat" id="sat"><span class="live">● LIVE</span><div class="msg" id="satMsg">Loading imagery…</div></div>
+      <h4>Himawari-9 · full disk (self-hosted mirror)</h4>
+      <div class="sat" id="sat"><span class="live">● MIRROR</span><div class="msg" id="satMsg">Loading imagery…</div></div>
       <div class="btnrow">
         <a class="btn" href="https://www.data.jma.go.jp/mscweb/data/himawari/sat_img.php" target="_blank">JMA SE-Asia ↗</a>
         <a class="btn" href="https://himawari8.nict.go.jp/" target="_blank">NICT ↗</a>
         <a class="btn" href="https://slider.cira.colostate.edu/?sat=himawari" target="_blank">SLIDER ↗</a>
       </div>
-      <div class="gsrc" style="margin-top:8px">Live imagery opens at source (hotlink/CORS-restricted). A cloud function can serve Malaysia-cropped tiles — see README.</div>
+      <div class="gsrc" style="margin-top:8px">Served from our own copy, refreshed server-side by the Mirror Himawari workflow (no hotlink issue, offline-cached). Imagery: NICT / JMA. Links above open live regional loops.</div>
     </div>
     <div class="panel">
       <h4>Niño 3.4 SST anomaly — recent trend</h4>
@@ -148,6 +157,24 @@
     </div>
     <div class="section-title">Interpretation engine — active rules</div>
     <div class="panel"><table id="rules"></table></div>
+  </div>
+
+  <div class="section-title">About this tool</div>
+  <div class="panel about">
+    <p><strong>SUHU is an interpretation layer, not an independent forecast.</strong> It does not run its own ocean model. It aggregates the world's ENSO / IOD / MJO monitoring — including NOAA's — and translates it into what those drivers mean for rainfall, drought and haze in Malaysia. For the underlying science, NOAA, BoM, JAMSTEC and JMA remain the authorities.</p>
+    <details>
+      <summary>How this differs from NOAA ▾</summary>
+      <ul>
+        <li><b>Multi-driver, not ENSO-only.</b> NOAA CPC centres on the Pacific (Niño 3.4, ONI). SUHU combines ENSO <b>+ the Indian Ocean Dipole + the MJO + the monsoon calendar</b> — the drivers that actually govern Malaysian rainfall.</li>
+        <li><b>Tuned to the Maritime Continent.</b> NOAA's core indices sit in the eastern Pacific, the far side from us. SUHU weights the sources that face this region — Australia's BoM and Japan's JAMSTEC / JMA.</li>
+        <li><b>Interprets locally.</b> NOAA reports the state of the Pacific. SUHU translates it into consequences by region (Peninsula west/east, Sabah, Sarawak) and by monsoon season — drought &amp; haze vs flood risk.</li>
+        <li><b>Multi-source &amp; fault-tolerant.</b> NOAA is one agency. SUHU aggregates several with automatic fallback (e.g. the DMI JAMSTEC→PSL chain), so no single source going down blinds the tool.</li>
+      </ul>
+      <p style="margin-top:10px">In short: NOAA answers "what is the Pacific doing?" — SUHU answers "given what NOAA, BoM and JAMSTEC all say, what does it mean for Malaysia this season?"</p>
+    </details>
+    <div class="credits">
+      <b>Data &amp; attribution:</b> ENSO / Niño 3.4 / ONI — NOAA CPC · SOI — Australia BoM (Troup) · IOD / DMI — JAMSTEC SINTEX-F, NOAA PSL · MJO / RMM — Australia BoM · Satellite imagery — JMA / JAXA (Himawari) · Seasonal outlooks — ECMWF C3S · National forecasts — MetMalaysia. Used with attribution; no endorsement by these agencies is implied.
+    </div>
   </div>
 
   <div class="foot">
@@ -213,14 +240,27 @@ async function load(){
   }
 }
 
-// Himawari attempt
+// Himawari — show our own mirrored copy (no hotlink/CORS issue, offline-cached)
 (function(){
   const sat=document.getElementById('sat'), msg=document.getElementById('satMsg');
-  const img=new Image(); img.referrerPolicy="no-referrer";
-  img.src="https://rammb-slider.cira.colostate.edu/data/imagery/"+
-    new Date().toISOString().slice(0,10).replace(/-/g,'')+"/himawari---full_disk/geocolor/thumbnail.jpg";
-  img.onload=()=>{sat.style.backgroundImage=`url(${img.src})`;msg.textContent="";};
-  img.onerror=()=>{msg.innerHTML="🛰️ Live Himawari imagery is hotlink-restricted at source.<br>Open a live SE-Asia loop below.";};
+  fetch('himawari/meta.json',{cache:'no-store'})
+    .then(r=>r.ok?r.json():null).catch(()=>null)
+    .then(meta=>{
+      const fresh = meta && meta.bytes>0;
+      const bust = fresh ? (Date.parse(meta.fetched)||Date.now()) : Date.now();
+      const src = 'himawari/latest.png?t='+bust;
+      const img=new Image();
+      img.onload=()=>{
+        sat.style.backgroundImage='url('+src+')';
+        msg.textContent='';
+        const s=document.createElement('div'); s.className='satstamp';
+        s.textContent = fresh ? (meta.frame_utc+' · '+meta.source)
+                              : 'Awaiting first mirror run — updates automatically';
+        sat.appendChild(s);
+      };
+      img.onerror=()=>{ msg.innerHTML="🛰️ Mirror not available yet.<br>Run the <b>Mirror Himawari</b> workflow once, or open a live loop below."; };
+      img.src=src;
+    });
 })();
 
 function setView(v){

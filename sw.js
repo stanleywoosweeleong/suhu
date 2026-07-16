@@ -1,5 +1,5 @@
 // SUHU service worker — offline app shell + fresh-data strategy
-const VERSION = 'suhu-v1';
+const VERSION = 'suhu-v2';
 const APP_SHELL = [
   './',
   './index.html',
@@ -30,7 +30,7 @@ self.addEventListener('activate', (e) => {
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
 
-  if (url.pathname.endsWith('data.json')) {
+  if (url.pathname.endsWith('data.json') || url.pathname.endsWith('meta.json')) {
     e.respondWith(
       fetch(e.request).then((res) => {
         const copy = res.clone();

@@ -38,7 +38,7 @@ Nothing runs on your machine. It's Node, not Python. And it's all free.
 ### 3. Turn on the data pipeline
 - The workflow in `.github/workflows/update-data.yml` runs automatically every 6 hours.
 - Repo → **Actions** tab → enable workflows → click **Update SUHU data → Run workflow** once to test.
-- It fetches Niño 3.4 live and rewrites `data.json`. (SOI/DMI/MJO parsers are stubbed with their real endpoints — fill them in the same pattern; each is a few lines.)
+- It fetches **all four drivers live** — Niño 3.4 (NOAA CPC), SOI (BoM Troup), DMI/IOD (NOAA PSL), MJO/RMM (BoM) — and rewrites `data.json`. Any feed that fails keeps its last value and is flagged "stale".
 
 ### 4. Install the app
 - Open the Pages URL on your phone → browser menu → **Add to Home Screen**.
@@ -55,9 +55,23 @@ If you'd rather fetch on demand instead of on a schedule, replace `data.json` wi
 
 Use GitHub Actions (above) if you want offline resilience and zero cold-starts; use a serverless function if you want always-fresh-on-open.
 
-## Himawari imagery
+## Himawari mirror (Option 1 — self-hosted imagery)
 
-The app links out to live Himawari (JMA/NICT/SLIDER) because those are hotlink-restricted. To embed Malaysia-cropped tiles, add a serverless function (or a second scheduled job) that pulls a frame — either a sector image from JMA MSC, or raw Level-1b from the free AWS `noaa-himawari9` bucket processed with Satpy — and saves it alongside `data.json`. That processing runs in the cloud too.
+Instead of hotlinking (which browsers block by referer), the app serves its **own copy** of the latest Himawari frame. A second scheduled job fetches it server-side and commits it to `himawari/`.
+
+Files:
+- `mirror-himawari.js` — resolves the latest frame via NICT's `latest.json`, downloads the full-disk image server-side, saves `himawari/latest.png` + `himawari/meta.json`. Keeps the last image on any failure.
+- `.github/workflows/update-himawari.yml` — runs it every 30 min on GitHub's servers and commits the result. (`workflow_dispatch` lets you run it manually.)
+- `himawari/latest.png` + `meta.json` — ship with a placeholder so the panel works before the first run.
+
+To enable: upload these, then **Actions → Mirror Himawari → Run workflow**. The satellite panel switches to your own copy automatically (with the frame timestamp), works offline, and the JMA/NICT/SLIDER buttons remain as live regional links.
+
+Notes and upgrades:
+- **Cadence:** default every 30 min. Change the cron to `*/10 * * * *` for 10-min updates.
+- **Night:** NICT's image is true-colour, so it's dark at night. For a **day+night infrared regional view**, point `IMG_BASE` in `mirror-himawari.js` at JMA's Southeast-Asia B13 sector (the script is source-agnostic — only the URL builder changes).
+- **Repo size:** committing a PNG every run grows git history. Fine for a while; to keep it lean, store the image in object storage (S3/Cloudflare R2) or an orphan branch instead of `main`, or reduce cadence.
+- **Malaysia crop / custom bands:** that's "Option 2" — pull raw Level-1b from the free AWS `noaa-himawari9` bucket and render with Satpy on a beefier runner. Heavier compute; not needed for this mirror.
+- **Attribution:** imagery credited to NICT / JMA (Himawari-9). No endorsement implied.
 
 ## Local preview (optional)
 
@@ -71,7 +85,7 @@ Then open the printed `http://localhost:...` URL. This is just for previewing �
 
 ## Extending
 
-- **Fill in SOI / DMI / MJO parsers** in `fetch-data.js` (endpoints are in the comments and in the spec).
+- **All four parsers are implemented** in `fetch-data.js`. To swap the DMI source to the JAMSTEC SINTEX-F primary (currently uses the NOAA PSL fallback), add a `fetchDMI` variant pointing at the JAMSTEC CSV.
 - **Add push alerts**: a scheduled job can send Telegram/web-push when a threshold trips.
 - **Localize** (Bahasa Malaysia / English) by keying strings in `data.json`.
 
