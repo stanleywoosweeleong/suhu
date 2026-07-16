@@ -1,0 +1,9 @@
+{
+  "generated": "1970-01-01T00:00:00Z",
+  "source": "NASA FIRMS VIIRS S-NPP",
+  "day_range": 1,
+  "frame": "awaiting first run",
+  "regions": [],
+  "total": null,
+  "note": "Add a free NASA FIRMS map key as repo secret FIRMS_MAP_KEY to enable fire data (see README)."
+}
