@@ -83,6 +83,28 @@ npx serve suhu-pwa      # or:  python3 -m http.server (only if you happen to hav
 
 Then open the printed `http://localhost:...` URL. This is just for previewing — production needs no local process at all.
 
+## Local impact layer (haze, heat, fires)
+
+Turns the climate drivers into what people in Malaysia / SE Asia actually feel during an El Niño. Shows a **Local impact** section with a city picker + "use my location", and three cards:
+
+- **Haze · Air Quality** — US AQI + PM2.5 / PM10 / dust with health bands and mask advice.
+- **Heat & UV** — feels-like temperature, humidity and UV index with heat/UV guidance.
+- **Fire hotspots** — active-fire counts over Sumatra, Kalimantan, Peninsular Malaysia and Sarawak/Sabah (the upwind haze sources), with a haze-risk flag.
+
+Data sources:
+- **Air quality & heat run client-side** via **Open-Meteo** (free, no API key, CORS-enabled), so they update live per location with no cloud job. Modeled (CAMS) — for Malaysia's official index, the app links to DOE APIMS.
+- **Fire hotspots** come from **NASA FIRMS** via a cloud job (`fetch-fires.js` + `update-fires.yml`), like the ENSO data.
+
+### Enabling fire hotspots (one-time)
+
+1. Get a free FIRMS map key: https://firms.modaps.eosdis.nasa.gov/api/map_key/
+2. In your repo: **Settings → Secrets and variables → Actions → New repository secret** → name `FIRMS_MAP_KEY`, paste the key.
+3. **Actions → Update fire hotspots → Run workflow**. It writes `impact/fires.json`; the Fire card fills in.
+
+Without the key the card simply says "not configured" — the rest of the Local impact section still works, since air quality and heat need no key.
+
+Files: `fetch-fires.js`, `.github/workflows/update-fires.yml`, `impact/fires.json` (ships with a placeholder).
+
 ## Extending
 
 - **All four parsers are implemented** in `fetch-data.js`. To swap the DMI source to the JAMSTEC SINTEX-F primary (currently uses the NOAA PSL fallback), add a `fetchDMI` variant pointing at the JAMSTEC CSV.

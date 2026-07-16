@@ -96,6 +96,18 @@
   .about li{font-size:12.5px;color:var(--muted);margin:6px 0}
   .about li b{color:var(--ink)}
   .credits{font-size:11.5px;color:#6b7a97;margin-top:12px;border-top:1px solid var(--line);padding-top:10px;line-height:1.7}
+  .impact-ctrl{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+  .impact-ctrl label{font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:6px}
+  .impact-ctrl select{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:13px}
+  .big{font-size:32px;font-weight:800;line-height:1.1;margin:4px 0 2px}
+  .subrow{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:8px}
+  .subrow b{color:var(--ink)}
+  .advice{font-size:12.5px;color:var(--muted);margin-top:8px;padding-top:8px;border-top:1px solid var(--line)}
+  .s-good{background:rgba(34,197,94,.18);color:#22c55e}
+  .s-mod{background:rgba(244,196,48,.18);color:#f4c430}
+  .s-bad{background:rgba(245,158,11,.18);color:#f59e0b}
+  .s-danger{background:rgba(239,68,68,.18);color:#ef4444}
+  .s-vbad{background:rgba(168,85,247,.22);color:#c084fc}
 </style>
 </head>
 <body>
@@ -157,6 +169,22 @@
     </div>
     <div class="section-title">Interpretation engine — active rules</div>
     <div class="panel"><table id="rules"></table></div>
+  </div>
+
+  <div class="section-title">Local impact — <span id="locName">Kuala Lumpur</span></div>
+  <div class="panel">
+    <div class="impact-ctrl">
+      <label>📍 Location
+        <select id="citySel"></select>
+      </label>
+      <button id="geoBtn" class="btn">Use my location</button>
+    </div>
+    <div class="grid" style="margin-bottom:0">
+      <div class="card" id="aqCard"><h3>Haze · Air Quality</h3><div class="advice" style="border:0;padding:0">Loading…</div></div>
+      <div class="card" id="heatCard"><h3>Heat &amp; UV</h3><div class="advice" style="border:0;padding:0">Loading…</div></div>
+      <div class="card" id="fireCard"><h3>Fire hotspots · haze source</h3><div class="advice" style="border:0;padding:0">Loading…</div></div>
+    </div>
+    <div class="gsrc" style="margin-top:10px">Air quality &amp; heat: Open-Meteo (modeled, updates live per location). Fire hotspots: NASA FIRMS (VIIRS). Malaysia's official index: <a href="https://apims.doe.gov.my/public_v2/home.html" target="_blank">DOE APIMS ↗</a>.</div>
   </div>
 
   <div class="section-title">About this tool</div>
@@ -284,6 +312,113 @@ window.addEventListener('beforeinstallprompt',(e)=>{e.preventDefault();deferredP
   document.getElementById('installBtn').style.display='inline-block';});
 function doInstall(){ if(!deferredPrompt)return; deferredPrompt.prompt();
   deferredPrompt.userChoice.finally(()=>{deferredPrompt=null;document.getElementById('installBtn').style.display='none';}); }
+
+// ---- Local impact layer (client-side, Open-Meteo — no API key) ----
+const CITIES=[
+  {n:'Kuala Lumpur',lat:3.14,lon:101.69},
+  {n:'George Town (Penang)',lat:5.41,lon:100.33},
+  {n:'Ipoh',lat:4.60,lon:101.07},
+  {n:'Malacca',lat:2.19,lon:102.25},
+  {n:'Johor Bahru',lat:1.49,lon:103.74},
+  {n:'Kuantan',lat:3.81,lon:103.33},
+  {n:'Kota Bharu',lat:6.13,lon:102.24},
+  {n:'Kuching',lat:1.55,lon:110.34},
+  {n:'Kota Kinabalu',lat:5.98,lon:116.07},
+  {n:'Singapore',lat:1.35,lon:103.82}
+];
+function aqiBand(a){
+  if(a==null||isNaN(a))return{l:'—',c:'s-neu'};
+  if(a<=50)return{l:'Good',c:'s-good'};
+  if(a<=100)return{l:'Moderate',c:'s-mod'};
+  if(a<=150)return{l:'Unhealthy for sensitive',c:'s-bad'};
+  if(a<=200)return{l:'Unhealthy',c:'s-danger'};
+  if(a<=300)return{l:'Very unhealthy',c:'s-vbad'};
+  return{l:'Hazardous',c:'s-vbad'};
+}
+function maskAdvice(pm){
+  if(pm==null||isNaN(pm))return'';
+  if(pm<12)return'Air is clean — no precautions needed.';
+  if(pm<35)return'Generally OK; very sensitive people take note.';
+  if(pm<55)return'Sensitive groups: limit prolonged outdoor exertion.';
+  if(pm<150)return'Unhealthy — wear an N95 outdoors, keep windows closed.';
+  return'Hazardous — stay indoors, N95 if you must go out, run a purifier.';
+}
+function uvBand(u){
+  if(u==null||isNaN(u))return{l:'—',c:'s-neu',a:''};
+  if(u<3)return{l:'Low',c:'s-good',a:'No sun protection needed.'};
+  if(u<6)return{l:'Moderate',c:'s-mod',a:'Hat & sunscreen at midday.'};
+  if(u<8)return{l:'High',c:'s-bad',a:'Seek shade 11am–3pm; SPF30+.'};
+  if(u<11)return{l:'Very high',c:'s-danger',a:'Avoid midday sun; cover up.'};
+  return{l:'Extreme',c:'s-vbad',a:'Stay out of the sun midday.'};
+}
+function heatBand(t){
+  if(t==null||isNaN(t))return{l:'—',c:'s-neu',a:''};
+  if(t<32)return{l:'Comfortable',c:'s-good',a:'Normal precautions.'};
+  if(t<38)return{l:'Caution',c:'s-mod',a:'Hydrate; rest in shade.'};
+  if(t<41)return{l:'Extreme caution',c:'s-bad',a:'Limit strenuous outdoor activity.'};
+  if(t<54)return{l:'Danger',c:'s-danger',a:'Heat exhaustion likely — stay cool.'};
+  return{l:'Extreme danger',c:'s-vbad',a:'Heat-stroke risk — stay indoors.'};
+}
+function hazeRisk(total){
+  if(total==null||isNaN(total))return{l:'—',c:'s-neu'};
+  if(total<20)return{l:'Low',c:'s-good'};
+  if(total<100)return{l:'Moderate',c:'s-mod'};
+  if(total<300)return{l:'Elevated',c:'s-bad'};
+  return{l:'High',c:'s-danger'};
+}
+async function loadImpact(lat,lon,name){
+  document.getElementById('locName').textContent=name;
+  const aqU='https://air-quality-api.open-meteo.com/v1/air-quality?latitude='+lat+'&longitude='+lon+'&current=pm2_5,pm10,us_aqi,dust&timezone=auto';
+  const wxU='https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon+'&current=temperature_2m,apparent_temperature,relative_humidity_2m,uv_index&forecast_days=1&timezone=auto';
+  try{
+    const aq=(await (await fetch(aqU)).json()).current;
+    const b=aqiBand(aq.us_aqi);
+    document.getElementById('aqCard').innerHTML=
+      '<h3>Haze · Air Quality</h3>'+
+      '<div class="big">'+Math.round(aq.us_aqi)+'<span style="font-size:13px;color:var(--muted)"> US AQI</span></div>'+
+      '<span class="status '+b.c+'">'+b.l+'</span>'+
+      '<div class="subrow"><span>PM2.5 <b>'+Math.round(aq.pm2_5)+'</b> µg/m³</span><span>PM10 <b>'+Math.round(aq.pm10)+'</b></span><span>Dust <b>'+Math.round(aq.dust)+'</b></span></div>'+
+      '<div class="advice">'+maskAdvice(aq.pm2_5)+'</div>';
+  }catch(e){ document.getElementById('aqCard').innerHTML='<h3>Haze · Air Quality</h3><div class="advice" style="border:0;padding:0">Unavailable (offline?).</div>'; }
+  try{
+    const wx=(await (await fetch(wxU)).json()).current;
+    const hb=heatBand(wx.apparent_temperature), ub=uvBand(wx.uv_index);
+    document.getElementById('heatCard').innerHTML=
+      '<h3>Heat &amp; UV</h3>'+
+      '<div class="big">'+Math.round(wx.apparent_temperature)+'°<span style="font-size:13px;color:var(--muted)"> feels-like</span></div>'+
+      '<span class="status '+hb.c+'">'+hb.l+'</span>'+
+      '<div class="subrow"><span>Air <b>'+Math.round(wx.temperature_2m)+'°</b></span><span>Humidity <b>'+Math.round(wx.relative_humidity_2m)+'%</b></span><span>UV <b>'+Math.round(wx.uv_index)+'</b> '+ub.l+'</span></div>'+
+      '<div class="advice">'+hb.a+' '+ub.a+'</div>';
+  }catch(e){ document.getElementById('heatCard').innerHTML='<h3>Heat &amp; UV</h3><div class="advice" style="border:0;padding:0">Unavailable (offline?).</div>'; }
+}
+async function loadFires(){
+  try{
+    const f=await (await fetch('impact/fires.json',{cache:'no-store'})).json();
+    const r=hazeRisk(f.total);
+    const rows=(f.regions||[]).map(x=>'<span>'+x.name+' <b>'+(x.count==null?'—':x.count)+'</b></span>').join('');
+    document.getElementById('fireCard').innerHTML=
+      '<h3>Fire hotspots · haze source</h3>'+
+      '<div class="big">'+(f.total==null?'—':f.total)+'<span style="font-size:13px;color:var(--muted)"> hotspots</span></div>'+
+      '<span class="status '+r.c+'">Haze risk: '+r.l+'</span>'+
+      '<div class="subrow">'+rows+'</div>'+
+      '<div class="advice">'+(f.total==null?(f.note||'Fire data not configured yet — add a NASA FIRMS key (see README).'):('NASA FIRMS VIIRS · last '+(f.day_range||1)+'d · Sumatra/Kalimantan are the upwind sources.'))+'</div>';
+  }catch(e){
+    document.getElementById('fireCard').innerHTML='<h3>Fire hotspots · haze source</h3><div class="advice" style="border:0;padding:0">Fire data not available yet.</div>';
+  }
+}
+(function(){
+  const sel=document.getElementById('citySel');
+  CITIES.forEach((c,i)=>{const o=document.createElement('option');o.value=i;o.textContent=c.n;sel.appendChild(o);});
+  sel.onchange=()=>{const c=CITIES[sel.value];loadImpact(c.lat,c.lon,c.n);};
+  document.getElementById('geoBtn').onclick=()=>{
+    if(!navigator.geolocation){alert('Geolocation not supported on this device.');return;}
+    navigator.geolocation.getCurrentPosition(
+      p=>loadImpact(p.coords.latitude,p.coords.longitude,'My location'),
+      ()=>alert('Location permission denied — pick a city instead.'));
+  };
+  loadImpact(CITIES[0].lat,CITIES[0].lon,CITIES[0].n);
+  loadFires();
+})();
 
 // Register service worker
 if('serviceWorker' in navigator){
