@@ -343,6 +343,17 @@ function maskAdvice(pm){
   if(pm<150)return'Unhealthy — wear an N95 outdoors, keep windows closed.';
   return'Hazardous — stay indoors, N95 if you must go out, run a purifier.';
 }
+// Haze headline uses PM2.5 (the particulate that IS haze), not overall US AQI
+// (which can be driven by ozone on a clear day). Thresholds match maskAdvice.
+function pm25Band(pm){
+  if(pm==null||isNaN(pm))return{l:'—',c:'s-neu'};
+  if(pm<12)return{l:'Good',c:'s-good'};
+  if(pm<35)return{l:'Moderate',c:'s-mod'};
+  if(pm<55)return{l:'Unhealthy for sensitive',c:'s-bad'};
+  if(pm<150)return{l:'Unhealthy',c:'s-danger'};
+  if(pm<250)return{l:'Very unhealthy',c:'s-vbad'};
+  return{l:'Hazardous',c:'s-vbad'};
+}
 function uvBand(u){
   if(u==null||isNaN(u))return{l:'—',c:'s-neu',a:''};
   if(u<3)return{l:'Low',c:'s-good',a:'No sun protection needed.'};
@@ -372,12 +383,12 @@ async function loadImpact(lat,lon,name){
   const wxU='https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon+'&current=temperature_2m,apparent_temperature,relative_humidity_2m,uv_index&forecast_days=1&timezone=auto';
   try{
     const aq=(await (await fetch(aqU)).json()).current;
-    const b=aqiBand(aq.us_aqi);
+    const b=pm25Band(aq.pm2_5);
     document.getElementById('aqCard').innerHTML=
       '<h3>Haze · Air Quality</h3>'+
-      '<div class="big">'+Math.round(aq.us_aqi)+'<span style="font-size:13px;color:var(--muted)"> US AQI</span></div>'+
+      '<div class="big">'+Math.round(aq.pm2_5)+'<span style="font-size:13px;color:var(--muted)"> µg/m³ PM2.5</span></div>'+
       '<span class="status '+b.c+'">'+b.l+'</span>'+
-      '<div class="subrow"><span>PM2.5 <b>'+Math.round(aq.pm2_5)+'</b> µg/m³</span><span>PM10 <b>'+Math.round(aq.pm10)+'</b></span><span>Dust <b>'+Math.round(aq.dust)+'</b></span></div>'+
+      '<div class="subrow"><span>US AQI <b>'+Math.round(aq.us_aqi)+'</b></span><span>PM10 <b>'+Math.round(aq.pm10)+'</b></span><span>Dust <b>'+Math.round(aq.dust)+'</b></span></div>'+
       '<div class="advice">'+maskAdvice(aq.pm2_5)+'</div>';
   }catch(e){ document.getElementById('aqCard').innerHTML='<h3>Haze · Air Quality</h3><div class="advice" style="border:0;padding:0">Unavailable (offline?).</div>'; }
   try{
