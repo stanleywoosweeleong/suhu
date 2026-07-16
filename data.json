@@ -1,5 +1,5 @@
 {
-  "generated": "2026-07-16T08:38:48.287Z",
+  "generated": "2026-07-16T11:36:54.296Z",
   "snapshotDate": "16 July 2026",
   "note": "Written by the cloud pipeline (fetch-data.js via GitHub Actions). Values are a real snapshot; the workflow overwrites this on each scheduled run.",
   "banner": {
@@ -30,11 +30,11 @@
       "key": "enso",
       "h": "ENSO — Ocean",
       "name": "Niño 3.4 SST anomaly",
-      "value": "+1.7°C",
+      "value": "+1.5°C",
       "cls": "s-hot",
-      "status": "Moderate El Niño · strengthening",
+      "status": "Strong El Niño",
       "interp": "Pacific warming toward a strong event. For Malaysia: hotter, drier bias.",
-      "gauge": 85,
+      "gauge": 88,
       "gcol": "var(--hot)",
       "src": "NOAA CPC · weekly (mid-Jun) · fallback BoM"
     },
@@ -66,24 +66,24 @@
       "key": "iod",
       "h": "Indian Ocean Dipole",
       "name": "DMI (Dipole Mode Index)",
-      "value": "−0.06°C",
+      "value": "+0.15°C",
       "cls": "s-neu",
-      "status": "Neutral · positive forecast",
+      "status": "Neutral",
       "interp": "Currently neutral, but a POSITIVE IOD is forecast to develop — that would compound El Niño drying over Malaysia. Watch closely.",
-      "gauge": 48,
+      "gauge": 57.45,
       "gcol": "var(--neutral)",
-      "src": "DMI chain: JAMSTEC -> NOAA PSL (auto-fallback)"
+      "src": "DMI chain: JAMSTEC -> NOAA PSL (used NOAA PSL)"
     },
     {
       "key": "mjo",
       "h": "MJO",
       "name": "RMM phase & amplitude",
-      "value": "Ph 6–7 · ~1.3",
-      "cls": "s-dry",
-      "status": "Active · suppressed over Maritime Continent",
+      "value": "Ph 7 · 0.1",
+      "cls": "s-neu",
+      "status": "Weak · little MJO influence",
       "interp": "MJO stalled in the western Pacific under El Niño westerlies — not delivering a wet pulse to Malaysia right now.",
-      "gauge": 60,
-      "gcol": "var(--dry)",
+      "gauge": 5.78243205,
+      "gcol": "var(--neutral)",
       "src": "Australia BoM RMM · fallback NOAA CPC"
     }
   ],
@@ -115,21 +115,31 @@
   ],
   "nino34history": {
     "labels": [
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
       "Jan",
       "Feb",
       "Mar",
       "Apr",
       "May",
-      "Jun",
-      "Jul*"
+      "Jun*"
     ],
     "values": [
-      0.3,
-      0.5,
-      0.7,
+      -0.1,
+      -0.3,
+      -0.4,
+      -0.4,
+      -0.6,
+      -0.6,
+      -0.4,
+      -0.1,
+      0.1,
+      0.4,
       1,
-      1.3,
-      1.7,
       1.5
     ]
   },
@@ -139,13 +149,13 @@
       "NOAA CPC",
       "NOAA PSL · BoM",
       "live",
-      "2 h ago"
+      "just now"
     ],
     [
       "SOI",
       "Australia BoM",
       "NOAA NCEI",
-      "live",
+      "stale",
       "6 h ago"
     ],
     [
@@ -153,14 +163,14 @@
       "JAMSTEC SINTEX-F",
       "JMA TCC · NOAA PSL",
       "live",
-      "1 d ago"
+      "just now"
     ],
     [
       "MJO (RMM)",
       "Australia BoM",
       "NOAA CPC",
       "live",
-      "12 h ago"
+      "just now"
     ],
     [
       "Himawari imagery",
