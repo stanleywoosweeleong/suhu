@@ -118,14 +118,28 @@ async function fetchSOI() {
   return { patch: { value: fmt(b.value), status, cls, gcol, gauge } };
 }
 
-// DMI (IOD) — NOAA PSL HadISST Dipole Mode Index, monthly grid.
-// (Listed fallback source; JAMSTEC SINTEX-F is the design primary.)
+// DMI (IOD) — source chain: JAMSTEC SINTEX-F primary, NOAA PSL fallback.
+// JAMSTEC's static dmi.monthly.txt now redirects to APL VirtualEarth; when a
+// source carries no numeric grid the parser returns null and we move to the
+// next source automatically. Both indices are HadISST-based, so values match.
+// To force JAMSTEC's new portal, point the first url at its VirtualEarth
+// CSV/JSON export once you have that endpoint.
+const DMI_SOURCES = [
+  { name: 'JAMSTEC', url: 'https://www.jamstec.go.jp/aplinfo/sintexf/DATA/dmi.monthly.txt' },
+  { name: 'NOAA PSL', url: 'https://psl.noaa.gov/gcos_wgsp/Timeseries/Data/dmi.had.long.data' }
+];
 async function fetchDMI() {
-  const txt = await getText('https://psl.noaa.gov/gcos_wgsp/Timeseries/Data/dmi.had.long.data');
-  const b = latestMonthly(txt, v => v <= -90 || v >= 90); // -9999 etc. = missing
-  if (!b) throw new Error('no valid DMI value parsed');
-  const [status, cls, gcol, gauge] = classifyDMI(b.value);
-  return { patch: { value: fmt(b.value, 2) + '°C', status, cls, gcol, gauge } };
+  let best, used;
+  for (const s of DMI_SOURCES) {
+    try {
+      const parsed = latestMonthly(await getText(s.url), v => v <= -90 || v >= 90);
+      if (parsed) { best = parsed; used = s.name; break; }
+    } catch (e) { /* source down or unparsable — try the next one */ }
+  }
+  if (!best) throw new Error('all DMI sources failed');
+  const [status, cls, gcol, gauge] = classifyDMI(best.value);
+  const src = 'DMI chain: JAMSTEC -> NOAA PSL (used ' + used + ')';
+  return { patch: { value: fmt(best.value, 2) + '°C', status, cls, gcol, gauge, src } };
 }
 
 // MJO — Australia BoM real-time RMM: year month day RMM1 RMM2 phase amplitude
