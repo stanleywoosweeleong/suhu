@@ -99,14 +99,24 @@ function classifyMJO(phase, amp) {
 
 // ---- source fetchers ------------------------------------------------------
 
-// Niño 3.4 — NOAA CPC detrended weekly ASCII: YR MON TOTAL CLIM ANOM
+// Niño 3.4 — NOAA CPC detrended monthly ASCII: YR MON TOTAL CLIM ANOM.
+// Returns the latest anomaly AND the last 12 real months (for the trend chart),
+// so the chart is built entirely from live data — no placeholders.
+const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 async function fetchNino34() {
   const txt = await getText('https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/ensostuff/detrend.nino34.ascii.txt');
-  const rows = txt.trim().split(NL).map(l => l.trim().split(/\s+/)).filter(r => r.length >= 5);
-  const last = rows[rows.length - 1];
-  const anom = parseFloat(last[last.length - 1]);
+  const rows = txt.trim().split(NL)
+    .map(l => l.trim().split(/\s+/))
+    .filter(r => r.length >= 5 && /^\d{4}$/.test(r[0])); // skip the header row
+  const parsed = rows
+    .map(r => ({ mon: parseInt(r[1], 10), anom: parseFloat(r[r.length - 1]) }))
+    .filter(x => x.mon >= 1 && x.mon <= 12 && Number.isFinite(x.anom));
+  if (!parsed.length) throw new Error('no Niño 3.4 rows parsed');
+  const recent = parsed.slice(-12); // last 12 real months
+  const months = recent.map(x => ({ label: MON[x.mon - 1], value: Math.round(x.anom * 10) / 10 }));
+  const anom = recent[recent.length - 1].anom;
   const [status, cls, gcol, gauge] = classifyNino(anom);
-  return { anom, patch: { value: fmt(anom) + '°C', status, cls, gcol, gauge } };
+  return { anom, months, patch: { value: fmt(anom) + '°C', status, cls, gcol, gauge } };
 }
 
 // SOI — Australia BoM Troup SOI, monthly plain text.
@@ -188,15 +198,13 @@ async function main() {
   data.snapshotDate = now.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
 
   await runDriver(data, 'enso', 'Niño', fetchNino34, (rest, card, d) => {
-    const h = d.nino34history;
-    const cur = now.toLocaleDateString('en-GB', { month: 'short' }); // e.g. "Jul"
-    const lastBase = (h.labels[h.labels.length - 1] || '').replace('*', '');
-    if (lastBase === cur) { h.values[h.values.length - 1] = rest.anom; } // same month -> update
-    else { h.labels.push(cur); h.values.push(rest.anom); }              // new month -> append
-    // keep exactly one trailing "*" marking the current (partial) month
-    for (let i = 0; i < h.labels.length; i++) h.labels[i] = h.labels[i].replace('*', '');
-    h.labels[h.labels.length - 1] += '*';
-    while (h.labels.length > 12) { h.labels.shift(); h.values.shift(); }
+    // Rebuild the whole trend from real NOAA months (no placeholders, no dupes).
+    if (rest.months && rest.months.length) {
+      const h = d.nino34history;
+      h.labels = rest.months.map(m => m.label);
+      h.values = rest.months.map(m => m.value);
+      h.labels[h.labels.length - 1] += '*'; // mark current (partial) month
+    }
   });
   await runDriver(data, 'soi', 'SOI', fetchSOI);
   await runDriver(data, 'iod', 'DMI', fetchDMI);
