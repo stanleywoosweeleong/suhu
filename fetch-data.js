@@ -115,8 +115,10 @@ async function fetchNino34() {
   const recent = parsed.slice(-12); // last 12 real months
   const months = recent.map(x => ({ label: MON[x.mon - 1], value: Math.round(x.anom * 10) / 10 }));
   const anom = recent[recent.length - 1].anom;
+  const latest = months[months.length - 1].value; // same rounding the chart shows
   const [status, cls, gcol, gauge] = classifyNino(anom);
-  return { anom, months, patch: { value: fmt(anom) + '°C', status, cls, gcol, gauge } };
+  // card value uses the same rounded number as the chart's last point -> they always agree
+  return { anom, months, patch: { value: fmt(latest) + '°C', status, cls, gcol, gauge } };
 }
 
 // SOI — Australia BoM Troup SOI, monthly plain text.
