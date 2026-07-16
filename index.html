@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -20,17 +20,21 @@
     --accent:#3b82f6;--dry:#f59e0b;--hot:#ef4444;--wet:#22c55e;--neutral:#64748b;--red:#e23744;
   }
   *{box-sizing:border-box}
+  /* Safe area: keep content clear of the iPhone Dynamic Island / notch */
   body{margin:0;background:var(--bg);color:var(--ink);
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    line-height:1.5;font-size:15px;padding-top:env(safe-area-inset-top)}
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",Helvetica,Arial,sans-serif;
+    line-height:1.5;font-size:15px;
+    padding-top:max(env(safe-area-inset-top),6px);
+    padding-left:env(safe-area-inset-left);
+    padding-right:env(safe-area-inset-right)}
   a{color:var(--accent);text-decoration:none}
-  .wrap{max-width:1120px;margin:0 auto;padding:18px 16px 70px}
-  header{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+  .wrap{max-width:1120px;margin:0 auto;padding:14px 16px 70px}
+  header{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
   .logo{width:42px;height:42px;border-radius:10px;background:linear-gradient(135deg,#1e3a8a,#3b82f6);
     display:flex;align-items:center;justify-content:center;font-weight:800;font-size:19px;color:#fff}
   h1{font-size:20px;margin:0}
   .sub{color:var(--muted);font-size:12px;margin-top:2px}
-  #installBtn{display:none;margin-left:8px;background:var(--wet);border:none;color:#04220f;font-weight:700;
+  #installBtn{display:none;background:var(--wet);border:none;color:#04220f;font-weight:700;
     padding:8px 14px;border-radius:999px;cursor:pointer;font-size:13px}
 
   .banner{border-radius:16px;padding:20px 22px;margin-bottom:16px;border:1px solid var(--line)}
@@ -38,8 +42,8 @@
   .banner.tone-cool{background:linear-gradient(135deg,#0d2436,#10233a);border-color:#1d3a5b}
   .banner.tone-neutral{background:linear-gradient(135deg,#1a2230,#181f2e);border-color:#2a3550}
   .banner .tag{display:inline-block;font-size:10.5px;letter-spacing:1.4px;text-transform:uppercase;color:#cdd9ee;font-weight:700}
-  .banner h2{margin:6px 0 4px;font-size:28px}
-  .banner .desc{color:#e6edfa;max-width:640px;font-size:14px}
+  .banner h2{margin:6px 0 4px;font-size:26px}
+  .banner .desc{color:#e6edfa;max-width:660px;font-size:14px}
   .pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
   .pill{font-size:12px;font-weight:700;padding:5px 11px;border-radius:999px;background:rgba(255,255,255,.12);color:#fff}
   .pill.hot{background:rgba(239,68,68,.25)} .pill.dry{background:rgba(245,158,11,.25)} .pill.watch{background:rgba(255,255,255,.16)} .pill.wet{background:rgba(34,197,94,.25)}
@@ -48,7 +52,7 @@
   .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:15px}
   .card h3{margin:0 0 2px;font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
   .card .name{font-size:12px;color:var(--muted)}
-  .val{font-size:28px;font-weight:800;margin:6px 0 2px}
+  .val{font-size:26px;font-weight:800;margin:6px 0 2px}
   .status{display:inline-block;font-size:12px;font-weight:700;padding:3px 9px;border-radius:6px;margin-bottom:8px}
   .s-dry{background:rgba(245,158,11,.18);color:var(--dry)} .s-hot{background:rgba(239,68,68,.18);color:var(--hot)}
   .s-wet{background:rgba(34,197,94,.18);color:var(--wet)} .s-neu{background:rgba(100,116,139,.2);color:#9fb0c9}
@@ -83,31 +87,31 @@
   th{color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.5px}
   .dot{width:8px;height:8px;border-radius:99px;display:inline-block;margin-right:6px}
   .live-dot{background:var(--wet)} .stale-dot{background:var(--dry)}
-  .foot{color:#6b7a97;font-size:11.5px;margin-top:24px;border-top:1px solid var(--line);padding-top:16px}
-  .foot b{color:var(--muted)}
-  .about p{font-size:13px;color:var(--muted);margin:0 0 10px}
-  .about strong{color:var(--ink)}
-  .about details{margin:6px 0 4px}
-  .about summary{cursor:pointer;font-weight:700;font-size:13px;color:var(--accent);padding:4px 0}
-  .about ul{margin:8px 0 0;padding-left:18px}
-  .about li{font-size:12.5px;color:var(--muted);margin:6px 0}
-  .about li b{color:var(--ink)}
-  .credits{font-size:11.5px;color:#6b7a97;margin-top:12px;border-top:1px solid var(--line);padding-top:10px;line-height:1.7}
   .impact-ctrl{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
   .impact-ctrl label{font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:6px}
   .impact-ctrl select{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:13px}
   .big{font-size:32px;font-weight:800;line-height:1.1;margin:4px 0 2px}
+  .subrow{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:8px}
+  .subrow b{color:var(--ink)}
+  .advice{font-size:12.5px;color:var(--muted);margin-top:8px;padding-top:8px;border-top:1px solid var(--line)}
+  .s-good{background:rgba(34,197,94,.18);color:#22c55e}
+  .s-mod{background:rgba(244,196,48,.18);color:#f4c430}
+  .s-bad{background:rgba(245,158,11,.18);color:#f59e0b}
+  .s-danger{background:rgba(239,68,68,.18);color:#ef4444}
+  .s-vbad{background:rgba(168,85,247,.22);color:#c084fc}
+
   .hbtn{background:var(--panel);border:1px solid var(--line);color:var(--ink);padding:7px 13px;border-radius:999px;cursor:pointer;font-size:13px;font-weight:600}
   .hbtn:hover{border-color:var(--accent);color:var(--accent)}
+  #langBtn{min-width:52px}
   body.noscroll{overflow:hidden}
   .modal{position:fixed;inset:0;z-index:100;display:none}
   .modal.open{display:block}
   .modal .backdrop{position:absolute;inset:0;background:rgba(4,8,16,.62)}
   .sheet{position:absolute;left:0;right:0;bottom:0;top:7%;background:var(--bg);border-top:1px solid var(--line);border-radius:16px 16px 0 0;display:flex;flex-direction:column;box-shadow:0 -12px 40px rgba(0,0,0,.5)}
-  .sheet-head{display:flex;align-items:center;gap:10px;padding:15px 18px;border-bottom:1px solid var(--line)}
+  .sheet-head{display:flex;align-items:center;gap:10px;padding:15px 18px;border-bottom:1px solid var(--line);padding-top:max(15px,env(safe-area-inset-top))}
   .sheet-head h2{margin:0;font-size:17px}
   .sheet-close{margin-left:auto;background:var(--panel);border:1px solid var(--line);color:var(--ink);width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:15px;line-height:1}
-  .sheet-body{overflow-y:auto;padding:18px;-webkit-overflow-scrolling:touch}
+  .sheet-body{overflow-y:auto;padding:18px;padding-bottom:calc(24px + env(safe-area-inset-bottom));-webkit-overflow-scrolling:touch}
   .guide h3{font-size:14px;margin:22px 0 8px;color:var(--ink)}
   .guide>p:first-child,.guide h3:first-child{margin-top:0}
   .guide p{font-size:13.5px;color:#c9d5ea;line-height:1.6;margin:0 0 10px}
@@ -119,14 +123,6 @@
   @media(min-width:720px){
     .sheet{top:50%;bottom:auto;left:50%;right:auto;transform:translate(-50%,-50%);width:min(680px,92vw);max-height:86vh;border-radius:16px;border:1px solid var(--line)}
   }
-  .subrow{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:8px}
-  .subrow b{color:var(--ink)}
-  .advice{font-size:12.5px;color:var(--muted);margin-top:8px;padding-top:8px;border-top:1px solid var(--line)}
-  .s-good{background:rgba(34,197,94,.18);color:#22c55e}
-  .s-mod{background:rgba(244,196,48,.18);color:#f4c430}
-  .s-bad{background:rgba(245,158,11,.18);color:#f59e0b}
-  .s-danger{background:rgba(239,68,68,.18);color:#ef4444}
-  .s-vbad{background:rgba(168,85,247,.22);color:#c084fc}
 </style>
 </head>
 <body>
@@ -134,13 +130,13 @@
   <header>
     <div class="logo">☀</div>
     <div>
-      <h1>SUHU <span style="color:var(--muted);font-weight:500;font-size:14px">· ENSO Monitor</span></h1>
-      <div class="sub">Malaysia &amp; the Maritime Continent · Multi-source</div>
+      <h1>SUHU <span style="color:var(--muted);font-weight:500;font-size:14px" data-i18n="title_suffix">· 厄尔尼诺监测</span></h1>
+      <div class="sub" data-i18n="sub">马来西亚与海洋大陆 · 多来源</div>
     </div>
-    <button class="hbtn" onclick="openGuide()" style="margin-left:auto">ⓘ Guide</button>
-    <button id="installBtn" onclick="doInstall()">⬇ Install</button>
+    <button class="hbtn" id="langBtn" onclick="toggleLang()" style="margin-left:auto">EN</button>
+    <button class="hbtn" onclick="openGuide()" data-i18n="guide_btn">ⓘ 指南</button>
+    <button id="installBtn" onclick="doInstall()" data-i18n="install_btn">⬇ 安装</button>
   </header>
-
 
   <div class="banner" id="banner">
     <span class="tag" id="bTag"></span>
@@ -149,46 +145,46 @@
     <div class="pills" id="bPills"></div>
   </div>
 
-  <div class="section-title">Climate drivers</div>
-  <div class="gsrc" style="margin:-4px 0 12px">El Niño / La Niña seen from three angles — <b>ocean</b>, official <b>index</b> and <b>atmosphere</b> — plus the <b>IOD</b> and <b>MJO</b>. New here? Open the <a href="#" onclick="openGuide();return false">ⓘ Guide</a>.</div>
+  <div class="section-title" data-i18n="st_drivers">气候驱动因子</div>
+  <div class="gsrc" style="margin:-4px 0 12px" data-i18n-html="drivers_intro"></div>
   <div class="grid" id="drivers"></div>
 
-  <div class="section-title">Regional outlook — what it means on the ground</div>
+  <div class="section-title" data-i18n="st_regions">区域展望 — 对各地的影响</div>
   <div class="regions" id="regions"></div>
 
-  <div class="section-title">Nowcast &amp; trend</div>
+  <div class="section-title" data-i18n="st_nowcast">实况与趋势</div>
   <div class="two">
     <div class="panel">
-      <h4>Himawari-9 · self-hosted mirror</h4>
-      <div class="sat" id="sat"><span class="live">● MIRROR</span><div class="msg" id="satMsg">Loading imagery…</div></div>
+      <h4 data-i18n="panel_sat">向日葵9号 · 自托管镜像</h4>
+      <div class="sat" id="sat"><span class="live">● MIRROR</span><div class="msg" id="satMsg">…</div></div>
       <div class="btnrow">
         <a class="btn" href="https://www.data.jma.go.jp/mscweb/data/himawari/sat_img.php" target="_blank">JMA SE-Asia ↗</a>
         <a class="btn" href="https://himawari8.nict.go.jp/" target="_blank">NICT ↗</a>
         <a class="btn" href="https://slider.cira.colostate.edu/?sat=himawari" target="_blank">SLIDER ↗</a>
       </div>
-      <div class="gsrc" style="margin-top:8px">Served from our own copy, refreshed server-side by the Mirror Himawari workflow (no hotlink issue, offline-cached). Imagery: NICT / JMA. Links above open live regional loops.</div>
+      <div class="gsrc" style="margin-top:8px" data-i18n="sat_note"></div>
     </div>
     <div class="panel">
-      <h4>Niño 3.4 SST anomaly — recent trend</h4>
+      <h4 data-i18n="panel_chart">Niño 3.4 海温距平 — 近期趋势</h4>
       <canvas id="nino34chart" height="150"></canvas>
-      <div class="gsrc">°C anomaly. Positive &amp; rising = El Niño strengthening. Source: NOAA CPC / BoM.</div>
+      <div class="gsrc" data-i18n="chart_note"></div>
     </div>
   </div>
 
-  <div class="section-title">Local impact — <span id="locName">Kuala Lumpur</span></div>
+  <div class="section-title"><span data-i18n="st_impact">本地影响 — </span><span id="locName"></span></div>
   <div class="panel">
     <div class="impact-ctrl">
-      <label>Location
+      <label><span data-i18n="loc_label">地点</span>
         <select id="citySel"></select>
       </label>
-      <button id="geoBtn" class="btn">📍 Use my location</button>
+      <button id="geoBtn" class="btn" data-i18n="geo_btn">📍 使用我的定位</button>
     </div>
     <div class="grid" style="margin-bottom:0">
-      <div class="card" id="aqCard"><h3>Haze · Air Quality</h3><div class="advice" style="border:0;padding:0">Loading…</div></div>
-      <div class="card" id="heatCard"><h3>Heat &amp; UV</h3><div class="advice" style="border:0;padding:0">Loading…</div></div>
-      <div class="card" id="fireCard"><h3>Fire hotspots · haze source</h3><div class="advice" style="border:0;padding:0">Loading…</div></div>
+      <div class="card" id="aqCard"></div>
+      <div class="card" id="heatCard"></div>
+      <div class="card" id="fireCard"></div>
     </div>
-    <div class="gsrc" style="margin-top:10px">Air quality &amp; heat: Open-Meteo (modeled, updates live per location). Fire hotspots: NASA FIRMS (VIIRS). Malaysia's official index: <a href="https://eqms.doe.gov.my" target="_blank">DOE MyEQMS · APIMS ↗</a>.</div>
+    <div class="gsrc" style="margin-top:10px" data-i18n-html="impact_note"></div>
   </div>
 
 </div>
@@ -198,309 +194,435 @@
   <div class="backdrop" onclick="closeGuide()"></div>
   <div class="sheet">
     <div class="sheet-head">
-      <h2>Guide — how to read SUHU</h2>
+      <h2 data-i18n="guide_title">指南 — 如何阅读 SUHU</h2>
       <button class="sheet-close" onclick="closeGuide()" aria-label="Close">✕</button>
     </div>
     <div class="sheet-body guide">
-      <p><strong>SUHU is an interpretation layer, not an independent forecast.</strong> It aggregates the world's ENSO / IOD / MJO monitoring — including NOAA's — and translates it into what those drivers mean for rainfall, drought and haze in Malaysia. NOAA, BoM, JAMSTEC and JMA remain the underlying authorities.</p>
-
-      <h3>The status banner</h3>
-      <p>The coloured banner at the top is the national bottom line: the ENSO phase (El Niño / La Niña / neutral), whether it's strengthening or easing, and the season's main risk. A warm colour means a dry / haze bias; cool blue means a wet / flood bias.</p>
-
-      <h3>The climate drivers</h3>
-      <div class="gitem"><span class="gt">ENSO — Ocean (Niño 3.4)</span><p>The ocean side of ENSO: sea-surface temperature in the central Pacific. The headline number — warm = El Niño, cool = La Niña.</p></div>
-      <div class="gitem"><span class="gt">ENSO — Index (ONI)</span><p>The official 3-month average of Niño 3.4. Smoother and slower than the Ocean card; agencies use it to formally declare an El Niño or La Niña.</p></div>
-      <div class="gitem"><span class="gt">ENSO — Atmosphere (SOI)</span><p>The air-pressure seesaw between Tahiti and Darwin. Strongly negative confirms El Niño is "locked in"; strongly positive points to La Niña.</p></div>
-      <div class="gitem"><span class="gt">Indian Ocean Dipole (DMI)</span><p>A separate driver to our west. Positive = drier Southeast Asia (adds to El Niño drought); negative = wetter.</p></div>
-      <div class="gitem"><span class="gt">MJO</span><p>The Madden–Julian Oscillation: a pulse of rain that circles the tropics every 30–60 days, giving Malaysia short wet or dry spells on top of the seasonal pattern.</p></div>
-
-      <h3>Recent-trend chart</h3>
-      <p>The last 12 months of Niño 3.4, straight from NOAA. The current (partial) month is marked with an asterisk. Positive = El Niño, negative = La Niña — the axis flips to match.</p>
-
-      <h3>Regional outlook</h3>
-      <p>What the drivers mean on the ground for the Peninsula (west / east), Sabah and Sarawak — colour-coded Low / Moderate / High and adjusted for the monsoon season.</p>
-
-      <h3>Nowcast — Himawari satellite</h3>
-      <p>A self-hosted mirror of the latest Himawari-9 infrared image over Southeast Asia (works day and night). Refreshed server-side and cached for offline.</p>
-
-      <h3>Local impact — what you feel today</h3>
-      <div class="gitem"><span class="gt">Haze · Air Quality</span><p>Current PM2.5 (the haze particulate) with a health band and mask advice; US AQI, PM10 and dust alongside. For the official index, see DOE MyEQMS.</p></div>
-      <div class="gitem"><span class="gt">Heat &amp; UV</span><p>Feels-like temperature and UV right now, plus today's peak so you can plan around the hottest, sunniest part of the day.</p></div>
-      <div class="gitem"><span class="gt">Fire hotspots</span><p>24-hour active-fire counts over Sumatra and Kalimantan (the upwind haze sources) from NASA FIRMS — an early warning before haze arrives.</p></div>
-      <p style="font-size:12px;color:var(--muted)">Air quality &amp; heat update live per location — pick a city or use your location.</p>
-
-      <h3>How the interpretation engine works</h3>
-      <p>SUHU combines the ENSO sign, the IOD and the monsoon calendar into the banner and regional outlook. These are the rules it applies:</p>
+      <p data-i18n-html="g_intro"></p>
+      <h3 data-i18n="g_banner_h"></h3>
+      <p data-i18n="g_banner_p"></p>
+      <h3 data-i18n="g_drivers_h"></h3>
+      <div class="gitem" data-i18n-html="g_d_ocean"></div>
+      <div class="gitem" data-i18n-html="g_d_index"></div>
+      <div class="gitem" data-i18n-html="g_d_atmos"></div>
+      <div class="gitem" data-i18n-html="g_d_iod"></div>
+      <div class="gitem" data-i18n-html="g_d_mjo"></div>
+      <h3 data-i18n="g_chart_h"></h3>
+      <p data-i18n="g_chart_p"></p>
+      <h3 data-i18n="g_regions_h"></h3>
+      <p data-i18n="g_regions_p"></p>
+      <h3 data-i18n="g_sat_h"></h3>
+      <p data-i18n="g_sat_p"></p>
+      <h3 data-i18n="g_impact_h"></h3>
+      <div class="gitem" data-i18n-html="g_i_haze"></div>
+      <div class="gitem" data-i18n-html="g_i_heat"></div>
+      <div class="gitem" data-i18n-html="g_i_fire"></div>
+      <p style="font-size:12px;color:var(--muted)" data-i18n="g_impact_note"></p>
+      <h3 data-i18n="g_engine_h"></h3>
+      <p data-i18n="g_engine_p"></p>
       <table id="rules"></table>
-
-      <h3>Source health &amp; redundancy</h3>
-      <p>Every indicator has a primary source and at least one fallback, so no single agency (NOAA included) is a point of failure. Live status:</p>
+      <h3 data-i18n="g_health_h"></h3>
+      <p data-i18n="g_health_p"></p>
       <table id="sources"></table>
-
-      <h3>How this differs from NOAA</h3>
-      <ul>
-        <li><b>Multi-driver, not ENSO-only</b> — ENSO + IOD + MJO + monsoon, the drivers that govern Malaysian rain.</li>
-        <li><b>Tuned to the Maritime Continent</b> — weights BoM and JAMSTEC / JMA, which face our region, over the eastern-Pacific indices.</li>
-        <li><b>Interprets locally</b> — turns "state of the Pacific" into drought / haze vs flood risk, by region and season.</li>
-        <li><b>Multi-source &amp; fault-tolerant</b> — several sources with automatic fallback, so no single agency going down blinds the tool.</li>
-      </ul>
-      <p>In short: NOAA answers "what is the Pacific doing?" — SUHU answers "what does it mean for Malaysia this season?"</p>
-
-      <h3>Data &amp; attribution</h3>
-      <p style="font-size:12px;color:var(--muted)">ENSO / Niño 3.4 / ONI — NOAA CPC · SOI — Australia BoM (Troup) · IOD / DMI — JAMSTEC SINTEX-F, NOAA PSL · MJO / RMM — Australia BoM · Satellite — JMA / JAXA (Himawari) · Air quality &amp; heat — Open-Meteo · Fire — NASA FIRMS · Seasonal — ECMWF C3S · National forecasts — MetMalaysia. Used with attribution; no endorsement by these agencies is implied.</p>
+      <h3 data-i18n="g_noaa_h"></h3>
+      <div data-i18n-html="g_noaa_body"></div>
+      <h3 data-i18n="g_attr_h"></h3>
+      <p style="font-size:12px;color:var(--muted)" data-i18n="g_attr_p"></p>
     </div>
   </div>
 </div>
 
 <script>
-function el(t,c,h){const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e;}
-let chart;
+// ============ Language ============
+let LANG = localStorage.getItem('suhu_lang') || 'zh';
+const L = (zh,en)=>LANG==='zh'?zh:en;
+let DATA=null, LOC=null;
 
-function render(D){
-  const b=D.banner;
+function toggleLang(){ setLang(LANG==='zh'?'en':'zh'); }
+function setLang(l){ LANG=l; try{localStorage.setItem('suhu_lang',l);}catch(e){} applyLang(); }
+function applyLang(){
+  document.documentElement.lang = LANG==='zh'?'zh':'en';
+  document.getElementById('langBtn').textContent = LANG==='zh'?'EN':'中文';
+  document.querySelectorAll('[data-i18n]').forEach(el=>{ const v=T[LANG][el.dataset.i18n]; if(v!=null) el.textContent=v; });
+  document.querySelectorAll('[data-i18n-html]').forEach(el=>{ const v=T[LANG][el.dataset.i18nHtml]; if(v!=null) el.innerHTML=v; });
+  const _cs=document.getElementById('citySel'); if(_cs&&window._fillCities){const _v=_cs.value;window._fillCities();_cs.value=_v;}
+  if(DATA) renderAll(DATA);
+  if(LOC) loadImpact(LOC.lat,LOC.lon,LOC.city);
+  loadFires();
+}
+
+// ============ Static translations ============
+const T = {
+  zh:{
+    title_suffix:'· 厄尔尼诺监测', sub:'马来西亚与海洋大陆 · 多来源', guide_btn:'ⓘ 指南', install_btn:'⬇ 安装',
+    st_drivers:'气候驱动因子',
+    drivers_intro:'从三个角度看厄尔尼诺 / 拉尼娜——<b>海洋</b>、官方<b>指数</b>与<b>大气</b>，另加 <b>IOD</b> 与 <b>MJO</b> 两个驱动因子。初次使用？打开 <a href="#" onclick="openGuide();return false">ⓘ 指南</a>。',
+    st_regions:'区域展望 — 对各地的影响',
+    st_nowcast:'实况与趋势',
+    panel_sat:'向日葵9号 · 自托管镜像',
+    sat_note:'由本站自有副本提供，经「Mirror Himawari」流程在云端刷新（无热链问题，可离线缓存）。影像：NICT / JMA。上方链接可打开实时区域动画。',
+    panel_chart:'Niño 3.4 海温距平 — 近期趋势',
+    chart_note:'°C 距平。正值且上升 = 厄尔尼诺增强。来源：NOAA CPC / BoM。',
+    st_impact:'本地影响 — ', loc_label:'地点', geo_btn:'📍 使用我的定位',
+    impact_note:'空气质量与高温：Open-Meteo（模式数据，按地点实时更新）。火点：NASA FIRMS（VIIRS）。马来西亚官方指数：<a href="https://eqms.doe.gov.my" target="_blank">DOE MyEQMS · APIMS ↗</a>。',
+    guide_title:'指南 — 如何阅读 SUHU',
+    g_intro:'<strong>SUHU 是一个解读层，而非独立预报。</strong>它汇集全球的 ENSO / IOD / MJO 监测（包括 NOAA），并将其转化为对马来西亚降雨、干旱与烟霾的意义。底层科学仍以 NOAA、BoM、JAMSTEC 与 JMA 为权威。',
+    g_banner_h:'状态横幅', g_banner_p:'顶部彩色横幅是全国要点：ENSO 位相（厄尔尼诺 / 拉尼娜 / 中性）、增强或减弱，以及当季的主要风险。暖色表示偏干 / 烟霾倾向；冷蓝色表示偏湿 / 洪水倾向。',
+    g_drivers_h:'气候驱动因子',
+    g_d_ocean:'<span class="gt">ENSO — 海洋（Niño 3.4）</span><p>ENSO 的海洋侧：太平洋中部的海表温度。头条数字——偏暖 = 厄尔尼诺，偏冷 = 拉尼娜。</p>',
+    g_d_index:'<span class="gt">ENSO — 指数（ONI）</span><p>Niño 3.4 的官方 3 个月平均值。比海洋卡更平滑、更缓慢；机构据此正式判定厄尔尼诺或拉尼娜。</p>',
+    g_d_atmos:'<span class="gt">ENSO — 大气（SOI）</span><p>塔希提与达尔文之间的气压跷跷板。强负值确认厄尔尼诺已「锁定」；强正值指向拉尼娜。</p>',
+    g_d_iod:'<span class="gt">印度洋偶极子（DMI）</span><p>位于我们西侧的独立驱动因子。正值 = 东南亚偏干（叠加厄尔尼诺干旱）；负值 = 偏湿。</p>',
+    g_d_mjo:'<span class="gt">MJO</span><p>季节内振荡：每 30–60 天绕行热带的降雨脉冲，在季节格局之上给马来西亚带来短期干湿波动。</p>',
+    g_chart_h:'近期趋势图', g_chart_p:'来自 NOAA 的 Niño 3.4 最近 12 个月。当前（不完整）月份以星号标注。正值 = 厄尔尼诺，负值 = 拉尼娜——纵轴会随之翻转。',
+    g_regions_h:'区域展望', g_regions_p:'驱动因子对半岛（西 / 东）、沙巴与砂拉越的实际影响——以低 / 中 / 高风险着色，并按季风季节调整。',
+    g_sat_h:'实况 — 向日葵卫星', g_sat_p:'东南亚上空最新向日葵9号红外影像的自托管镜像（昼夜可用）。在云端刷新并缓存以供离线查看。',
+    g_impact_h:'本地影响 — 你今天的体感',
+    g_i_haze:'<span class="gt">烟霾 · 空气质量</span><p>当前 PM2.5（构成烟霾的颗粒物），附健康等级与口罩建议；同时显示 US AQI、PM10 与沙尘。官方指数见 DOE MyEQMS。</p>',
+    g_i_heat:'<span class="gt">高温与紫外线</span><p>当前体感温度与紫外线，另加今日峰值，方便你避开一天中最热、最晒的时段。</p>',
+    g_i_fire:'<span class="gt">火点</span><p>来自 NASA FIRMS 的苏门答腊与加里曼丹（上风向烟霾来源）24 小时活跃火点数——烟霾来临前的预警。</p>',
+    g_impact_note:'空气质量与高温按地点实时更新——选择城市或使用你的定位。',
+    g_engine_h:'解读引擎如何运作', g_engine_p:'SUHU 将 ENSO 位相、IOD 与季风日历组合成横幅与区域展望。其应用的规则如下：',
+    g_health_h:'数据来源与冗余', g_health_p:'每个指标都有主来源和至少一个备用来源，因此没有任何单一机构（包括 NOAA）会成为单点故障。实时状态：',
+    g_noaa_h:'与 NOAA 有何不同',
+    g_noaa_body:'<ul><li><b>多驱动，而非仅 ENSO</b>——ENSO + IOD + MJO + 季风，即真正主导马来西亚降雨的驱动因子。</li><li><b>面向海洋大陆</b>——相较东太平洋指数，更重视面向本区域的 BoM 与 JAMSTEC / JMA。</li><li><b>本地化解读</b>——把「太平洋的状态」转化为按地区与季节的干旱 / 烟霾或洪水风险。</li><li><b>多来源、容错</b>——多个来源自动回退，单一机构中断不会致盲。</li></ul><p>简言之：NOAA 回答「太平洋在做什么？」——SUHU 回答「这一季对马来西亚意味着什么？」</p>',
+    g_attr_h:'数据与署名',
+    g_attr_p:'ENSO / Niño 3.4 / ONI — NOAA CPC · SOI — 澳大利亚 BoM（Troup）· IOD / DMI — JAMSTEC SINTEX-F、NOAA PSL · MJO / RMM — 澳大利亚 BoM · 卫星 — JMA / JAXA（向日葵）· 空气质量与高温 — Open-Meteo · 火点 — NASA FIRMS · 季节展望 — ECMWF C3S · 全国预报 — MetMalaysia。使用时须署名；不代表上述机构的认可。'
+  },
+  en:{
+    title_suffix:'· ENSO Monitor', sub:'Malaysia & the Maritime Continent · Multi-source', guide_btn:'ⓘ Guide', install_btn:'⬇ Install',
+    st_drivers:'Climate drivers',
+    drivers_intro:'El Niño / La Niña seen from three angles — <b>ocean</b>, official <b>index</b> and <b>atmosphere</b> — plus the <b>IOD</b> and <b>MJO</b>. New here? Open the <a href="#" onclick="openGuide();return false">ⓘ Guide</a>.',
+    st_regions:'Regional outlook — what it means on the ground',
+    st_nowcast:'Nowcast & trend',
+    panel_sat:'Himawari-9 · self-hosted mirror',
+    sat_note:'Served from our own copy, refreshed server-side by the Mirror Himawari workflow (no hotlink issue, offline-cached). Imagery: NICT / JMA. Links above open live regional loops.',
+    panel_chart:'Niño 3.4 SST anomaly — recent trend',
+    chart_note:'°C anomaly. Positive & rising = El Niño strengthening. Source: NOAA CPC / BoM.',
+    st_impact:'Local impact — ', loc_label:'Location', geo_btn:'📍 Use my location',
+    impact_note:'Air quality & heat: Open-Meteo (modeled, updates live per location). Fire hotspots: NASA FIRMS (VIIRS). Malaysia\'s official index: <a href="https://eqms.doe.gov.my" target="_blank">DOE MyEQMS · APIMS ↗</a>.',
+    guide_title:'Guide — how to read SUHU',
+    g_intro:'<strong>SUHU is an interpretation layer, not an independent forecast.</strong> It aggregates the world\'s ENSO / IOD / MJO monitoring — including NOAA\'s — and translates it into what those drivers mean for rainfall, drought and haze in Malaysia. NOAA, BoM, JAMSTEC and JMA remain the underlying authorities.',
+    g_banner_h:'The status banner', g_banner_p:'The coloured banner at the top is the national bottom line: the ENSO phase (El Niño / La Niña / neutral), whether it is strengthening or easing, and the season\'s main risk. A warm colour means a dry / haze bias; cool blue means a wet / flood bias.',
+    g_drivers_h:'The climate drivers',
+    g_d_ocean:'<span class="gt">ENSO — Ocean (Niño 3.4)</span><p>The ocean side of ENSO: sea-surface temperature in the central Pacific. The headline number — warm = El Niño, cool = La Niña.</p>',
+    g_d_index:'<span class="gt">ENSO — Index (ONI)</span><p>The official 3-month average of Niño 3.4. Smoother and slower than the Ocean card; agencies use it to formally declare an El Niño or La Niña.</p>',
+    g_d_atmos:'<span class="gt">ENSO — Atmosphere (SOI)</span><p>The air-pressure seesaw between Tahiti and Darwin. Strongly negative confirms El Niño is "locked in"; strongly positive points to La Niña.</p>',
+    g_d_iod:'<span class="gt">Indian Ocean Dipole (DMI)</span><p>A separate driver to our west. Positive = drier Southeast Asia (adds to El Niño drought); negative = wetter.</p>',
+    g_d_mjo:'<span class="gt">MJO</span><p>The Madden–Julian Oscillation: a pulse of rain that circles the tropics every 30–60 days, giving Malaysia short wet or dry spells on top of the seasonal pattern.</p>',
+    g_chart_h:'Recent-trend chart', g_chart_p:'The last 12 months of Niño 3.4, straight from NOAA. The current (partial) month is marked with an asterisk. Positive = El Niño, negative = La Niña — the axis flips to match.',
+    g_regions_h:'Regional outlook', g_regions_p:'What the drivers mean on the ground for the Peninsula (west / east), Sabah and Sarawak — colour-coded Low / Moderate / High and adjusted for the monsoon season.',
+    g_sat_h:'Nowcast — Himawari satellite', g_sat_p:'A self-hosted mirror of the latest Himawari-9 infrared image over Southeast Asia (works day and night). Refreshed server-side and cached for offline.',
+    g_impact_h:'Local impact — what you feel today',
+    g_i_haze:'<span class="gt">Haze · Air Quality</span><p>Current PM2.5 (the haze particulate) with a health band and mask advice; US AQI, PM10 and dust alongside. For the official index, see DOE MyEQMS.</p>',
+    g_i_heat:'<span class="gt">Heat & UV</span><p>Feels-like temperature and UV right now, plus today\'s peak so you can plan around the hottest, sunniest part of the day.</p>',
+    g_i_fire:'<span class="gt">Fire hotspots</span><p>24-hour active-fire counts over Sumatra and Kalimantan (the upwind haze sources) from NASA FIRMS — an early warning before haze arrives.</p>',
+    g_impact_note:'Air quality & heat update live per location — pick a city or use your location.',
+    g_engine_h:'How the interpretation engine works', g_engine_p:'SUHU combines the ENSO sign, the IOD and the monsoon calendar into the banner and regional outlook. These are the rules it applies:',
+    g_health_h:'Source health & redundancy', g_health_p:'Every indicator has a primary source and at least one fallback, so no single agency (NOAA included) is a point of failure. Live status:',
+    g_noaa_h:'How this differs from NOAA',
+    g_noaa_body:'<ul><li><b>Multi-driver, not ENSO-only</b> — ENSO + IOD + MJO + monsoon, the drivers that govern Malaysian rain.</li><li><b>Tuned to the Maritime Continent</b> — weights BoM and JAMSTEC / JMA over the eastern-Pacific indices.</li><li><b>Interprets locally</b> — turns "state of the Pacific" into drought / haze vs flood risk, by region and season.</li><li><b>Multi-source & fault-tolerant</b> — several sources with automatic fallback, so no single agency going down blinds the tool.</li></ul><p>In short: NOAA answers "what is the Pacific doing?" — SUHU answers "what does it mean for Malaysia this season?"</p>',
+    g_attr_h:'Data & attribution',
+    g_attr_p:'ENSO / Niño 3.4 / ONI — NOAA CPC · SOI — Australia BoM (Troup) · IOD / DMI — JAMSTEC SINTEX-F, NOAA PSL · MJO / RMM — Australia BoM · Satellite — JMA / JAXA (Himawari) · Air quality & heat — Open-Meteo · Fire — NASA FIRMS · Seasonal — ECMWF C3S · National forecasts — MetMalaysia. Used with attribution; no endorsement by these agencies is implied.'
+  }
+};
+
+// Driver card labels (h / name / interp) per driver key
+const DRV = {
+  enso:{h:['ENSO — 海洋','ENSO — Ocean'], name:['Niño 3.4 海温距平','Niño 3.4 SST anomaly'], interp:['太平洋中部海温——厄尔尼诺/拉尼娜的头条数字。','Sea temperature in the central Pacific — the headline ENSO number.']},
+  oni:{h:['ENSO — 指数','ENSO — Index'], name:['ONI（3个月平均）','ONI (3-month running)'], interp:['官方3个月平均值，用于正式判定厄尔尼诺/拉尼娜。','Official 3-month average; used to formally declare El Niño / La Niña.']},
+  soi:{h:['ENSO — 大气','ENSO — Atmosphere'], name:['SOI（南方涛动 · Troup）','SOI (monthly, Troup)'], interp:['塔希提与达尔文之间的气压跷跷板，确认 ENSO 与大气耦合。','Tahiti–Darwin pressure seesaw; confirms ENSO is coupled to the atmosphere.']},
+  iod:{h:['印度洋偶极子','Indian Ocean Dipole'], name:['DMI（偶极子指数）','DMI (Dipole Mode Index)'], interp:['西侧的独立驱动因子。正值使东南亚偏干（叠加厄尔尼诺）；负值偏湿。','A separate driver to our west. Positive = drier SE Asia; negative = wetter.']},
+  mjo:{h:['MJO','MJO'], name:['RMM 位相与振幅','RMM phase & amplitude'], interp:['热带每30–60天绕行的降雨脉冲，带来短期干湿波动。','A rain pulse circling the tropics every 30–60 days — short wet/dry spells.']}
+};
+
+// Status phrase map (translate the English status from data.json into Chinese)
+const PH={
+ 'Very strong El Niño ("super")':'超强厄尔尼诺','Strong El Niño':'强厄尔尼诺','Moderate El Niño':'中等厄尔尼诺','Weak El Niño':'弱厄尔尼诺',
+ 'Neutral':'中性','Weak La Niña':'弱拉尼娜','Moderate+ La Niña':'中等偏强拉尼娜',
+ 'strengthening':'增强中','easing':'减弱中','holding steady':'保持稳定',
+ 'Strongly El Niño-coupled':'强厄尔尼诺耦合','El Niño-coupled':'厄尔尼诺耦合','La Niña-coupled':'拉尼娜耦合','Strongly La Niña-coupled':'强拉尼娜耦合',
+ 'Positive IOD':'正印度洋偶极子','drier for SE Asia':'东南亚偏干','Negative IOD':'负印度洋偶极子','wetter for SE Asia':'东南亚偏湿',
+ 'Weak':'弱','little MJO influence':'MJO影响小','Active':'活跃','wet pulse over Maritime Continent':'海洋大陆湿位相','suppressed over Maritime Continent':'海洋大陆受抑制',
+ 'El Niño (moderate)':'厄尔尼诺（中等）','positive forecast':'预计转正'
+};
+function trStatus(s){ if(LANG==='en')return s; return String(s).split(' · ').map(x=>PH[x]||x).join(' · '); }
+
+// ============ Client narrative (banner + regions), bilingual ============
+const MON=m=>[11,12,1,2,3].includes(m)?'NE':([5,6,7,8,9].includes(m)?'SW':'INTER');
+function monLabel(s){return s==='NE'?L('东北季风','Northeast Monsoon'):s==='SW'?L('西南季风','Southwest Monsoon'):L('季风间期','Inter-monsoon');}
+function riskLabel(r){return r==='r-high'?L('高风险','High risk'):r==='r-mod'?L('中等','Moderate'):L('低','Low');}
+function deriveInputs(D){
+  const v=D.nino34history.values, a=v[v.length-1], p=v.length>=2?v[v.length-2]:a;
+  const mag=Math.round((Math.abs(a)-Math.abs(p))*10)/10;
+  const trend=mag>=0.1?'up':(mag<=-0.1?'down':'flat');
+  const month=D.generated?new Date(D.generated).getUTCMonth()+1:(new Date()).getUTCMonth()+1;
+  const iod=(D.drivers.find(d=>d.key==='iod')||{}).value||'0';
+  const dmi=parseFloat(String(iod).replace('−','-'))||0;
+  return {a,dmi,month,trend};
+}
+function trendWord(t){return t==='up'?L('增强中','strengthening'):t==='down'?L('减弱中','easing'):L('保持稳定','holding steady');}
+function region(rn,risk,p){return {rn,risk,label:riskLabel(risk),p};}
+
+function buildNarrative(D){
+  const {a,dmi,month,trend}=deriveInputs(D); const mon=MON(month), ml=monLabel(mon), tw=trendWord(trend);
+  let banner,regions;
+  if(a>=0.5){ const dry=(mon==='SW'||mon==='INTER');
+    banner={tone:'warm',
+      tag:L('全国气候驱动状态 · ','National Climate-Driver Status · ')+ml,
+      title:L('厄尔尼诺 — ','El Niño — ')+tw,
+      desc:dry?L('厄尔尼诺正'+tw+'，正值马来西亚较干旱的季节。预计偏暖偏干，干旱与跨境烟霾风险升高'+(dmi>=0.4?'，并因正印度洋偶极子而加剧。':'。'),'El Niño is '+tw+" during Malaysia's drier season — a warm, dry bias with elevated drought and haze risk"+(dmi>=0.4?', compounded by a positive Indian Ocean Dipole.':'.'))
+              :L('厄尔尼诺正'+tw+'，正值东北季风，往往抑制降雨——雨季偏干，洪灾风险较低，但需留意用水紧张。','El Niño is '+tw+' during the northeast monsoon, tending to suppress rainfall — a drier-than-normal wet season; watch for water stress.'),
+      pills:dry?[['hot',L('偏暖','Warm bias')],['dry',L('干旱风险','Drought risk')],['watch',L('🔥 烟霾预警','🔥 Haze watch')]]
+               :[['hot',L('偏暖','Warm bias')],['dry',L('雨季偏干','Drier wet season')]]};
+    if(dmi>=0.4)banner.pills.push(['dry',L('正 IOD','Positive IOD')]);
+    regions=[
+      region(L('半岛西海岸','Peninsula — West Coast'),dry?'r-high':'r-mod',dry?L('最干旱、最易起烟霾的地区。高温加少雨；留意巴生谷/马六甲空气质量。','Driest & most haze-prone zone now. Heat + reduced rainfall; watch Klang Valley/Melaka air quality.'):L('较常年偏干；降雨减少但洪灾风险有限，留意供水。','Drier than normal; reduced rainfall, limited flood risk. Watch water supply.')),
+      region(L('半岛东海岸','Peninsula — East Coast'),'r-mod',mon==='NE'?L('东北季风受厄尔尼诺抑制——雨季偏干，洪灾风险低于往常。','NE monsoon suppressed by El Niño — a drier wet season, lower flood risk than usual.'):L('接近常年至偏干；主要洪灾季为11月至3月。','Near-normal to drier; main flood season is Nov–Mar.')),
+      region(L('沙巴','Sabah'),'r-mod',L('偏干；农业用水紧张，可能出现局部火灾风险。','Drier bias; agricultural water stress and localised fire risk possible.')),
+      region(L('砂拉越','Sarawak'),dry?'r-high':'r-mod',L('持续干旱下泥炭地火灾与烟霾风险升高；关注热点。','Peatland fire & haze risk elevated under prolonged dry conditions; monitor hotspots.'))
+    ];
+  } else if(a<=-0.5){ const wet=(mon==='NE'||mon==='INTER');
+    banner={tone:'cool',
+      tag:L('全国气候驱动状态 · ','National Climate-Driver Status · ')+ml,
+      title:L('拉尼娜 — ','La Niña — ')+tw,
+      desc:wet?L('拉尼娜正'+tw+'，正值东北季风——马来西亚的洪灾季。预计偏湿偏凉，洪水与滑坡风险升高，尤以半岛东海岸、沙巴和砂拉越为甚'+(dmi<=-0.4?'，并因负印度洋偶极子而加剧。':'。'),'La Niña is '+tw+" during the northeast monsoon — Malaysia's flood season. A wetter, cooler bias with elevated flood and landslide risk, especially the east-coast Peninsula, Sabah and Sarawak"+(dmi<=-0.4?', compounded by a negative Indian Ocean Dipole.':'.'))
+              :L('拉尼娜正'+tw+'，正值西南季风，往往增强降雨——旱季偏湿，烟霾风险较低，但可能出现局部洪水。','La Niña is '+tw+' during the southwest monsoon, tending to enhance rainfall — a wetter-than-normal dry season; localised flooding possible.'),
+      pills:wet?[['wet',L('偏湿','Wet bias')],['wet',L('洪灾风险','Flood risk')],['watch',L('滑坡预警','Landslide watch')]]
+               :[['wet',L('偏湿','Wet bias')],['wet',L('较常年偏湿','Wetter than normal')]]};
+    if(dmi<=-0.4)banner.pills.push(['wet',L('负 IOD','Negative IOD')]);
+    regions=[
+      region(L('半岛西海岸','Peninsula — West Coast'),'r-mod',L('较常年偏湿；强降雨时有局部骤发洪水风险。','Wetter than normal; localised flash-flood risk in heavy downpours.')),
+      region(L('半岛东海岸','Peninsula — East Coast'),wet?'r-high':'r-mod',wet?L('东北季风被拉尼娜增强——洪灾风险最高。留意吉兰丹、登嘉楼、彭亨。','NE monsoon amplified by La Niña — highest flood risk. Watch Kelantan, Terengganu, Pahang.'):L('较常年偏湿；洪灾季为11月至3月。','Wetter than normal; flood season is Nov–Mar.')),
+      region(L('沙巴','Sabah'),wet?'r-high':'r-mod',L('降雨增强；洪水与滑坡风险，尤以东海岸为甚。','Enhanced rainfall; flood and landslide risk, especially the east coast.')),
+      region(L('砂拉越','Sarawak'),wet?'r-high':'r-mod',L('天气偏湿；内陆河流洪水与滑坡风险。','Wetter conditions; river flooding and landslide risk in the interior.'))
+    ];
+  } else {
+    banner={tone:'neutral',tag:L('全国气候驱动状态 · ','National Climate-Driver Status · ')+ml,title:L('ENSO 中性','ENSO-neutral'),
+      desc:L('太平洋接近中性，主要由'+ml+'主导天气。没有明显的盆地尺度干旱或洪水推动；关注季风与 MJO 的短期波动。','The Pacific is near neutral, so the '+ml+' drives conditions. No strong basin-scale push toward drought or flood; watch the monsoon and MJO.'),
+      pills:[['watch',L('接近常年','Near-normal')],['watch',ml]]};
+    regions=[
+      region(L('半岛西海岸','Peninsula — West Coast'),'r-low',L('接近常年；由季风主导。','Near-normal; monsoon-driven weather.')),
+      region(L('半岛东海岸','Peninsula — East Coast'),mon==='NE'?'r-mod':'r-low',mon==='NE'?L('东北季风降雨——照例留意季节性洪水。','Northeast monsoon rains — usual seasonal flood watch.'):L('接近常年的季节性天气。','Near-normal seasonal conditions.')),
+      region(L('沙巴','Sabah'),'r-low',L('接近常年；关注 MJO 的短期湿位相。','Near-normal; watch the MJO for short-term wet spells.')),
+      region(L('砂拉越','Sarawak'),'r-low',L('接近常年的季节性天气。','Near-normal seasonal conditions.'))
+    ];
+  }
+  return {banner,regions};
+}
+
+// Interpretation-engine rules (static, bilingual)
+function ruleRows(){
+  const R=[
+    [L('厄尔尼诺 + 西南季风','El Niño + SW monsoon'),L('→ 高干旱与烟霾风险','→ High drought & haze risk')],
+    [L('厄尔尼诺 + 正 IOD','El Niño + positive IOD'),L('→ 干旱风险再升一级','→ Escalate dry risk one level')],
+    [L('拉尼娜 + 东北季风','La Niña + NE monsoon'),L('→ 高洪灾风险（东海岸/婆罗洲）','→ High flood risk (east coast / Borneo)')],
+    [L('MJO 活跃于第 3–5 位相','MJO active phase 3–5'),L('→ 短期湿位相脉冲','→ Short-term wet pulse')],
+    [L('ENSO 符号翻转','ENSO sign flips'),L('→ 横幅在暖色↔冷色间切换','→ Banner switches warm ↔ cool')]
+  ];
+  return `<tr><th>${L('条件','Condition')}</th><th>${L('动作','Action')}</th></tr>`+
+    R.map(r=>`<tr><td>${r[0]}</td><td style="color:var(--muted)">${r[1]}</td></tr>`).join('');
+}
+
+// ============ Render ============
+let chart;
+const MONMAP={Jan:'1月',Feb:'2月',Mar:'3月',Apr:'4月',May:'5月',Jun:'6月',Jul:'7月',Aug:'8月',Sep:'9月',Oct:'10月',Nov:'11月',Dec:'12月'};
+function chartLabel(l){ if(LANG==='en')return l; const star=l.endsWith('*'); const base=star?l.slice(0,-1):l; return (MONMAP[base]||base)+(star?'*':''); }
+function trUpdated(s){ if(LANG==='en')return s; return String(s).replace('just now','刚刚').replace(' h ago',' 小时前').replace(' d ago',' 天前').replace(' min ago',' 分钟前').replace(' ago',' 前'); }
+
+function renderAll(D){
+  DATA=D;
+  const nar=buildNarrative(D);
+  const b=nar.banner;
   document.getElementById('banner').className='banner tone-'+(b.tone||'warm');
   document.getElementById('bTag').textContent=b.tag;
   document.getElementById('bTitle').textContent=b.title;
   document.getElementById('bDesc').textContent=b.desc;
   document.getElementById('bPills').innerHTML=b.pills.map(p=>`<span class="pill ${p[0]}">${p[1]}</span>`).join('');
 
-  document.getElementById('drivers').innerHTML=D.drivers.map(d=>`
-    <div class="card"><h3>${d.h}</h3>
-    <div class="name">${d.name}</div>
-    <div class="val">${d.value}</div><div class="status ${d.cls}">${d.status}</div>
-    <div class="gauge"><div class="fill" style="width:${d.gauge}%;background:${d.gcol}"></div></div>
-    <div class="interp">${d.interp}</div></div>`).join('');
+  document.getElementById('drivers').innerHTML=D.drivers.map(d=>{
+    const info=DRV[d.key]||{h:[d.h,d.h],name:[d.name,d.name],interp:[d.interp,d.interp]};
+    const idx=LANG==='zh'?0:1;
+    let val=d.value; if(d.key==='mjo'&&LANG==='zh') val=String(val).replace('Ph ','相位');
+    return `<div class="card"><h3>${info.h[idx]}</h3>
+      <div class="name">${info.name[idx]}</div>
+      <div class="val">${val}</div><div class="status ${d.cls}">${trStatus(d.status)}</div>
+      <div class="gauge"><div class="fill" style="width:${d.gauge}%;background:${d.gcol}"></div></div>
+      <div class="interp">${info.interp[idx]}</div></div>`;
+  }).join('');
 
-  document.getElementById('regions').innerHTML=D.regions.map(r=>`
+  document.getElementById('regions').innerHTML=nar.regions.map(r=>`
     <div class="region"><div class="rn">${r.rn}</div>
     <span class="risk ${r.risk}">${r.label}</span><p>${r.p}</p></div>`).join('');
 
-  document.getElementById('sources').innerHTML=
-    `<tr><th>Indicator</th><th>Primary</th><th>Fallback</th><th>Status</th><th>Updated</th></tr>`+
-    D.sources.map(s=>`<tr><td>${s[0]}</td><td>${s[1]}</td><td style="color:var(--muted)">${s[2]}</td>
-    <td><span class="dot ${s[3]==='live'?'live-dot':'stale-dot'}"></span>${s[3]}</td>
-    <td style="color:var(--muted)">${s[4]}</td></tr>`).join('');
+  const sT=document.getElementById('sources');
+  if(sT){ sT.innerHTML=`<tr><th>${L('指标','Indicator')}</th><th>${L('主来源','Primary')}</th><th>${L('备用','Fallback')}</th><th>${L('状态','Status')}</th><th>${L('更新','Updated')}</th></tr>`+
+    (D.sources||[]).map(s=>`<tr><td>${s[0]}</td><td>${s[1]}</td><td style="color:var(--muted)">${s[2]}</td>
+    <td><span class="dot ${s[3]==='live'?'live-dot':'stale-dot'}"></span>${s[3]==='live'?L('实时','live'):L('过期','stale')}</td>
+    <td style="color:var(--muted)">${trUpdated(s[4])}</td></tr>`).join(''); }
 
-  document.getElementById('rules').innerHTML=
-    `<tr><th>Condition</th><th>Action</th><th>State</th></tr>`+
-    D.rules.map(r=>{const on=/ACTIVE|ARMED|flag/.test(r[2]);
-      return `<tr><td>${r[0]}</td><td style="color:var(--muted)">${r[1]}</td>
-      <td><span class="risk ${on?'r-high':'r-low'}" style="font-size:10px">${r[2]}</span></td></tr>`;}).join('');
+  const rT=document.getElementById('rules'); if(rT) rT.innerHTML=ruleRows();
 
   const ctx=document.getElementById('nino34chart');
   if(chart) chart.destroy();
-  // inline plugin: draw each value above its dot (no extra library needed)
-  const dotLabels={
-    id:'dotLabels',
-    afterDatasetsDraw(c){
-      const g=c.ctx, ds=c.data.datasets[0], meta=c.getDatasetMeta(0);
-      g.save();
-      g.font='700 11px -apple-system,Segoe UI,Roboto,sans-serif';
-      g.fillStyle='#eaf0fb';
-      g.textAlign='center';
-      g.textBaseline='bottom';
-      meta.data.forEach((pt,i)=>{
-        const v=ds.data[i];
-        g.fillText((v>=0?'+':'')+v.toFixed(1), pt.x, pt.y-8);
-      });
-      g.restore();
-    }
-  };
-  // y-axis range adapts to the data and always includes 0 (works for El Niño + La Niña)
+  const dotLabels={id:'dotLabels',afterDatasetsDraw(c){const g=c.ctx,ds=c.data.datasets[0],meta=c.getDatasetMeta(0);
+    g.save();g.font='700 11px sans-serif';g.fillStyle='#eaf0fb';g.textAlign='center';g.textBaseline='bottom';
+    meta.data.forEach((pt,i)=>{const v=ds.data[i];g.fillText((v>=0?'+':'')+v.toFixed(1),pt.x,pt.y-8);});g.restore();}};
   const _v=D.nino34history.values;
   const _dmin=Math.min(..._v), _dmax=Math.max(..._v);
-  const _min=_dmin<0?Math.floor((_dmin-0.4)*2)/2:0;   // extend below 0 only if La Niña
-  const _max=_dmax>0?Math.ceil((_dmax+0.4)*2)/2:0.5;  // extend above 0 only if El Niño
+  const _min=_dmin<0?Math.floor((_dmin-0.4)*2)/2:0;
+  const _max=_dmax>0?Math.ceil((_dmax+0.4)*2)/2:0.5;
   chart=new Chart(ctx,{type:'line',
-    data:{labels:D.nino34history.labels,datasets:[{data:D.nino34history.values,borderColor:'#ef4444',
+    data:{labels:D.nino34history.labels.map(chartLabel),datasets:[{data:D.nino34history.values,borderColor:'#ef4444',
       backgroundColor:'rgba(239,68,68,.12)',fill:true,tension:.35,pointRadius:3,pointBackgroundColor:'#ef4444',borderWidth:2}]},
     plugins:[dotLabels],
     options:{layout:{padding:{top:16}},plugins:{legend:{display:false}},scales:{
       y:{grid:{color:'#25324b'},ticks:{color:'#93a1bd',callback:v=>(v>0?'+':'')+v},suggestedMin:_min,suggestedMax:_max,
-         title:{display:true,text:'°C anomaly',color:'#93a1bd'}},
+         title:{display:true,text:L('°C 距平','°C anomaly'),color:'#93a1bd'}},
       x:{grid:{display:false},ticks:{color:'#93a1bd'}}}}});
 }
 
-// Load data: network-first, fall back to cached/last snapshot
 async function load(){
-  try{
-    const r=await fetch('data.json',{cache:'no-store'});
-    if(!r.ok) throw 0;
-    render(await r.json());
-  }catch(e){
-    /* offline or fetch failed — cached values remain on screen */
-  }
+  try{ const r=await fetch('data.json',{cache:'no-store'}); if(!r.ok) throw 0; renderAll(await r.json()); }
+  catch(e){ /* offline — cached values remain */ }
 }
 
-// Himawari — show our own mirrored copy (no hotlink/CORS issue, offline-cached)
+// ============ Himawari mirror ============
 (function(){
   const sat=document.getElementById('sat'), msg=document.getElementById('satMsg');
-  fetch('himawari/meta.json',{cache:'no-store'})
-    .then(r=>r.ok?r.json():null).catch(()=>null)
-    .then(meta=>{
-      const fresh = meta && meta.bytes>0;
-      const bust = fresh ? (Date.parse(meta.fetched)||Date.now()) : Date.now();
-      const imgFile = (meta && meta.image) ? meta.image : 'latest.png';
-      const src = 'himawari/'+imgFile+'?t='+bust;
-      const img=new Image();
-      img.onload=()=>{
-        sat.style.backgroundImage='url('+src+')';
-        msg.textContent='';
-        const s=document.createElement('div'); s.className='satstamp';
-        s.textContent = fresh ? (meta.frame_utc+' · '+meta.source)
-                              : 'Awaiting first mirror run — updates automatically';
-        sat.appendChild(s);
-      };
-      img.onerror=()=>{ msg.innerHTML="🛰️ Mirror not available yet.<br>Run the <b>Mirror Himawari</b> workflow once, or open a live loop below."; };
-      img.src=src;
-    });
+  fetch('himawari/meta.json',{cache:'no-store'}).then(r=>r.ok?r.json():null).catch(()=>null).then(meta=>{
+    const fresh=meta&&meta.bytes>0; const bust=fresh?(Date.parse(meta.fetched)||Date.now()):Date.now();
+    const imgFile=(meta&&meta.image)?meta.image:'latest.png'; const src='himawari/'+imgFile+'?t='+bust;
+    const img=new Image();
+    img.onload=()=>{ sat.style.backgroundImage='url('+src+')'; msg.textContent='';
+      const s=document.createElement('div'); s.className='satstamp';
+      s.textContent=fresh?(meta.frame_utc+' · '+meta.source):L('等待首次镜像运行——将自动更新','Awaiting first mirror run — updates automatically'); sat.appendChild(s); };
+    img.onerror=()=>{ msg.innerHTML=L('🛰️ 镜像尚未就绪。<br>请先运行一次 <b>Mirror Himawari</b> 流程，或打开下方实时动画。','🛰️ Mirror not available yet.<br>Run the <b>Mirror Himawari</b> workflow once, or open a live loop below.'); };
+    img.src=src;
+  });
 })();
 
-
-
-// PWA install prompt
+// ============ PWA install ============
 let deferredPrompt;
-window.addEventListener('beforeinstallprompt',(e)=>{e.preventDefault();deferredPrompt=e;
-  document.getElementById('installBtn').style.display='inline-block';});
+window.addEventListener('beforeinstallprompt',(e)=>{e.preventDefault();deferredPrompt=e;document.getElementById('installBtn').style.display='inline-block';});
 function doInstall(){ if(!deferredPrompt)return; deferredPrompt.prompt();
   deferredPrompt.userChoice.finally(()=>{deferredPrompt=null;document.getElementById('installBtn').style.display='none';}); }
 
-// ---- Local impact layer (client-side, Open-Meteo — no API key) ----
+// ============ Local impact ============
 const CITIES=[
-  {n:'Kuala Lumpur',lat:3.14,lon:101.69},
-  {n:'George Town (Penang)',lat:5.41,lon:100.33},
-  {n:'Ipoh',lat:4.60,lon:101.07},
-  {n:'Malacca',lat:2.19,lon:102.25},
-  {n:'Johor Bahru',lat:1.49,lon:103.74},
-  {n:'Kuantan',lat:3.81,lon:103.33},
-  {n:'Kota Bharu',lat:6.13,lon:102.24},
-  {n:'Kuching',lat:1.55,lon:110.34},
-  {n:'Kota Kinabalu',lat:5.98,lon:116.07},
-  {n:'Singapore',lat:1.35,lon:103.82}
+  {n:'Kuala Lumpur',z:'吉隆坡',lat:3.14,lon:101.69},
+  {n:'George Town (Penang)',z:'乔治市（槟城）',lat:5.41,lon:100.33},
+  {n:'Ipoh',z:'怡保',lat:4.60,lon:101.07},
+  {n:'Malacca',z:'马六甲',lat:2.19,lon:102.25},
+  {n:'Johor Bahru',z:'新山',lat:1.49,lon:103.74},
+  {n:'Kuantan',z:'关丹',lat:3.81,lon:103.33},
+  {n:'Kota Bharu',z:'哥打巴鲁',lat:6.13,lon:102.24},
+  {n:'Kuching',z:'古晋',lat:1.55,lon:110.34},
+  {n:'Kota Kinabalu',z:'亚庇',lat:5.98,lon:116.07},
+  {n:'Singapore',z:'新加坡',lat:1.35,lon:103.82}
 ];
-function aqiBand(a){
-  if(a==null||isNaN(a))return{l:'—',c:'s-neu'};
-  if(a<=50)return{l:'Good',c:'s-good'};
-  if(a<=100)return{l:'Moderate',c:'s-mod'};
-  if(a<=150)return{l:'Unhealthy for sensitive',c:'s-bad'};
-  if(a<=200)return{l:'Unhealthy',c:'s-danger'};
-  if(a<=300)return{l:'Very unhealthy',c:'s-vbad'};
-  return{l:'Hazardous',c:'s-vbad'};
-}
-function maskAdvice(pm){
-  if(pm==null||isNaN(pm))return'';
-  if(pm<12)return'Air is clean — no precautions needed.';
-  if(pm<35)return'Generally OK; very sensitive people take note.';
-  if(pm<55)return'Sensitive groups: limit prolonged outdoor exertion.';
-  if(pm<150)return'Unhealthy — wear an N95 outdoors, keep windows closed.';
-  return'Hazardous — stay indoors, N95 if you must go out, run a purifier.';
-}
-// Haze headline uses PM2.5 (the particulate that IS haze), not overall US AQI
-// (which can be driven by ozone on a clear day). Thresholds match maskAdvice.
-function pm25Band(pm){
-  if(pm==null||isNaN(pm))return{l:'—',c:'s-neu'};
-  if(pm<12)return{l:'Good',c:'s-good'};
-  if(pm<35)return{l:'Moderate',c:'s-mod'};
-  if(pm<55)return{l:'Unhealthy for sensitive',c:'s-bad'};
-  if(pm<150)return{l:'Unhealthy',c:'s-danger'};
-  if(pm<250)return{l:'Very unhealthy',c:'s-vbad'};
-  return{l:'Hazardous',c:'s-vbad'};
-}
-function uvBand(u){
-  if(u==null||isNaN(u))return{l:'—',c:'s-neu',a:''};
-  if(u<3)return{l:'Low',c:'s-good',a:'No sun protection needed.'};
-  if(u<6)return{l:'Moderate',c:'s-mod',a:'Hat & sunscreen at midday.'};
-  if(u<8)return{l:'High',c:'s-bad',a:'Seek shade 11am–3pm; SPF30+.'};
-  if(u<11)return{l:'Very high',c:'s-danger',a:'Avoid midday sun; cover up.'};
-  return{l:'Extreme',c:'s-vbad',a:'Stay out of the sun midday.'};
-}
-function heatBand(t){
-  if(t==null||isNaN(t))return{l:'—',c:'s-neu',a:''};
-  if(t<32)return{l:'Comfortable',c:'s-good',a:'Normal precautions.'};
-  if(t<38)return{l:'Caution',c:'s-mod',a:'Hydrate; rest in shade.'};
-  if(t<41)return{l:'Extreme caution',c:'s-bad',a:'Limit strenuous outdoor activity.'};
-  if(t<54)return{l:'Danger',c:'s-danger',a:'Heat exhaustion likely — stay cool.'};
-  return{l:'Extreme danger',c:'s-vbad',a:'Heat-stroke risk — stay indoors.'};
-}
-function hazeRisk(total){
-  if(total==null||isNaN(total))return{l:'—',c:'s-neu'};
-  if(total<20)return{l:'Low',c:'s-good'};
-  if(total<100)return{l:'Moderate',c:'s-mod'};
-  if(total<300)return{l:'Elevated',c:'s-bad'};
-  return{l:'High',c:'s-danger'};
-}
-async function loadImpact(lat,lon,name){
-  document.getElementById('locName').textContent=name;
+const FIRE_ZH={'Sumatra':'苏门答腊','Kalimantan':'加里曼丹','Peninsular Malaysia':'马来半岛','Sarawak / Sabah':'砂拉越/沙巴'};
+function pm25Band(pm){ if(pm==null||isNaN(pm))return{l:'—',c:'s-neu'};
+  if(pm<12)return{l:L('良好','Good'),c:'s-good'}; if(pm<35)return{l:L('中等','Moderate'),c:'s-mod'};
+  if(pm<55)return{l:L('敏感人群不健康','Unhealthy for sensitive'),c:'s-bad'}; if(pm<150)return{l:L('不健康','Unhealthy'),c:'s-danger'};
+  if(pm<250)return{l:L('非常不健康','Very unhealthy'),c:'s-vbad'}; return{l:L('危害','Hazardous'),c:'s-vbad'}; }
+function maskAdvice(pm){ if(pm==null||isNaN(pm))return'';
+  if(pm<12)return L('空气清洁——无需防护。','Air is clean — no precautions needed.');
+  if(pm<35)return L('大致良好；极敏感人群需注意。','Generally OK; very sensitive people take note.');
+  if(pm<55)return L('敏感人群：减少长时间户外活动。','Sensitive groups: limit prolonged outdoor exertion.');
+  if(pm<150)return L('不健康——户外佩戴 N95，关好门窗。','Unhealthy — wear an N95 outdoors, keep windows closed.');
+  return L('危害——留在室内，必须外出时戴 N95，开启空气净化器。','Hazardous — stay indoors, N95 if you must go out, run a purifier.'); }
+function uvBand(u){ if(u==null||isNaN(u))return{l:'—',c:'s-neu',a:''};
+  if(u<3)return{l:L('低','Low'),c:'s-good',a:L('无需防晒。','No sun protection needed.')};
+  if(u<6)return{l:L('中等','Moderate'),c:'s-mod',a:L('正午戴帽、涂防晒。','Hat & sunscreen at midday.')};
+  if(u<8)return{l:L('高','High'),c:'s-bad',a:L('上午11时至下午3时找阴凉；SPF30+。','Seek shade 11am–3pm; SPF30+.')};
+  if(u<11)return{l:L('很高','Very high'),c:'s-danger',a:L('避免正午日晒，做好遮挡。','Avoid midday sun; cover up.')};
+  return{l:L('极高','Extreme'),c:'s-vbad',a:L('正午请勿在户外。','Stay out of the sun midday.')}; }
+function heatBand(t){ if(t==null||isNaN(t))return{l:'—',c:'s-neu',a:''};
+  if(t<32)return{l:L('舒适','Comfortable'),c:'s-good',a:L('常规防护即可。','Normal precautions.')};
+  if(t<38)return{l:L('注意','Caution'),c:'s-mod',a:L('多补水；在阴凉处休息。','Hydrate; rest in shade.')};
+  if(t<41)return{l:L('高度注意','Extreme caution'),c:'s-bad',a:L('减少剧烈户外活动。','Limit strenuous outdoor activity.')};
+  if(t<54)return{l:L('危险','Danger'),c:'s-danger',a:L('易中暑衰竭——保持凉爽。','Heat exhaustion likely — stay cool.')};
+  return{l:L('极度危险','Extreme danger'),c:'s-vbad',a:L('有中暑风险——留在室内。','Heat-stroke risk — stay indoors.')}; }
+function hazeRisk(x){ if(x==null||isNaN(x))return{l:'—',c:'s-neu'};
+  if(x<20)return{l:L('低','Low'),c:'s-good'}; if(x<100)return{l:L('中等','Moderate'),c:'s-mod'};
+  if(x<300)return{l:L('偏高','Elevated'),c:'s-bad'}; return{l:L('高','High'),c:'s-danger'}; }
+
+async function loadImpact(lat,lon,city){
+  LOC={lat,lon,city};
+  document.getElementById('locName').textContent = city ? (LANG==='zh'?(city.z||city.n):city.n) : L('我的定位','My location');
   const aqU='https://air-quality-api.open-meteo.com/v1/air-quality?latitude='+lat+'&longitude='+lon+'&current=pm2_5,pm10,us_aqi,dust&timezone=auto';
   const wxU='https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon+'&current=temperature_2m,apparent_temperature,relative_humidity_2m,uv_index&daily=apparent_temperature_max,uv_index_max&forecast_days=1&timezone=auto';
+  const unav=L('无法获取（离线？）','Unavailable (offline?)');
   try{
-    const aq=(await (await fetch(aqU)).json()).current;
-    const b=pm25Band(aq.pm2_5);
+    const aq=(await (await fetch(aqU)).json()).current; const b=pm25Band(aq.pm2_5);
     document.getElementById('aqCard').innerHTML=
-      '<h3>Haze · Air Quality</h3>'+
+      '<h3>'+L('烟霾 · 空气质量','Haze · Air Quality')+'</h3>'+
       '<div class="big">'+Math.round(aq.pm2_5)+'<span style="font-size:13px;color:var(--muted)"> µg/m³ PM2.5</span></div>'+
       '<span class="status '+b.c+'">'+b.l+'</span>'+
-      '<div class="subrow"><span>US AQI <b>'+Math.round(aq.us_aqi)+'</b></span><span>PM10 <b>'+Math.round(aq.pm10)+'</b></span><span>Dust <b>'+Math.round(aq.dust)+'</b></span></div>'+
+      '<div class="subrow"><span>US AQI <b>'+Math.round(aq.us_aqi)+'</b></span><span>PM10 <b>'+Math.round(aq.pm10)+'</b></span><span>'+L('沙尘','Dust')+' <b>'+Math.round(aq.dust)+'</b></span></div>'+
       '<div class="advice">'+maskAdvice(aq.pm2_5)+'</div>';
-  }catch(e){ document.getElementById('aqCard').innerHTML='<h3>Haze · Air Quality</h3><div class="advice" style="border:0;padding:0">Unavailable (offline?).</div>'; }
+  }catch(e){ document.getElementById('aqCard').innerHTML='<h3>'+L('烟霾 · 空气质量','Haze · Air Quality')+'</h3><div class="advice" style="border:0;padding:0">'+unav+'</div>'; }
   try{
-    const _w=await (await fetch(wxU)).json();
-    const wx=_w.current, dy=_w.daily||{};
+    const _w=await (await fetch(wxU)).json(); const wx=_w.current, dy=_w.daily||{};
     const hb=heatBand(wx.apparent_temperature), ub=uvBand(wx.uv_index);
-    const maxFeels=(dy.apparent_temperature_max||[])[0];
-    const maxUV=(dy.uv_index_max||[])[0];
-    const peak=(maxFeels!=null)
-      ? '<div class="subrow" style="margin-top:4px">☀ Today\'s peak: <b>'+Math.round(maxFeels)+'°</b> feels-like · UV <b>'+Math.round(maxUV)+'</b> '+uvBand(maxUV).l+'</div>'
-      : '';
+    const maxFeels=(dy.apparent_temperature_max||[])[0], maxUV=(dy.uv_index_max||[])[0];
+    const peak=(maxFeels!=null)?'<div class="subrow" style="margin-top:4px">☀ '+L('今日峰值：','Today\'s peak: ')+'<b>'+Math.round(maxFeels)+'°</b> '+L('体感','feels-like')+' · '+L('紫外线','UV')+' <b>'+Math.round(maxUV)+'</b> '+uvBand(maxUV).l+'</div>':'';
     document.getElementById('heatCard').innerHTML=
-      '<h3>Heat &amp; UV</h3>'+
-      '<div class="big">'+Math.round(wx.apparent_temperature)+'°<span style="font-size:13px;color:var(--muted)"> feels-like now</span></div>'+
+      '<h3>'+L('高温与紫外线','Heat & UV')+'</h3>'+
+      '<div class="big">'+Math.round(wx.apparent_temperature)+'°<span style="font-size:13px;color:var(--muted)"> '+L('体感（现时）','feels-like now')+'</span></div>'+
       '<span class="status '+hb.c+'">'+hb.l+'</span>'+
-      '<div class="subrow"><span>Air <b>'+Math.round(wx.temperature_2m)+'°</b></span><span>Humidity <b>'+Math.round(wx.relative_humidity_2m)+'%</b></span><span>UV now <b>'+Math.round(wx.uv_index)+'</b> '+ub.l+'</span></div>'+
+      '<div class="subrow"><span>'+L('气温','Air')+' <b>'+Math.round(wx.temperature_2m)+'°</b></span><span>'+L('湿度','Humidity')+' <b>'+Math.round(wx.relative_humidity_2m)+'%</b></span><span>'+L('紫外线（现时）','UV now')+' <b>'+Math.round(wx.uv_index)+'</b> '+ub.l+'</span></div>'+
       peak+
       '<div class="advice">'+hb.a+' '+(maxUV>=6?uvBand(maxUV).a:ub.a)+'</div>';
-  }catch(e){ document.getElementById('heatCard').innerHTML='<h3>Heat &amp; UV</h3><div class="advice" style="border:0;padding:0">Unavailable (offline?).</div>'; }
+  }catch(e){ document.getElementById('heatCard').innerHTML='<h3>'+L('高温与紫外线','Heat & UV')+'</h3><div class="advice" style="border:0;padding:0">'+unav+'</div>'; }
 }
 async function loadFires(){
+  const title=L('火点 · 烟霾来源','Fire hotspots · haze source');
   try{
-    const f=await (await fetch('impact/fires.json',{cache:'no-store'})).json();
-    const r=hazeRisk(f.total);
-    const rows=(f.regions||[]).map(x=>'<span>'+x.name+' <b>'+(x.count==null?'—':x.count)+'</b></span>').join('');
+    const f=await (await fetch('impact/fires.json',{cache:'no-store'})).json(); const r=hazeRisk(f.total);
+    const rows=(f.regions||[]).map(x=>{const nm=LANG==='zh'?(FIRE_ZH[x.name]||x.name):x.name; return '<span>'+nm+' <b>'+(x.count==null?'—':x.count)+'</b></span>';}).join('');
+    const note=(f.total==null)?L('火点数据尚未配置——请添加 NASA FIRMS 密钥（见 README）。',(f.note||'Fire data not configured yet — add a NASA FIRMS key (see README).'))
+                              :L('NASA FIRMS VIIRS · 近'+(f.day_range||1)+'日 · 苏门答腊/加里曼丹为上风向来源。','NASA FIRMS VIIRS · last '+(f.day_range||1)+'d · Sumatra/Kalimantan are the upwind sources.');
     document.getElementById('fireCard').innerHTML=
-      '<h3>Fire hotspots · haze source</h3>'+
-      '<div class="big">'+(f.total==null?'—':f.total)+'<span style="font-size:13px;color:var(--muted)"> hotspots</span></div>'+
-      '<span class="status '+r.c+'">Haze risk: '+r.l+'</span>'+
+      '<h3>'+title+'</h3>'+
+      '<div class="big">'+(f.total==null?'—':f.total)+'<span style="font-size:13px;color:var(--muted)"> '+L('个火点','hotspots')+'</span></div>'+
+      '<span class="status '+r.c+'">'+L('烟霾风险：','Haze risk: ')+r.l+'</span>'+
       '<div class="subrow">'+rows+'</div>'+
-      '<div class="advice">'+(f.total==null?(f.note||'Fire data not configured yet — add a NASA FIRMS key (see README).'):('NASA FIRMS VIIRS · last '+(f.day_range||1)+'d · Sumatra/Kalimantan are the upwind sources.'))+'</div>';
-  }catch(e){
-    document.getElementById('fireCard').innerHTML='<h3>Fire hotspots · haze source</h3><div class="advice" style="border:0;padding:0">Fire data not available yet.</div>';
-  }
+      '<div class="advice">'+note+'</div>';
+  }catch(e){ document.getElementById('fireCard').innerHTML='<h3>'+title+'</h3><div class="advice" style="border:0;padding:0">'+L('火点数据暂不可用。','Fire data not available yet.')+'</div>'; }
 }
+
+// City selector + geolocation
 (function(){
   const sel=document.getElementById('citySel');
-  CITIES.forEach((c,i)=>{const o=document.createElement('option');o.value=i;o.textContent=c.n;sel.appendChild(o);});
-  sel.onchange=()=>{const c=CITIES[sel.value];loadImpact(c.lat,c.lon,c.n);};
+  function fillCities(){ sel.innerHTML=CITIES.map((c,i)=>`<option value="${i}">${LANG==='zh'?c.z:c.n}</option>`).join(''); }
+  fillCities();
+  window._fillCities=fillCities;
+  sel.onchange=()=>{const c=CITIES[sel.value];loadImpact(c.lat,c.lon,c);};
   document.getElementById('geoBtn').onclick=()=>{
-    if(!navigator.geolocation){alert('Geolocation not supported on this device.');return;}
+    if(!navigator.geolocation){alert(L('此设备不支持定位。','Geolocation not supported on this device.'));return;}
     navigator.geolocation.getCurrentPosition(
-      p=>loadImpact(p.coords.latitude,p.coords.longitude,'My location'),
-      ()=>alert('Location permission denied — pick a city instead.'));
+      p=>loadImpact(p.coords.latitude,p.coords.longitude,null),
+      ()=>alert(L('定位权限被拒绝——请改选城市。','Location permission denied — pick a city instead.')));
   };
-  loadImpact(CITIES[0].lat,CITIES[0].lon,CITIES[0].n);
+  loadImpact(CITIES[0].lat,CITIES[0].lon,CITIES[0]);
   loadFires();
 })();
 
-// Info Guide modal
+// ============ Guide modal ============
 function openGuide(){document.getElementById('guide').classList.add('open');document.body.classList.add('noscroll');}
 function closeGuide(){document.getElementById('guide').classList.remove('open');document.body.classList.remove('noscroll');}
 document.addEventListener('keydown',function(e){if(e.key==='Escape')closeGuide();});
 
-// Register service worker
+// ============ Init ============
+applyLang();               // apply saved/default language to all static text
+if(window._fillCities) window._fillCities();
+load();
+
 if('serviceWorker' in navigator){
   window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 }
-
-load();
 </script>
 </body>
 </html>
