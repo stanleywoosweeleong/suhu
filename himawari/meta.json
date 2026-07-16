@@ -1,7 +1,8 @@
 {
   "source": "NICT Himawari-9 · true colour · full disk",
-  "frame_utc": "2026-07-16 09:40:00 UTC",
-  "fetched": "2026-07-16T10:00:52.608Z",
-  "bytes": 166516,
+  "image": "latest.png",
+  "frame_utc": "awaiting first mirror run",
+  "fetched": "1970-01-01T00:00:00.000Z",
+  "bytes": 0,
   "attribution": "Imagery: NICT / JMA (Himawari-9)"
 }
