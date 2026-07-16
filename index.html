@@ -103,6 +103,8 @@
   .hbtn{background:var(--panel);border:1px solid var(--line);color:var(--ink);padding:7px 13px;border-radius:999px;cursor:pointer;font-size:13px;font-weight:600}
   .hbtn:hover{border-color:var(--accent);color:var(--accent)}
   #langBtn{min-width:52px}
+  .iconbtn{min-width:52px;display:inline-flex;align-items:center;justify-content:center}
+  .iconbtn svg{display:block}
   body.noscroll{overflow:hidden}
   .modal{position:fixed;inset:0;z-index:100;display:none}
   .modal.open{display:block}
@@ -133,8 +135,12 @@
       <h1>SUHU <span style="color:var(--muted);font-weight:500;font-size:14px" data-i18n="title_suffix">· 厄尔尼诺监测</span></h1>
       <div class="sub" data-i18n="sub">马来西亚与海洋大陆 · 多来源</div>
     </div>
-    <button class="hbtn" id="langBtn" onclick="toggleLang()" style="margin-left:auto">EN</button>
-    <button class="hbtn" onclick="openGuide()" data-i18n="guide_btn">ⓘ 指南</button>
+    <button class="hbtn iconbtn" onclick="openGuide()" style="margin-left:auto" aria-label="Guide" title="Guide">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><circle cx="12" cy="7.6" r="1.1" fill="currentColor" stroke="none"/>
+      </svg>
+    </button>
+    <button class="hbtn" id="langBtn" onclick="toggleLang()">EN</button>
     <button id="installBtn" onclick="doInstall()" data-i18n="install_btn">⬇ 安装</button>
   </header>
 
@@ -242,7 +248,7 @@ function toggleLang(){ setLang(LANG==='zh'?'en':'zh'); }
 function setLang(l){ LANG=l; try{localStorage.setItem('suhu_lang',l);}catch(e){} applyLang(); }
 function applyLang(){
   document.documentElement.lang = LANG==='zh'?'zh':'en';
-  document.getElementById('langBtn').textContent = LANG==='zh'?'EN':'中文';
+  document.getElementById('langBtn').textContent = LANG==='zh'?'中文':'EN';
   document.querySelectorAll('[data-i18n]').forEach(el=>{ const v=T[LANG][el.dataset.i18n]; if(v!=null) el.textContent=v; });
   document.querySelectorAll('[data-i18n-html]').forEach(el=>{ const v=T[LANG][el.dataset.i18nHtml]; if(v!=null) el.innerHTML=v; });
   const _cs=document.getElementById('citySel'); if(_cs&&window._fillCities){const _v=_cs.value;window._fillCities();_cs.value=_v;}
