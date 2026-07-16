@@ -9,6 +9,11 @@ on:
 permissions:
   contents: write             # allows the job to commit the refreshed data.json
 
+# Only one refresh at a time — prevents two runs racing to push.
+concurrency:
+  group: suhu-data
+  cancel-in-progress: false
+
 jobs:
   refresh:
     runs-on: ubuntu-latest
@@ -28,4 +33,5 @@ jobs:
           git config user.email "suhu-bot@users.noreply.github.com"
           git add data.json
           git commit -m "chore: refresh climate data $(date -u +%FT%TZ)" || echo "no changes"
+          git pull --rebase origin main || true   # pick up newer commits first
           git push
