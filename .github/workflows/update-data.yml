@@ -1,0 +1,31 @@
+name: Update SUHU data
+
+# Runs on GitHub's servers — never on your computer.
+on:
+  schedule:
+    - cron: '0 */6 * * *'   # every 6 hours (UTC). Adjust as needed.
+  workflow_dispatch: {}       # lets you trigger it manually from the Actions tab
+
+permissions:
+  contents: write             # allows the job to commit the refreshed data.json
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Fetch & parse climate feeds
+        run: node fetch-data.js
+
+      - name: Commit updated data.json
+        run: |
+          git config user.name  "suhu-bot"
+          git config user.email "suhu-bot@users.noreply.github.com"
+          git add data.json
+          git commit -m "chore: refresh climate data $(date -u +%FT%TZ)" || echo "no changes"
+          git push
