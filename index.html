@@ -30,8 +30,6 @@
   a{color:var(--accent);text-decoration:none}
   .wrap{max-width:1120px;margin:0 auto;padding:14px 16px 70px}
   header{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
-  .logo{width:42px;height:42px;border-radius:10px;background:linear-gradient(135deg,#1e3a8a,#3b82f6);
-    display:flex;align-items:center;justify-content:center;font-weight:800;font-size:19px;color:#fff}
   h1{font-size:20px;margin:0}
   .sub{color:var(--muted);font-size:12px;margin-top:2px}
   #installBtn{display:none;background:var(--wet);border:none;color:#04220f;font-weight:700;
@@ -131,7 +129,6 @@
 <body>
 <div class="wrap">
   <header>
-    <div class="logo">☀</div>
     <div>
       <h1>SUHU-ENSO</h1>
     </div>
@@ -603,17 +600,23 @@ async function loadFires(){
 // City selector + geolocation
 (function(){
   const sel=document.getElementById('citySel');
-  function fillCities(){ sel.innerHTML='<option value="" hidden></option>'+CITIES.map((c,i)=>`<option value="${i}">${LANG==='zh'?c.z:c.n}</option>`).join(''); }
-  fillCities(); sel.value='0';
+  function fillCities(){ const ph=LANG==='zh'?'预设':'Preset'; sel.innerHTML='<option value="">'+ph+'</option>'+CITIES.map((c,i)=>`<option value="${i}">${LANG==='zh'?c.z:c.n}</option>`).join(''); }
+  fillCities();
   window._fillCities=fillCities;
-  sel.onchange=()=>{ if(sel.value==='')return; const c=CITIES[sel.value];loadImpact(c.lat,c.lon,c); };
+  function saveLoc(o){ try{localStorage.setItem('suhu_loc',JSON.stringify(o));}catch(e){} }
+  function savedLoc(){ try{return JSON.parse(localStorage.getItem('suhu_loc'));}catch(e){return null;} }
+  sel.onchange=()=>{ if(sel.value==='')return; const i=+sel.value, c=CITIES[i]; saveLoc({mode:'city',idx:i}); loadImpact(c.lat,c.lon,c); };
   document.getElementById('geoBtn').onclick=()=>{
     if(!navigator.geolocation){alert(L('此设备不支持定位。','Geolocation not supported on this device.'));return;}
     navigator.geolocation.getCurrentPosition(
-      p=>{ sel.value=''; loadImpact(p.coords.latitude,p.coords.longitude,null); },   // blank the preset dropdown for GPS
+      p=>{ sel.value=''; saveLoc({mode:'gps',lat:p.coords.latitude,lon:p.coords.longitude}); loadImpact(p.coords.latitude,p.coords.longitude,null); },
       ()=>alert(L('定位权限被拒绝——请改选城市。','Location permission denied — pick a city instead.')));
   };
-  loadImpact(CITIES[0].lat,CITIES[0].lon,CITIES[0]);
+  // restore the last choice (preset city or GPS), else default to the first city
+  const sv=savedLoc();
+  if(sv&&sv.mode==='gps'&&isFinite(sv.lat)&&isFinite(sv.lon)){ sel.value=''; loadImpact(sv.lat,sv.lon,null); }
+  else if(sv&&sv.mode==='city'&&CITIES[sv.idx]){ sel.value=String(sv.idx); loadImpact(CITIES[sv.idx].lat,CITIES[sv.idx].lon,CITIES[sv.idx]); }
+  else { sel.value='0'; loadImpact(CITIES[0].lat,CITIES[0].lon,CITIES[0]); }
   loadFires();
 })();
 
