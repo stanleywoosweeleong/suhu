@@ -7,7 +7,6 @@
  *
  * Needs a FREE NASA FIRMS map key, stored as the repo secret FIRMS_MAP_KEY:
  *   get one at https://firms.modaps.eosdis.nasa.gov/api/map_key/
- * Without the key it writes a graceful placeholder (app shows "not configured").
  *
  * FIRMS area API (CSV):
  *   https://firms.modaps.eosdis.nasa.gov/api/area/csv/{KEY}/{SRC}/{W,S,E,N}/{days}
@@ -18,12 +17,12 @@ const fs = require('fs');
 const path = require('path');
 
 const OUT = path.join(__dirname, 'impact', 'fires.json');
-const KEY = process.env.FIRMS_MAP_KEY;
+// .trim() + strip any stray whitespace/newlines a pasted secret may carry —
+// a trailing newline makes every request URL invalid ("fetch failed").
+const KEY = (process.env.FIRMS_MAP_KEY || '').replace(/\s+/g, '');
 const SRC = 'VIIRS_SNPP_NRT';
 const DAYS = 1;
 
-// Bounding boxes [west, south, east, north]. Sumatra & Kalimantan are the
-// upwind fire sources for Malaysian haze during the southwest monsoon.
 const REGIONS = [
   { name: 'Sumatra',             box: [95, -6, 107, 6] },
   { name: 'Kalimantan',          box: [108, -4, 119, 4] },
@@ -31,23 +30,40 @@ const REGIONS = [
   { name: 'Sarawak / Sabah',     box: [109, 0, 119, 8] }
 ];
 
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// Fetch with retries; on network failure surface the real underlying cause.
+async function fetchText(url, tries = 3) {
+  let lastErr = 'request failed';
+  for (let i = 0; i < tries; i++) {
+    const ctl = new AbortController();
+    const t = setTimeout(() => ctl.abort(), 25000);
+    try {
+      const r = await fetch(url, {
+        headers: { 'User-Agent': 'SUHU-monitor/1.0', 'Accept': 'text/csv,*/*' },
+        redirect: 'follow', signal: ctl.signal
+      });
+      const txt = await r.text();
+      return { ok: r.ok, status: r.status, txt };
+    } catch (e) {
+      const cause = e && e.cause ? (e.cause.code || e.cause.message || String(e.cause)) : '';
+      lastErr = e.message + (cause ? ' [' + cause + ']' : '');
+    } finally { clearTimeout(t); }
+    if (i < tries - 1) await sleep(1500);
+  }
+  throw new Error(lastErr);
+}
+
 async function countFires(box) {
   const [w, s, e, n] = box;
   const url = 'https://firms.modaps.eosdis.nasa.gov/api/area/csv/' +
     KEY + '/' + SRC + '/' + w + ',' + s + ',' + e + ',' + n + '/' + DAYS;
-  const ctl = new AbortController();
-  const t = setTimeout(() => ctl.abort(), 25000);
-  try {
-    const r = await fetch(url, { headers: { 'User-Agent': 'SUHU-monitor/1.0' }, signal: ctl.signal });
-    const txt = await r.text();
-    if (!r.ok) throw new Error('HTTP ' + r.status + ': ' + txt.slice(0, 80).replace(/\s+/g, ' '));
-    const lines = txt.trim().split(/\r?\n/).filter((l) => l.length);
-    // A valid CSV response starts with a header row containing "latitude".
-    // Anything else (e.g. "Invalid MAP_KEY", a rate-limit notice) is surfaced.
-    if (!lines.length) return 0;
-    if (!/latitude/i.test(lines[0])) throw new Error('FIRMS says: ' + lines[0].slice(0, 90).replace(/\s+/g, ' '));
-    return Math.max(0, lines.length - 1);
-  } finally { clearTimeout(t); }
+  const { ok, status, txt } = await fetchText(url);
+  if (!ok) throw new Error('HTTP ' + status + ': ' + txt.slice(0, 80).replace(/\s+/g, ' '));
+  const lines = txt.trim().split(/\r?\n/).filter((l) => l.length);
+  if (!lines.length) return 0;                                   // no fires in window
+  if (!/latitude/i.test(lines[0])) throw new Error('FIRMS: ' + lines[0].slice(0, 90).replace(/\s+/g, ' '));
+  return Math.max(0, lines.length - 1);
 }
 
 (async () => {
@@ -61,6 +77,7 @@ async function countFires(box) {
     console.log('No FIRMS_MAP_KEY set — wrote placeholder.');
     return;
   }
+  console.log('Using FIRMS key of length ' + KEY.length + ' (whitespace stripped).');
 
   const regions = [];
   let total = 0, okAny = false, firstErr = null;
@@ -85,9 +102,8 @@ async function countFires(box) {
     regions,
     total: okAny ? total : null
   };
-  // If the key is set but every region failed, surface WHY (not "not configured").
   if (!okAny && firstErr) out.note = 'FIRMS fetch failed — ' + firstErr;
 
   fs.writeFileSync(OUT, JSON.stringify(out, null, 2));
-  console.log('fires.json written — total hotspots: ' + out.total + (out.note ? (' | note: ' + out.note) : ''));
+  console.log('fires.json written — total: ' + out.total + (out.note ? (' | ' + out.note) : ''));
 })().catch((e) => { console.error('fatal', e); process.exit(1); });
