@@ -1,6 +1,6 @@
 {
   "name": "SUHU — ENSO & Climate-Driver Monitor",
-  "short_name": "SUHU",
+  "short_name": "SUHU-ENSO",
   "description": "Multi-source El Niño / IOD / MJO monitoring for Malaysia and the Maritime Continent.",
   "id": "/suhu-pwa/",
   "start_url": "./index.html",
