@@ -248,10 +248,28 @@ function render(D){
 
   const ctx=document.getElementById('nino34chart');
   if(chart) chart.destroy();
+  // inline plugin: draw each value above its dot (no extra library needed)
+  const dotLabels={
+    id:'dotLabels',
+    afterDatasetsDraw(c){
+      const g=c.ctx, ds=c.data.datasets[0], meta=c.getDatasetMeta(0);
+      g.save();
+      g.font='700 11px -apple-system,Segoe UI,Roboto,sans-serif';
+      g.fillStyle='#eaf0fb';
+      g.textAlign='center';
+      g.textBaseline='bottom';
+      meta.data.forEach((pt,i)=>{
+        const v=ds.data[i];
+        g.fillText((v>=0?'+':'')+v.toFixed(1), pt.x, pt.y-8);
+      });
+      g.restore();
+    }
+  };
   chart=new Chart(ctx,{type:'line',
     data:{labels:D.nino34history.labels,datasets:[{data:D.nino34history.values,borderColor:'#ef4444',
       backgroundColor:'rgba(239,68,68,.12)',fill:true,tension:.35,pointRadius:3,pointBackgroundColor:'#ef4444',borderWidth:2}]},
-    options:{plugins:{legend:{display:false}},scales:{
+    plugins:[dotLabels],
+    options:{layout:{padding:{top:16}},plugins:{legend:{display:false}},scales:{
       y:{grid:{color:'#25324b'},ticks:{color:'#93a1bd',callback:v=>'+'+v},suggestedMin:0,suggestedMax:2.2,
          title:{display:true,text:'°C anomaly',color:'#93a1bd'}},
       x:{grid:{display:false},ticks:{color:'#93a1bd'}}}}});
