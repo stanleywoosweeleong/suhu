@@ -105,6 +105,28 @@
   .impact-ctrl label{font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:6px}
   .impact-ctrl select{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:13px}
   .big{font-size:32px;font-weight:800;line-height:1.1;margin:4px 0 2px}
+  .hbtn{background:var(--panel);border:1px solid var(--line);color:var(--ink);padding:7px 13px;border-radius:999px;cursor:pointer;font-size:13px;font-weight:600}
+  .hbtn:hover{border-color:var(--accent);color:var(--accent)}
+  body.noscroll{overflow:hidden}
+  .modal{position:fixed;inset:0;z-index:100;display:none}
+  .modal.open{display:block}
+  .modal .backdrop{position:absolute;inset:0;background:rgba(4,8,16,.62)}
+  .sheet{position:absolute;left:0;right:0;bottom:0;top:7%;background:var(--bg);border-top:1px solid var(--line);border-radius:16px 16px 0 0;display:flex;flex-direction:column;box-shadow:0 -12px 40px rgba(0,0,0,.5)}
+  .sheet-head{display:flex;align-items:center;gap:10px;padding:15px 18px;border-bottom:1px solid var(--line)}
+  .sheet-head h2{margin:0;font-size:17px}
+  .sheet-close{margin-left:auto;background:var(--panel);border:1px solid var(--line);color:var(--ink);width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:15px;line-height:1}
+  .sheet-body{overflow-y:auto;padding:18px;-webkit-overflow-scrolling:touch}
+  .guide h3{font-size:14px;margin:22px 0 8px;color:var(--ink)}
+  .guide>p:first-child,.guide h3:first-child{margin-top:0}
+  .guide p{font-size:13.5px;color:#c9d5ea;line-height:1.6;margin:0 0 10px}
+  .guide ul{margin:8px 0;padding-left:18px}
+  .guide li{font-size:12.8px;color:#c9d5ea;margin:5px 0;line-height:1.5}
+  .guide .gitem{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:11px 13px;margin:8px 0}
+  .guide .gitem .gt{font-weight:700;color:var(--ink);font-size:13.5px}
+  .guide .gitem p{margin:4px 0 0;font-size:12.8px}
+  @media(min-width:720px){
+    .sheet{top:50%;bottom:auto;left:50%;right:auto;transform:translate(-50%,-50%);width:min(680px,92vw);max-height:86vh;border-radius:16px;border:1px solid var(--line)}
+  }
   .subrow{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:8px}
   .subrow b{color:var(--ink)}
   .advice{font-size:12.5px;color:var(--muted);margin-top:8px;padding-top:8px;border-top:1px solid var(--line)}
@@ -127,6 +149,7 @@
       <button id="btnPublic" class="on" onclick="setView('public')">Public</button>
       <button id="btnTech" onclick="setView('tech')">Forecaster</button>
     </div>
+    <button class="hbtn" onclick="openGuide()">ⓘ Guide</button>
     <button id="installBtn" onclick="doInstall()">⬇ Install</button>
   </header>
 
@@ -143,6 +166,7 @@
   </div>
 
   <div class="section-title">Climate drivers</div>
+  <div class="gsrc" style="margin:-4px 0 12px">El Niño / La Niña seen from three angles — <b>ocean</b>, official <b>index</b> and <b>atmosphere</b> — plus the <b>IOD</b> and <b>MJO</b>. New here? Open the <a href="#" onclick="openGuide();return false">ⓘ Guide</a>.</div>
   <div class="grid" id="drivers"></div>
 
   <div class="section-title">Regional outlook — what it means on the ground</div>
@@ -172,8 +196,6 @@
     <div class="panel"><table id="sources"></table>
       <div class="gsrc" style="margin-top:10px">Every indicator has a primary + fallback. No single agency (NOAA included) is a point of failure.</div>
     </div>
-    <div class="section-title">Interpretation engine — active rules</div>
-    <div class="panel"><table id="rules"></table></div>
   </div>
 
   <div class="section-title">Local impact — <span id="locName">Kuala Lumpur</span></div>
@@ -192,27 +214,64 @@
     <div class="gsrc" style="margin-top:10px">Air quality &amp; heat: Open-Meteo (modeled, updates live per location). Fire hotspots: NASA FIRMS (VIIRS). Malaysia's official index: <a href="https://eqms.doe.gov.my" target="_blank">DOE MyEQMS · APIMS ↗</a>.</div>
   </div>
 
-  <div class="section-title">About this tool</div>
-  <div class="panel about">
-    <p><strong>SUHU is an interpretation layer, not an independent forecast.</strong> It does not run its own ocean model. It aggregates the world's ENSO / IOD / MJO monitoring — including NOAA's — and translates it into what those drivers mean for rainfall, drought and haze in Malaysia. For the underlying science, NOAA, BoM, JAMSTEC and JMA remain the authorities.</p>
-    <details>
-      <summary>How this differs from NOAA ▾</summary>
-      <ul>
-        <li><b>Multi-driver, not ENSO-only.</b> NOAA CPC centres on the Pacific (Niño 3.4, ONI). SUHU combines ENSO <b>+ the Indian Ocean Dipole + the MJO + the monsoon calendar</b> — the drivers that actually govern Malaysian rainfall.</li>
-        <li><b>Tuned to the Maritime Continent.</b> NOAA's core indices sit in the eastern Pacific, the far side from us. SUHU weights the sources that face this region — Australia's BoM and Japan's JAMSTEC / JMA.</li>
-        <li><b>Interprets locally.</b> NOAA reports the state of the Pacific. SUHU translates it into consequences by region (Peninsula west/east, Sabah, Sarawak) and by monsoon season — drought &amp; haze vs flood risk.</li>
-        <li><b>Multi-source &amp; fault-tolerant.</b> NOAA is one agency. SUHU aggregates several with automatic fallback (e.g. the DMI JAMSTEC→PSL chain), so no single source going down blinds the tool.</li>
-      </ul>
-      <p style="margin-top:10px">In short: NOAA answers "what is the Pacific doing?" — SUHU answers "given what NOAA, BoM and JAMSTEC all say, what does it mean for Malaysia this season?"</p>
-    </details>
-    <div class="credits">
-      <b>Data &amp; attribution:</b> ENSO / Niño 3.4 / ONI — NOAA CPC · SOI — Australia BoM (Troup) · IOD / DMI — JAMSTEC SINTEX-F, NOAA PSL · MJO / RMM — Australia BoM · Satellite imagery — JMA / JAXA (Himawari) · Seasonal outlooks — ECMWF C3S · National forecasts — MetMalaysia. Used with attribution; no endorsement by these agencies is implied.
-    </div>
-  </div>
-
   <div class="foot">
-    <b>SUHU</b> — installable PWA. Data loads from <code>data.json</code>, refreshed in the cloud (GitHub Actions / serverless — no computer needed). Works offline via service worker: last-known values stay available with no signal. Drivers combine <b>ENSO + IOD + MJO + monsoon calendar</b> for Malaysia-specific outlooks.<br><br>
-    <b>Attribution:</b> NOAA CPC · Australia BoM · JAMSTEC · JMA/JAXA (Himawari) · ECMWF C3S · MetMalaysia.
+    <b>SUHU</b> · installable, offline-capable PWA · cloud-refreshed, no server needed. New here? Open the <a href="#" onclick="openGuide();return false">ⓘ Guide</a> for how to read every card.<br>
+    Multi-source ENSO + IOD + MJO + monsoon interpretation for Malaysia. Attribution: NOAA · BoM · JAMSTEC · JMA/JAXA · ECMWF · MetMalaysia.
+  </div>
+</div>
+
+<!-- Info Guide modal -->
+<div class="modal" id="guide">
+  <div class="backdrop" onclick="closeGuide()"></div>
+  <div class="sheet">
+    <div class="sheet-head">
+      <h2>Guide — how to read SUHU</h2>
+      <button class="sheet-close" onclick="closeGuide()" aria-label="Close">✕</button>
+    </div>
+    <div class="sheet-body guide">
+      <p><strong>SUHU is an interpretation layer, not an independent forecast.</strong> It aggregates the world's ENSO / IOD / MJO monitoring — including NOAA's — and translates it into what those drivers mean for rainfall, drought and haze in Malaysia. NOAA, BoM, JAMSTEC and JMA remain the underlying authorities.</p>
+
+      <h3>The status banner</h3>
+      <p>The coloured banner at the top is the national bottom line: the ENSO phase (El Niño / La Niña / neutral), whether it's strengthening or easing, and the season's main risk. A warm colour means a dry / haze bias; cool blue means a wet / flood bias.</p>
+
+      <h3>The climate drivers</h3>
+      <div class="gitem"><span class="gt">ENSO — Ocean (Niño 3.4)</span><p>The ocean side of ENSO: sea-surface temperature in the central Pacific. The headline number — warm = El Niño, cool = La Niña.</p></div>
+      <div class="gitem"><span class="gt">ENSO — Index (ONI)</span><p>The official 3-month average of Niño 3.4. Smoother and slower than the Ocean card; agencies use it to formally declare an El Niño or La Niña.</p></div>
+      <div class="gitem"><span class="gt">ENSO — Atmosphere (SOI)</span><p>The air-pressure seesaw between Tahiti and Darwin. Strongly negative confirms El Niño is "locked in"; strongly positive points to La Niña.</p></div>
+      <div class="gitem"><span class="gt">Indian Ocean Dipole (DMI)</span><p>A separate driver to our west. Positive = drier Southeast Asia (adds to El Niño drought); negative = wetter.</p></div>
+      <div class="gitem"><span class="gt">MJO</span><p>The Madden–Julian Oscillation: a pulse of rain that circles the tropics every 30–60 days, giving Malaysia short wet or dry spells on top of the seasonal pattern.</p></div>
+
+      <h3>Recent-trend chart</h3>
+      <p>The last 12 months of Niño 3.4, straight from NOAA. The current (partial) month is marked with an asterisk. Positive = El Niño, negative = La Niña — the axis flips to match.</p>
+
+      <h3>Regional outlook</h3>
+      <p>What the drivers mean on the ground for the Peninsula (west / east), Sabah and Sarawak — colour-coded Low / Moderate / High and adjusted for the monsoon season.</p>
+
+      <h3>Nowcast — Himawari satellite</h3>
+      <p>A self-hosted mirror of the latest Himawari-9 infrared image over Southeast Asia (works day and night). Refreshed server-side and cached for offline.</p>
+
+      <h3>Local impact — what you feel today</h3>
+      <div class="gitem"><span class="gt">Haze · Air Quality</span><p>Current PM2.5 (the haze particulate) with a health band and mask advice; US AQI, PM10 and dust alongside. For the official index, see DOE MyEQMS.</p></div>
+      <div class="gitem"><span class="gt">Heat &amp; UV</span><p>Feels-like temperature and UV right now, plus today's peak so you can plan around the hottest, sunniest part of the day.</p></div>
+      <div class="gitem"><span class="gt">Fire hotspots</span><p>24-hour active-fire counts over Sumatra and Kalimantan (the upwind haze sources) from NASA FIRMS — an early warning before haze arrives.</p></div>
+      <p style="font-size:12px;color:var(--muted)">Air quality &amp; heat update live per location — pick a city or use your location.</p>
+
+      <h3>How the interpretation engine works</h3>
+      <p>SUHU combines the ENSO sign, the IOD and the monsoon calendar into the banner and regional outlook. These are the rules it applies:</p>
+      <table id="rules"></table>
+
+      <h3>How this differs from NOAA</h3>
+      <ul>
+        <li><b>Multi-driver, not ENSO-only</b> — ENSO + IOD + MJO + monsoon, the drivers that govern Malaysian rain.</li>
+        <li><b>Tuned to the Maritime Continent</b> — weights BoM and JAMSTEC / JMA, which face our region, over the eastern-Pacific indices.</li>
+        <li><b>Interprets locally</b> — turns "state of the Pacific" into drought / haze vs flood risk, by region and season.</li>
+        <li><b>Multi-source &amp; fault-tolerant</b> — several sources with automatic fallback, so no single agency going down blinds the tool.</li>
+      </ul>
+      <p>In short: NOAA answers "what is the Pacific doing?" — SUHU answers "what does it mean for Malaysia this season?"</p>
+
+      <h3>Data &amp; attribution</h3>
+      <p style="font-size:12px;color:var(--muted)">ENSO / Niño 3.4 / ONI — NOAA CPC · SOI — Australia BoM (Troup) · IOD / DMI — JAMSTEC SINTEX-F, NOAA PSL · MJO / RMM — Australia BoM · Satellite — JMA / JAXA (Himawari) · Air quality &amp; heat — Open-Meteo · Fire — NASA FIRMS · Seasonal — ECMWF C3S · National forecasts — MetMalaysia. Used with attribution; no endorsement by these agencies is implied.</p>
+    </div>
   </div>
 </div>
 
@@ -231,7 +290,8 @@ function render(D){
   document.getElementById('bPills').innerHTML=b.pills.map(p=>`<span class="pill ${p[0]}">${p[1]}</span>`).join('');
 
   document.getElementById('drivers').innerHTML=D.drivers.map(d=>`
-    <div class="card"><h3>${d.h}</h3><div class="name">${d.name}</div>
+    <div class="card"><h3>${d.h}</h3>
+    <div class="name">${d.name}</div>
     <div class="val">${d.value}</div><div class="status ${d.cls}">${d.status}</div>
     <div class="gauge"><div class="fill" style="width:${d.gauge}%;background:${d.gcol}"></div></div>
     <div class="interp">${d.interp}</div><div class="gsrc tech">Source: ${d.src}</div></div>`).join('');
@@ -466,6 +526,11 @@ async function loadFires(){
   loadImpact(CITIES[0].lat,CITIES[0].lon,CITIES[0].n);
   loadFires();
 })();
+
+// Info Guide modal
+function openGuide(){document.getElementById('guide').classList.add('open');document.body.classList.add('noscroll');}
+function closeGuide(){document.getElementById('guide').classList.remove('open');document.body.classList.remove('noscroll');}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeGuide();});
 
 // Register service worker
 if('serviceWorker' in navigator){
