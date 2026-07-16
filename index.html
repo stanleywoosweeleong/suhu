@@ -134,7 +134,7 @@
   <div class="section-title">Nowcast &amp; trend</div>
   <div class="two">
     <div class="panel">
-      <h4>Himawari-9 · full disk (self-hosted mirror)</h4>
+      <h4>Himawari-9 · self-hosted mirror</h4>
       <div class="sat" id="sat"><span class="live">● MIRROR</span><div class="msg" id="satMsg">Loading imagery…</div></div>
       <div class="btnrow">
         <a class="btn" href="https://www.data.jma.go.jp/mscweb/data/himawari/sat_img.php" target="_blank">JMA SE-Asia ↗</a>
@@ -248,7 +248,8 @@ async function load(){
     .then(meta=>{
       const fresh = meta && meta.bytes>0;
       const bust = fresh ? (Date.parse(meta.fetched)||Date.now()) : Date.now();
-      const src = 'himawari/latest.png?t='+bust;
+      const imgFile = (meta && meta.image) ? meta.image : 'latest.png';
+      const src = 'himawari/'+imgFile+'?t='+bust;
       const img=new Image();
       img.onload=()=>{
         sat.style.backgroundImage='url('+src+')';
