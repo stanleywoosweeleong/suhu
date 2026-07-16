@@ -1,0 +1,37 @@
+name: Mirror Himawari
+
+# Fetches the latest Himawari frame on GitHub's servers — never on your computer.
+on:
+  schedule:
+    - cron: '*/30 * * * *'   # every 30 min. Use '*/10 * * * *' for 10-min cadence.
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+# One mirror run at a time.
+concurrency:
+  group: himawari-mirror
+  cancel-in-progress: false
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Fetch latest Himawari frame
+        run: node mirror-himawari.js
+
+      - name: Commit mirrored image
+        run: |
+          git config user.name  "suhu-bot"
+          git config user.email "suhu-bot@users.noreply.github.com"
+          git add himawari/latest.png himawari/meta.json
+          git commit -m "chore: himawari mirror $(date -u +%FT%TZ)" || echo "no changes"
+          git pull --rebase origin main || true
+          git push
