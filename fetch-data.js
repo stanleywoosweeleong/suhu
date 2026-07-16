@@ -200,6 +200,87 @@ async function runDriver(data, key, sourceName, fn, extra) {
   }
 }
 
+// ---- national narrative (El Niño / La Niña / neutral, monsoon-aware) -------
+const MONSOON = (m) => ([11, 12, 1, 2, 3].includes(m) ? 'NE' : ([5, 6, 7, 8, 9].includes(m) ? 'SW' : 'INTER'));
+const MLABEL = { NE: 'Northeast Monsoon', SW: 'Southwest Monsoon', INTER: 'Inter-monsoon' };
+const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+const region = (rn, risk, label, p) => ({ rn, risk, label, p });
+
+function applyNarrative(data, anom, dmi, month, trend) {
+  const mon = MONSOON(month), ml = MLABEL[mon];
+  let banner, regions;
+
+  if (anom >= 0.5) {                                   // ---------- El Niño ----------
+    const dry = (mon === 'SW' || mon === 'INTER');
+    banner = {
+      tone: 'warm',
+      tag: 'National Climate-Driver Status · ' + ml,
+      title: 'El Niño — ' + cap(trend),
+      desc: dry
+        ? 'El Niño is ' + trend + " during Malaysia's drier season. Expect a warm, dry bias with elevated drought and transboundary-haze risk"
+          + (dmi >= 0.4 ? ', compounded by a positive Indian Ocean Dipole.' : '.')
+        : 'El Niño is ' + trend + ' during the northeast monsoon, tending to suppress rainfall — a drier-than-normal wet season. Lower flood risk, but watch for water stress.',
+      pills: dry ? [['hot', 'Warm bias'], ['dry', 'Drought risk'], ['watch', '🔥 Haze watch']]
+                 : [['hot', 'Warm bias'], ['dry', 'Drier wet season']]
+    };
+    if (dmi >= 0.4) banner.pills.push(['dry', 'Positive IOD']);
+    regions = [
+      region('Peninsula — West Coast', dry ? 'r-high' : 'r-mod', dry ? 'High risk' : 'Moderate',
+        dry ? 'Driest & most haze-prone zone now. Heat + reduced rainfall; watch Klang Valley/Melaka air quality.'
+            : 'Drier than normal; reduced rainfall, limited flood risk. Watch water supply.'),
+      region('Peninsula — East Coast', 'r-mod', 'Moderate',
+        mon === 'NE' ? 'NE monsoon suppressed by El Niño — a drier wet season, lower flood risk than usual.'
+                     : 'Near-normal to drier; main flood season is Nov–Mar.'),
+      region('Sabah', 'r-mod', 'Moderate',
+        'Drier bias; agricultural water stress and localised fire risk possible.'),
+      region('Sarawak', dry ? 'r-high' : 'r-mod', dry ? 'High risk' : 'Moderate',
+        'Peatland fire & haze risk elevated under prolonged dry conditions; monitor hotspots.')
+    ];
+  } else if (anom <= -0.5) {                            // ---------- La Niña ----------
+    const wet = (mon === 'NE' || mon === 'INTER');
+    banner = {
+      tone: 'cool',
+      tag: 'National Climate-Driver Status · ' + ml,
+      title: 'La Niña — ' + cap(trend),
+      desc: wet
+        ? 'La Niña is ' + trend + " during the northeast monsoon — Malaysia's flood season. Expect a wetter, cooler bias with elevated flood and landslide risk, especially the east-coast Peninsula, Sabah and Sarawak"
+          + (dmi <= -0.4 ? ', compounded by a negative Indian Ocean Dipole.' : '.')
+        : 'La Niña is ' + trend + ' during the southwest monsoon, tending to enhance rainfall — a wetter-than-normal dry season. Lower haze risk, but localised flooding possible.',
+      pills: wet ? [['wet', 'Wet bias'], ['wet', 'Flood risk'], ['watch', 'Landslide watch']]
+                 : [['wet', 'Wet bias'], ['wet', 'Wetter than normal']]
+    };
+    if (dmi <= -0.4) banner.pills.push(['wet', 'Negative IOD']);
+    regions = [
+      region('Peninsula — West Coast', 'r-mod', 'Moderate',
+        'Wetter than normal; localised flash-flood risk in heavy downpours.'),
+      region('Peninsula — East Coast', wet ? 'r-high' : 'r-mod', wet ? 'High risk' : 'Moderate',
+        wet ? 'NE monsoon amplified by La Niña — highest flood risk. Watch Kelantan, Terengganu, Pahang.'
+            : 'Wetter than normal; flood season is Nov–Mar.'),
+      region('Sabah', wet ? 'r-high' : 'r-mod', wet ? 'High risk' : 'Moderate',
+        'Enhanced rainfall; flood and landslide risk, especially the east coast.'),
+      region('Sarawak', wet ? 'r-high' : 'r-mod', wet ? 'High risk' : 'Moderate',
+        'Wetter conditions; river flooding and landslide risk in the interior.')
+    ];
+  } else {                                             // ---------- Neutral ----------
+    banner = {
+      tone: 'neutral',
+      tag: 'National Climate-Driver Status · ' + ml,
+      title: 'ENSO-neutral',
+      desc: 'The Pacific is near neutral, so the ' + ml + ' drives conditions. No strong basin-scale push toward drought or flood; watch the monsoon and MJO for shorter-term swings.',
+      pills: [['watch', 'Near-normal'], ['watch', ml]]
+    };
+    regions = [
+      region('Peninsula — West Coast', 'r-low', 'Low', 'Near-normal; monsoon-driven weather.'),
+      region('Peninsula — East Coast', mon === 'NE' ? 'r-mod' : 'r-low', mon === 'NE' ? 'Moderate' : 'Low',
+        mon === 'NE' ? 'Northeast monsoon rains — usual seasonal flood watch.' : 'Near-normal seasonal conditions.'),
+      region('Sabah', 'r-low', 'Low', 'Near-normal; watch the MJO for short-term wet spells.'),
+      region('Sarawak', 'r-low', 'Low', 'Near-normal seasonal conditions.')
+    ];
+  }
+  data.banner = banner;
+  data.regions = regions;
+}
+
 // ---- main -----------------------------------------------------------------
 async function main() {
   const data = JSON.parse(fs.readFileSync(OUT, 'utf8'));
@@ -224,6 +305,18 @@ async function main() {
   const enso = data.drivers.find(d => d.key === 'enso');
   const oni = data.drivers.find(d => d.key === 'oni');
   if (enso && oni) { oni.cls = enso.cls; oni.gcol = enso.gcol; }
+
+  // National narrative from the live ENSO sign + IOD + monsoon month
+  try {
+    const h = data.nino34history;
+    const a = h.values[h.values.length - 1];
+    const pv = h.values.length >= 2 ? h.values[h.values.length - 2] : a;
+    const mg = Math.round((Math.abs(a) - Math.abs(pv)) * 10) / 10;
+    const tr = mg >= 0.1 ? 'strengthening' : (mg <= -0.1 ? 'easing' : 'holding steady');
+    const dmiCard = data.drivers.find(d => d.key === 'iod');
+    const dmi = dmiCard ? parseFloat(String(dmiCard.value).replace('−', '-')) : 0;
+    applyNarrative(data, a, Number.isFinite(dmi) ? dmi : 0, now.getUTCMonth() + 1, tr);
+  } catch (e) { console.error('narrative compute failed:', e.message); }
 
   fs.writeFileSync(OUT, JSON.stringify(data, null, 2));
   console.log('data.json written at', data.generated);

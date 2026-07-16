@@ -3,9 +3,10 @@
   "snapshotDate": "16 July 2026",
   "note": "Written by the cloud pipeline (fetch-data.js via GitHub Actions). Values are a real snapshot; the workflow overwrites this on each scheduled run.",
   "banner": {
+    "tone": "warm",
     "tag": "National Climate-Driver Status · Southwest Monsoon",
-    "title": "El Niño — Strengthening",
-    "desc": "A moderate El Niño is intensifying toward a strong event during Malaysia's drier southwest-monsoon season. Expect a warm, dry bias with elevated drought and transboundary-haze risk. A developing positive IOD could compound the drying — the MJO is not providing wet relief.",
+    "title": "El Niño — Easing",
+    "desc": "A strong El Niño, easing slightly, during Malaysia's drier southwest-monsoon season. Expect a warm, dry bias with elevated drought and transboundary-haze risk.",
     "pills": [
       [
         "hot",

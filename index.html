@@ -40,13 +40,16 @@
   .net{margin-left:auto;font-weight:700}
   .net.online{color:var(--wet)} .net.offline{color:var(--dry)}
 
-  .banner{border-radius:16px;padding:20px 22px;margin-bottom:16px;background:linear-gradient(135deg,#3a1d10,#4a1418);border:1px solid #6b2d1a}
-  .banner .tag{display:inline-block;font-size:10.5px;letter-spacing:1.4px;text-transform:uppercase;color:#ffd7b0;font-weight:700}
+  .banner{border-radius:16px;padding:20px 22px;margin-bottom:16px;border:1px solid var(--line)}
+  .banner.tone-warm{background:linear-gradient(135deg,#3a1d10,#4a1418);border-color:#6b2d1a}
+  .banner.tone-cool{background:linear-gradient(135deg,#0d2436,#10233a);border-color:#1d3a5b}
+  .banner.tone-neutral{background:linear-gradient(135deg,#1a2230,#181f2e);border-color:#2a3550}
+  .banner .tag{display:inline-block;font-size:10.5px;letter-spacing:1.4px;text-transform:uppercase;color:#cdd9ee;font-weight:700}
   .banner h2{margin:6px 0 4px;font-size:28px}
-  .banner .desc{color:#ffe4d0;max-width:640px;font-size:14px}
+  .banner .desc{color:#e6edfa;max-width:640px;font-size:14px}
   .pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
   .pill{font-size:12px;font-weight:700;padding:5px 11px;border-radius:999px;background:rgba(255,255,255,.12);color:#fff}
-  .pill.hot{background:rgba(239,68,68,.25)} .pill.dry{background:rgba(245,158,11,.25)} .pill.watch{background:rgba(255,255,255,.16)}
+  .pill.hot{background:rgba(239,68,68,.25)} .pill.dry{background:rgba(245,158,11,.25)} .pill.watch{background:rgba(255,255,255,.16)} .pill.wet{background:rgba(34,197,94,.25)}
 
   .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:13px;margin-bottom:16px}
   .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:15px}
@@ -221,6 +224,7 @@ function render(D){
   document.getElementById('snapText').innerHTML =
     `📌 <b>Snapshot: ${D.snapshotDate||'—'}</b> · toggle <b>Forecaster</b> for the technical layer`;
   const b=D.banner;
+  document.getElementById('banner').className='banner tone-'+(b.tone||'warm');
   document.getElementById('bTag').textContent=b.tag;
   document.getElementById('bTitle').textContent=b.title;
   document.getElementById('bDesc').textContent=b.desc;
