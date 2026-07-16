@@ -103,7 +103,8 @@
   .hbtn{background:var(--panel);border:1px solid var(--line);color:var(--ink);padding:7px 13px;border-radius:999px;cursor:pointer;font-size:13px;font-weight:600}
   .hbtn:hover{border-color:var(--accent);color:var(--accent)}
   #langBtn{min-width:52px}
-  .iconbtn{min-width:52px;display:inline-flex;align-items:center;justify-content:center}
+  .iconbtn{background:none;border:none;color:var(--muted);cursor:pointer;padding:6px;display:inline-flex;align-items:center;justify-content:center;line-height:0}
+  .iconbtn:hover{color:var(--accent)}
   .iconbtn svg{display:block}
   body.noscroll{overflow:hidden}
   .modal{position:fixed;inset:0;z-index:100;display:none}
@@ -135,7 +136,7 @@
       <h1>SUHU</h1>
       <div class="sub" data-i18n="sub">马来西亚与海洋大陆</div>
     </div>
-    <button class="hbtn iconbtn" onclick="openGuide()" style="margin-left:auto" aria-label="Guide" title="Guide">
+    <button class="iconbtn" onclick="openGuide()" style="margin-left:auto" aria-label="Guide" title="Guide">
       <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
         <circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><circle cx="12" cy="7.6" r="1.1" fill="currentColor" stroke="none"/>
       </svg>
