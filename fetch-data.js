@@ -63,7 +63,7 @@ function latestMonthly(text, isMissing) {
 function classifyNino(a) {
   if (a >= 2.0) return ['Very strong El Niño ("super")', 's-hot', 'var(--hot)', 95];
   if (a >= 1.5) return ['Strong El Niño', 's-hot', 'var(--hot)', 88];
-  if (a >= 1.0) return ['Moderate El Niño · strengthening', 's-hot', 'var(--hot)', 80];
+  if (a >= 1.0) return ['Moderate El Niño', 's-hot', 'var(--hot)', 80];
   if (a >= 0.5) return ['Weak El Niño', 's-dry', 'var(--dry)', 65];
   if (a > -0.5) return ['Neutral', 's-neu', 'var(--neutral)', 50];
   if (a > -1.0) return ['Weak La Niña', 's-wet', 'var(--wet)', 35];
@@ -116,7 +116,15 @@ async function fetchNino34() {
   const months = recent.map(x => ({ label: MON[x.mon - 1], value: Math.round(x.anom * 10) / 10 }));
   const anom = recent[recent.length - 1].anom;
   const latest = months[months.length - 1].value; // same rounding the chart shows
-  const [status, cls, gcol, gauge] = classifyNino(anom);
+  // trend direction from the real data (latest month vs the previous one)
+  const prev = months.length >= 2 ? months[months.length - 2].value : latest;
+  // trend by EVENT MAGNITUDE so it's correct for both El Niño and La Niña
+  // (a La Niña "strengthens" as the anomaly goes more negative):
+  const mag = Math.round((Math.abs(latest) - Math.abs(prev)) * 10) / 10;
+  const trend = mag >= 0.1 ? 'strengthening' : (mag <= -0.1 ? 'easing' : 'holding steady');
+  const [intensity, cls, gcol, gauge] = classifyNino(anom);
+  // status = intensity + data-driven trend (so the wording can't contradict the chart)
+  const status = Math.abs(anom) >= 0.5 ? (intensity + ' · ' + trend) : intensity;
   // card value uses the same rounded number as the chart's last point -> they always agree
   return { anom, months, patch: { value: fmt(latest) + '°C', status, cls, gcol, gauge } };
 }
