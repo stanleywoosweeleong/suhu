@@ -32,10 +32,6 @@
   .sub{color:var(--muted);font-size:12px;margin-top:2px}
   #installBtn{display:none;margin-left:8px;background:var(--wet);border:none;color:#04220f;font-weight:700;
     padding:8px 14px;border-radius:999px;cursor:pointer;font-size:13px}
-  .statusbar{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--muted);margin:8px 0 16px;
-    padding:8px 12px;background:var(--panel);border:1px solid var(--line);border-radius:8px;border-left:3px solid var(--dry)}
-  .net{margin-left:auto;font-weight:700}
-  .net.online{color:var(--wet)} .net.offline{color:var(--dry)}
 
   .banner{border-radius:16px;padding:20px 22px;margin-bottom:16px;border:1px solid var(--line)}
   .banner.tone-warm{background:linear-gradient(135deg,#3a1d10,#4a1418);border-color:#6b2d1a}
@@ -145,10 +141,6 @@
     <button id="installBtn" onclick="doInstall()">⬇ Install</button>
   </header>
 
-  <div class="statusbar" id="statusbar">
-    <span id="snapText">Loading…</span>
-    <span class="net online" id="netState">● ONLINE</span>
-  </div>
 
   <div class="banner" id="banner">
     <span class="tag" id="bTag"></span>
@@ -265,8 +257,6 @@ function el(t,c,h){const e=document.createElement(t);if(c)e.className=c;if(h!=nu
 let chart;
 
 function render(D){
-  document.getElementById('snapText').innerHTML =
-    `📌 <b>Snapshot: ${D.snapshotDate||'—'}</b> · tap <b>ⓘ Guide</b> to learn the cards`;
   const b=D.banner;
   document.getElementById('banner').className='banner tone-'+(b.tone||'warm');
   document.getElementById('bTag').textContent=b.tag;
@@ -338,7 +328,7 @@ async function load(){
     if(!r.ok) throw 0;
     render(await r.json());
   }catch(e){
-    document.getElementById('snapText').innerHTML='⚠️ Showing last saved data (offline / fetch failed).';
+    /* offline or fetch failed — cached values remain on screen */
   }
 }
 
@@ -367,13 +357,6 @@ async function load(){
 })();
 
 
-// Online/offline indicator
-function netUpdate(){
-  const n=document.getElementById('netState');
-  if(navigator.onLine){n.className='net online';n.textContent='● ONLINE';}
-  else{n.className='net offline';n.textContent='● OFFLINE — cached';}
-}
-window.addEventListener('online',netUpdate); window.addEventListener('offline',netUpdate); netUpdate();
 
 // PWA install prompt
 let deferredPrompt;
