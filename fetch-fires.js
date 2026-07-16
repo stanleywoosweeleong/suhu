@@ -11,6 +11,7 @@
  *
  * FIRMS area API (CSV):
  *   https://firms.modaps.eosdis.nasa.gov/api/area/csv/{KEY}/{SRC}/{W,S,E,N}/{days}
+ *   AREA_COORDINATES order is west,south,east,north (verified against FIRMS docs).
  */
 
 const fs = require('fs');
@@ -37,12 +38,14 @@ async function countFires(box) {
   const ctl = new AbortController();
   const t = setTimeout(() => ctl.abort(), 25000);
   try {
-    const r = await fetch(url, { signal: ctl.signal, headers: { 'User-Agent': 'SUHU-monitor/1.0' } });
-    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const r = await fetch(url, { headers: { 'User-Agent': 'SUHU-monitor/1.0' }, signal: ctl.signal });
     const txt = await r.text();
+    if (!r.ok) throw new Error('HTTP ' + r.status + ': ' + txt.slice(0, 80).replace(/\s+/g, ' '));
     const lines = txt.trim().split(/\r?\n/).filter((l) => l.length);
-    // A valid response has a header row; data rows are detections.
-    if (!lines.length || !/latitude/i.test(lines[0])) throw new Error('unexpected response');
+    // A valid CSV response starts with a header row containing "latitude".
+    // Anything else (e.g. "Invalid MAP_KEY", a rate-limit notice) is surfaced.
+    if (!lines.length) return 0;
+    if (!/latitude/i.test(lines[0])) throw new Error('FIRMS says: ' + lines[0].slice(0, 90).replace(/\s+/g, ' '));
     return Math.max(0, lines.length - 1);
   } finally { clearTimeout(t); }
 }
@@ -53,22 +56,24 @@ async function countFires(box) {
   if (!KEY) {
     fs.writeFileSync(OUT, JSON.stringify({
       generated: new Date().toISOString(), total: null, regions: [],
-      note: 'Set FIRMS_MAP_KEY secret to enable fire data (see README).'
+      note: 'FIRMS_MAP_KEY secret is not set — add it in repo Settings → Secrets → Actions.'
     }, null, 2));
     console.log('No FIRMS_MAP_KEY set — wrote placeholder.');
     return;
   }
 
   const regions = [];
-  let total = 0, okAny = false;
+  let total = 0, okAny = false, firstErr = null;
   for (const rg of REGIONS) {
     try {
       const c = await countFires(rg.box);
       regions.push({ name: rg.name, count: c });
       total += c; okAny = true;
+      console.log('OK  ' + rg.name + ': ' + c);
     } catch (e) {
       regions.push({ name: rg.name, count: null });
-      console.error(rg.name, 'failed:', e.message);
+      if (!firstErr) firstErr = e.message;
+      console.error('ERR ' + rg.name + ': ' + e.message);
     }
   }
 
@@ -80,6 +85,9 @@ async function countFires(box) {
     regions,
     total: okAny ? total : null
   };
+  // If the key is set but every region failed, surface WHY (not "not configured").
+  if (!okAny && firstErr) out.note = 'FIRMS fetch failed — ' + firstErr;
+
   fs.writeFileSync(OUT, JSON.stringify(out, null, 2));
-  console.log('fires.json written — total hotspots:', out.total);
+  console.log('fires.json written — total hotspots: ' + out.total + (out.note ? (' | note: ' + out.note) : ''));
 })().catch((e) => { console.error('fatal', e); process.exit(1); });
