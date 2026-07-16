@@ -271,12 +271,17 @@ function render(D){
       g.restore();
     }
   };
+  // y-axis range adapts to the data and always includes 0 (works for El Niño + La Niña)
+  const _v=D.nino34history.values;
+  const _dmin=Math.min(..._v), _dmax=Math.max(..._v);
+  const _min=_dmin<0?Math.floor((_dmin-0.4)*2)/2:0;   // extend below 0 only if La Niña
+  const _max=_dmax>0?Math.ceil((_dmax+0.4)*2)/2:0.5;  // extend above 0 only if El Niño
   chart=new Chart(ctx,{type:'line',
     data:{labels:D.nino34history.labels,datasets:[{data:D.nino34history.values,borderColor:'#ef4444',
       backgroundColor:'rgba(239,68,68,.12)',fill:true,tension:.35,pointRadius:3,pointBackgroundColor:'#ef4444',borderWidth:2}]},
     plugins:[dotLabels],
     options:{layout:{padding:{top:16}},plugins:{legend:{display:false}},scales:{
-      y:{grid:{color:'#25324b'},ticks:{color:'#93a1bd',callback:v=>'+'+v},suggestedMin:0,suggestedMax:2.2,
+      y:{grid:{color:'#25324b'},ticks:{color:'#93a1bd',callback:v=>(v>0?'+':'')+v},suggestedMin:_min,suggestedMax:_max,
          title:{display:true,text:'°C anomaly',color:'#93a1bd'}},
       x:{grid:{display:false},ticks:{color:'#93a1bd'}}}}});
 }
