@@ -1,0 +1,19 @@
+{
+  "name": "SUHU — ENSO & Climate-Driver Monitor",
+  "short_name": "SUHU",
+  "description": "Multi-source El Niño / IOD / MJO monitoring for Malaysia and the Maritime Continent.",
+  "id": "/suhu-pwa/",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0b1220",
+  "theme_color": "#0b1220",
+  "lang": "en-MY",
+  "categories": ["weather", "utilities", "education"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

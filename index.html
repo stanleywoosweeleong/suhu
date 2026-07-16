@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>SUHU · ENSO Monitor — Malaysia</title>
+<meta name="theme-color" content="#0b1220">
+<meta name="description" content="Multi-source El Niño / IOD / MJO monitoring for Malaysia and the Maritime Continent.">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SUHU">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#0b1220;--panel:#131c2e;--panel2:#1a2438;--line:#25324b;--ink:#eaf0fb;--muted:#93a1bd;
+    --accent:#3b82f6;--dry:#f59e0b;--hot:#ef4444;--wet:#22c55e;--neutral:#64748b;--red:#e23744;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.5;font-size:15px;padding-top:env(safe-area-inset-top)}
+  a{color:var(--accent);text-decoration:none}
+  .wrap{max-width:1120px;margin:0 auto;padding:18px 16px 70px}
+  header{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+  .logo{width:42px;height:42px;border-radius:10px;background:linear-gradient(135deg,#1e3a8a,#3b82f6);
+    display:flex;align-items:center;justify-content:center;font-weight:800;font-size:19px;color:#fff}
+  h1{font-size:20px;margin:0}
+  .sub{color:var(--muted);font-size:12px;margin-top:2px}
+  .toggle{margin-left:auto;display:flex;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:3px}
+  .toggle button{background:none;border:none;color:var(--muted);padding:7px 14px;border-radius:999px;cursor:pointer;font-size:13px;font-weight:600}
+  .toggle button.on{background:var(--accent);color:#fff}
+  #installBtn{display:none;margin-left:8px;background:var(--wet);border:none;color:#04220f;font-weight:700;
+    padding:8px 14px;border-radius:999px;cursor:pointer;font-size:13px}
+  .statusbar{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--muted);margin:8px 0 16px;
+    padding:8px 12px;background:var(--panel);border:1px solid var(--line);border-radius:8px;border-left:3px solid var(--dry)}
+  .net{margin-left:auto;font-weight:700}
+  .net.online{color:var(--wet)} .net.offline{color:var(--dry)}
+
+  .banner{border-radius:16px;padding:20px 22px;margin-bottom:16px;background:linear-gradient(135deg,#3a1d10,#4a1418);border:1px solid #6b2d1a}
+  .banner .tag{display:inline-block;font-size:10.5px;letter-spacing:1.4px;text-transform:uppercase;color:#ffd7b0;font-weight:700}
+  .banner h2{margin:6px 0 4px;font-size:28px}
+  .banner .desc{color:#ffe4d0;max-width:640px;font-size:14px}
+  .pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .pill{font-size:12px;font-weight:700;padding:5px 11px;border-radius:999px;background:rgba(255,255,255,.12);color:#fff}
+  .pill.hot{background:rgba(239,68,68,.25)} .pill.dry{background:rgba(245,158,11,.25)} .pill.watch{background:rgba(255,255,255,.16)}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:13px;margin-bottom:16px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:15px}
+  .card h3{margin:0 0 2px;font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+  .card .name{font-size:12px;color:var(--muted)}
+  .val{font-size:28px;font-weight:800;margin:6px 0 2px}
+  .status{display:inline-block;font-size:12px;font-weight:700;padding:3px 9px;border-radius:6px;margin-bottom:8px}
+  .s-dry{background:rgba(245,158,11,.18);color:var(--dry)} .s-hot{background:rgba(239,68,68,.18);color:var(--hot)}
+  .s-wet{background:rgba(34,197,94,.18);color:var(--wet)} .s-neu{background:rgba(100,116,139,.2);color:#9fb0c9}
+  .card .interp{font-size:12.5px;color:var(--muted);margin-top:4px}
+  .gauge{height:7px;background:var(--panel2);border-radius:99px;margin:10px 0 4px;position:relative;overflow:hidden}
+  .gauge .fill{position:absolute;top:0;bottom:0;border-radius:99px}
+  .gsrc{font-size:10.5px;color:#6b7a97;margin-top:8px}
+
+  .section-title{font-size:14px;font-weight:700;margin:24px 0 12px;display:flex;align-items:center;gap:8px}
+  .section-title::before{content:"";width:4px;height:16px;background:var(--accent);border-radius:2px}
+
+  .regions{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+  .region{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}
+  .region .rn{font-weight:700;font-size:14px;margin-bottom:6px}
+  .risk{font-size:11px;font-weight:700;padding:2px 8px;border-radius:5px;text-transform:uppercase;letter-spacing:.5px}
+  .r-high{background:rgba(239,68,68,.18);color:var(--hot)} .r-mod{background:rgba(245,158,11,.18);color:var(--dry)} .r-low{background:rgba(34,197,94,.16);color:var(--wet)}
+  .region p{font-size:12.5px;color:var(--muted);margin:8px 0 0}
+
+  .two{display:grid;grid-template-columns:1.3fr 1fr;gap:14px}
+  @media(max-width:820px){.two{grid-template-columns:1fr}}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px}
+  .panel h4{margin:0 0 12px;font-size:14px}
+  .sat{aspect-ratio:16/10;border-radius:10px;background:#060a14 center/cover;position:relative;display:flex;align-items:center;justify-content:center;text-align:center;overflow:hidden;border:1px solid var(--line)}
+  .sat .live{position:absolute;top:8px;left:8px;font-size:10px;font-weight:800;letter-spacing:1px;background:var(--red);color:#fff;padding:3px 8px;border-radius:5px}
+  .sat .msg{color:var(--muted);font-size:12.5px;padding:20px}
+  .btnrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .btn{font-size:12px;font-weight:600;padding:7px 12px;border-radius:8px;background:var(--panel2);border:1px solid var(--line);color:var(--ink);cursor:pointer}
+  .btn:hover{border-color:var(--accent)}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line)}
+  th{color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.5px}
+  .dot{width:8px;height:8px;border-radius:99px;display:inline-block;margin-right:6px}
+  .live-dot{background:var(--wet)} .stale-dot{background:var(--dry)}
+  .tech{display:none} body.show-tech .tech{display:block} body.show-tech .grid.tech{display:grid}
+  .foot{color:#6b7a97;font-size:11.5px;margin-top:24px;border-top:1px solid var(--line);padding-top:16px}
+  .foot b{color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo">☀</div>
+    <div>
+      <h1>SUHU <span style="color:var(--muted);font-weight:500;font-size:14px">· ENSO Monitor</span></h1>
+      <div class="sub">Malaysia &amp; the Maritime Continent · Multi-source</div>
+    </div>
+    <div class="toggle">
+      <button id="btnPublic" class="on" onclick="setView('public')">Public</button>
+      <button id="btnTech" onclick="setView('tech')">Forecaster</button>
+    </div>
+    <button id="installBtn" onclick="doInstall()">⬇ Install</button>
+  </header>
+
+  <div class="statusbar" id="statusbar">
+    <span id="snapText">Loading…</span>
+    <span class="net online" id="netState">● ONLINE</span>
+  </div>
+
+  <div class="banner" id="banner">
+    <span class="tag" id="bTag"></span>
+    <h2 id="bTitle">—</h2>
+    <div class="desc" id="bDesc"></div>
+    <div class="pills" id="bPills"></div>
+  </div>
+
+  <div class="section-title">Climate drivers</div>
+  <div class="grid" id="drivers"></div>
+
+  <div class="section-title">Regional outlook — what it means on the ground</div>
+  <div class="regions" id="regions"></div>
+
+  <div class="section-title">Nowcast &amp; trend</div>
+  <div class="two">
+    <div class="panel">
+      <h4>Himawari-9 · Southeast Asia (live convection)</h4>
+      <div class="sat" id="sat"><span class="live">● LIVE</span><div class="msg" id="satMsg">Loading imagery…</div></div>
+      <div class="btnrow">
+        <a class="btn" href="https://www.data.jma.go.jp/mscweb/data/himawari/sat_img.php" target="_blank">JMA SE-Asia ↗</a>
+        <a class="btn" href="https://himawari8.nict.go.jp/" target="_blank">NICT ↗</a>
+        <a class="btn" href="https://slider.cira.colostate.edu/?sat=himawari" target="_blank">SLIDER ↗</a>
+      </div>
+      <div class="gsrc" style="margin-top:8px">Live imagery opens at source (hotlink/CORS-restricted). A cloud function can serve Malaysia-cropped tiles — see README.</div>
+    </div>
+    <div class="panel">
+      <h4>Niño 3.4 SST anomaly — recent trend</h4>
+      <canvas id="nino34chart" height="150"></canvas>
+      <div class="gsrc">°C anomaly. Positive &amp; rising = El Niño strengthening. Source: NOAA CPC / BoM.</div>
+    </div>
+  </div>
+
+  <div class="tech">
+    <div class="section-title">Source health &amp; redundancy</div>
+    <div class="panel"><table id="sources"></table>
+      <div class="gsrc" style="margin-top:10px">Every indicator has a primary + fallback. No single agency (NOAA included) is a point of failure.</div>
+    </div>
+    <div class="section-title">Interpretation engine — active rules</div>
+    <div class="panel"><table id="rules"></table></div>
+  </div>
+
+  <div class="foot">
+    <b>SUHU</b> — installable PWA. Data loads from <code>data.json</code>, refreshed in the cloud (GitHub Actions / serverless — no computer needed). Works offline via service worker: last-known values stay available with no signal. Drivers combine <b>ENSO + IOD + MJO + monsoon calendar</b> for Malaysia-specific outlooks.<br><br>
+    <b>Attribution:</b> NOAA CPC · Australia BoM · JAMSTEC · JMA/JAXA (Himawari) · ECMWF C3S · MetMalaysia.
+  </div>
+</div>
+
+<script>
+function el(t,c,h){const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e;}
+let chart;
+
+function render(D){
+  document.getElementById('snapText').innerHTML =
+    `📌 <b>Snapshot: ${D.snapshotDate||'—'}</b> · toggle <b>Forecaster</b> for the technical layer`;
+  const b=D.banner;
+  document.getElementById('bTag').textContent=b.tag;
+  document.getElementById('bTitle').textContent=b.title;
+  document.getElementById('bDesc').textContent=b.desc;
+  document.getElementById('bPills').innerHTML=b.pills.map(p=>`<span class="pill ${p[0]}">${p[1]}</span>`).join('');
+
+  document.getElementById('drivers').innerHTML=D.drivers.map(d=>`
+    <div class="card"><h3>${d.h}</h3><div class="name">${d.name}</div>
+    <div class="val">${d.value}</div><div class="status ${d.cls}">${d.status}</div>
+    <div class="gauge"><div class="fill" style="width:${d.gauge}%;background:${d.gcol}"></div></div>
+    <div class="interp">${d.interp}</div><div class="gsrc tech">Source: ${d.src}</div></div>`).join('');
+
+  document.getElementById('regions').innerHTML=D.regions.map(r=>`
+    <div class="region"><div class="rn">${r.rn}</div>
+    <span class="risk ${r.risk}">${r.label}</span><p>${r.p}</p></div>`).join('');
+
+  document.getElementById('sources').innerHTML=
+    `<tr><th>Indicator</th><th>Primary</th><th>Fallback</th><th>Status</th><th>Updated</th></tr>`+
+    D.sources.map(s=>`<tr><td>${s[0]}</td><td>${s[1]}</td><td style="color:var(--muted)">${s[2]}</td>
+    <td><span class="dot ${s[3]==='live'?'live-dot':'stale-dot'}"></span>${s[3]}</td>
+    <td style="color:var(--muted)">${s[4]}</td></tr>`).join('');
+
+  document.getElementById('rules').innerHTML=
+    `<tr><th>Condition</th><th>Action</th><th>State</th></tr>`+
+    D.rules.map(r=>{const on=/ACTIVE|ARMED|flag/.test(r[2]);
+      return `<tr><td>${r[0]}</td><td style="color:var(--muted)">${r[1]}</td>
+      <td><span class="risk ${on?'r-high':'r-low'}" style="font-size:10px">${r[2]}</span></td></tr>`;}).join('');
+
+  const ctx=document.getElementById('nino34chart');
+  if(chart) chart.destroy();
+  chart=new Chart(ctx,{type:'line',
+    data:{labels:D.nino34history.labels,datasets:[{data:D.nino34history.values,borderColor:'#ef4444',
+      backgroundColor:'rgba(239,68,68,.12)',fill:true,tension:.35,pointRadius:3,pointBackgroundColor:'#ef4444',borderWidth:2}]},
+    options:{plugins:{legend:{display:false}},scales:{
+      y:{grid:{color:'#25324b'},ticks:{color:'#93a1bd',callback:v=>'+'+v},suggestedMin:0,suggestedMax:2.2,
+         title:{display:true,text:'°C anomaly',color:'#93a1bd'}},
+      x:{grid:{display:false},ticks:{color:'#93a1bd'}}}}});
+}
+
+// Load data: network-first, fall back to cached/last snapshot
+async function load(){
+  try{
+    const r=await fetch('data.json',{cache:'no-store'});
+    if(!r.ok) throw 0;
+    render(await r.json());
+  }catch(e){
+    document.getElementById('snapText').innerHTML='⚠️ Showing last saved data (offline / fetch failed).';
+  }
+}
+
+// Himawari attempt
+(function(){
+  const sat=document.getElementById('sat'), msg=document.getElementById('satMsg');
+  const img=new Image(); img.referrerPolicy="no-referrer";
+  img.src="https://rammb-slider.cira.colostate.edu/data/imagery/"+
+    new Date().toISOString().slice(0,10).replace(/-/g,'')+"/himawari---full_disk/geocolor/thumbnail.jpg";
+  img.onload=()=>{sat.style.backgroundImage=`url(${img.src})`;msg.textContent="";};
+  img.onerror=()=>{msg.innerHTML="🛰️ Live Himawari imagery is hotlink-restricted at source.<br>Open a live SE-Asia loop below.";};
+})();
+
+function setView(v){
+  document.body.classList.toggle('show-tech',v==='tech');
+  document.getElementById('btnTech').classList.toggle('on',v==='tech');
+  document.getElementById('btnPublic').classList.toggle('on',v==='public');
+}
+
+// Online/offline indicator
+function netUpdate(){
+  const n=document.getElementById('netState');
+  if(navigator.onLine){n.className='net online';n.textContent='● ONLINE';}
+  else{n.className='net offline';n.textContent='● OFFLINE — cached';}
+}
+window.addEventListener('online',netUpdate); window.addEventListener('offline',netUpdate); netUpdate();
+
+// PWA install prompt
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt',(e)=>{e.preventDefault();deferredPrompt=e;
+  document.getElementById('installBtn').style.display='inline-block';});
+function doInstall(){ if(!deferredPrompt)return; deferredPrompt.prompt();
+  deferredPrompt.userChoice.finally(()=>{deferredPrompt=null;document.getElementById('installBtn').style.display='none';}); }
+
+// Register service worker
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+}
+
+load();
+</script>
+</body>
+</html>
