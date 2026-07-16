@@ -409,7 +409,7 @@ function hazeRisk(total){
 async function loadImpact(lat,lon,name){
   document.getElementById('locName').textContent=name;
   const aqU='https://air-quality-api.open-meteo.com/v1/air-quality?latitude='+lat+'&longitude='+lon+'&current=pm2_5,pm10,us_aqi,dust&timezone=auto';
-  const wxU='https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon+'&current=temperature_2m,apparent_temperature,relative_humidity_2m,uv_index&forecast_days=1&timezone=auto';
+  const wxU='https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon+'&current=temperature_2m,apparent_temperature,relative_humidity_2m,uv_index&daily=apparent_temperature_max,uv_index_max&forecast_days=1&timezone=auto';
   try{
     const aq=(await (await fetch(aqU)).json()).current;
     const b=pm25Band(aq.pm2_5);
@@ -421,14 +421,21 @@ async function loadImpact(lat,lon,name){
       '<div class="advice">'+maskAdvice(aq.pm2_5)+'</div>';
   }catch(e){ document.getElementById('aqCard').innerHTML='<h3>Haze · Air Quality</h3><div class="advice" style="border:0;padding:0">Unavailable (offline?).</div>'; }
   try{
-    const wx=(await (await fetch(wxU)).json()).current;
+    const _w=await (await fetch(wxU)).json();
+    const wx=_w.current, dy=_w.daily||{};
     const hb=heatBand(wx.apparent_temperature), ub=uvBand(wx.uv_index);
+    const maxFeels=(dy.apparent_temperature_max||[])[0];
+    const maxUV=(dy.uv_index_max||[])[0];
+    const peak=(maxFeels!=null)
+      ? '<div class="subrow" style="margin-top:4px">☀ Today\'s peak: <b>'+Math.round(maxFeels)+'°</b> feels-like · UV <b>'+Math.round(maxUV)+'</b> '+uvBand(maxUV).l+'</div>'
+      : '';
     document.getElementById('heatCard').innerHTML=
       '<h3>Heat &amp; UV</h3>'+
-      '<div class="big">'+Math.round(wx.apparent_temperature)+'°<span style="font-size:13px;color:var(--muted)"> feels-like</span></div>'+
+      '<div class="big">'+Math.round(wx.apparent_temperature)+'°<span style="font-size:13px;color:var(--muted)"> feels-like now</span></div>'+
       '<span class="status '+hb.c+'">'+hb.l+'</span>'+
-      '<div class="subrow"><span>Air <b>'+Math.round(wx.temperature_2m)+'°</b></span><span>Humidity <b>'+Math.round(wx.relative_humidity_2m)+'%</b></span><span>UV <b>'+Math.round(wx.uv_index)+'</b> '+ub.l+'</span></div>'+
-      '<div class="advice">'+hb.a+' '+ub.a+'</div>';
+      '<div class="subrow"><span>Air <b>'+Math.round(wx.temperature_2m)+'°</b></span><span>Humidity <b>'+Math.round(wx.relative_humidity_2m)+'%</b></span><span>UV now <b>'+Math.round(wx.uv_index)+'</b> '+ub.l+'</span></div>'+
+      peak+
+      '<div class="advice">'+hb.a+' '+(maxUV>=6?uvBand(maxUV).a:ub.a)+'</div>';
   }catch(e){ document.getElementById('heatCard').innerHTML='<h3>Heat &amp; UV</h3><div class="advice" style="border:0;padding:0">Unavailable (offline?).</div>'; }
 }
 async function loadFires(){
