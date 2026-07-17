@@ -1,25 +1,26 @@
 {
-  "generated": "2026-07-17T14:11:12.381Z",
+  "generated": "2026-07-17T19:38:24.199Z",
   "source": "NASA FIRMS VIIRS S-NPP",
   "day_range": 1,
   "frame": "2026-07-17",
   "regions": [
     {
       "name": "Sumatra",
-      "count": 103
+      "count": null
     },
     {
       "name": "Kalimantan",
-      "count": 115
+      "count": null
     },
     {
       "name": "Peninsular Malaysia",
-      "count": 12
+      "count": null
     },
     {
       "name": "Sarawak / Sabah",
-      "count": 67
+      "count": null
     }
   ],
-  "total": 297
+  "total": null,
+  "note": "FIRMS fetch failed — fetch failed [ETIMEDOUT]"
 }
