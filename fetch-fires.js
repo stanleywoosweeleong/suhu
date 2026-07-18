@@ -8,9 +8,10 @@
  * Needs a FREE NASA FIRMS map key, stored as the repo secret FIRMS_MAP_KEY:
  *   get one at https://firms.modaps.eosdis.nasa.gov/api/map_key/
  *
- * Uses the https module with IPv4 forced (family: 4). Node's built-in fetch
- * (undici) often fails on CI runners with a bare "fetch failed" when it tries
- * IPv6 — this avoids that. Retries transient failures and logs the real cause.
+ * Uses `curl` (IPv4, generous timeout) instead of Node's fetch/https. Node's
+ * built-in HTTP stack has repeatedly failed to connect to FIRMS from CI runners
+ * ("fetch failed" / connect timeout) even though the key and endpoint are fine.
+ * curl is the battle-tested HTTP client on runners and its errors are clear.
  *
  * FIRMS area API (CSV):
  *   https://firms.modaps.eosdis.nasa.gov/api/area/csv/{KEY}/{SRC}/{W,S,E,N}/{days}
@@ -19,11 +20,10 @@
 
 const fs = require('fs');
 const path = require('path');
-const https = require('https');
+const { execFile } = require('child_process');
 
 const OUT = path.join(__dirname, 'impact', 'fires.json');
-// Strip any whitespace/newlines a pasted secret may carry (a trailing newline
-// makes every request URL invalid).
+// Strip any whitespace/newlines a pasted secret may carry.
 const KEY = (process.env.FIRMS_MAP_KEY || '').replace(/\s+/g, '');
 const SRC = 'VIIRS_SNPP_NRT';
 const DAYS = 1;
@@ -37,32 +37,26 @@ const REGIONS = [
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-// GET over https, forcing IPv4, following redirects, with a timeout.
-function httpGet(url, redirects = 0) {
+// GET via curl: force IPv4, follow redirects, 60s cap; append the HTTP status.
+function curlGet(url) {
   return new Promise((resolve, reject) => {
-    const req = https.get(url, {
-      family: 4,
-      headers: { 'User-Agent': 'SUHU-monitor/1.0', 'Accept': 'text/csv,*/*' },
-      timeout: 25000
-    }, (res) => {
-      if ([301, 302, 303, 307, 308].includes(res.statusCode) && res.headers.location && redirects < 4) {
-        res.resume();
-        return resolve(httpGet(new URL(res.headers.location, url).href, redirects + 1));
+    const args = ['-sS', '-L', '--ipv4', '--max-time', '60',
+      '-A', 'SUHU-monitor/1.0', '-w', '\\n%{http_code}', url];
+    execFile('curl', args, { maxBuffer: 16 * 1024 * 1024 }, (err, stdout, stderr) => {
+      if (err && !stdout) {
+        return reject(new Error('curl: ' + String(stderr || err.message).trim().replace(/\s+/g, ' ').slice(0, 120)));
       }
-      let data = '';
-      res.setEncoding('utf8');
-      res.on('data', (c) => { data += c; });
-      res.on('end', () => resolve({ status: res.statusCode, txt: data }));
+      const i = stdout.lastIndexOf('\n');
+      const status = parseInt(stdout.slice(i + 1).trim(), 10) || 0;
+      resolve({ status, txt: stdout.slice(0, i) });
     });
-    req.on('timeout', () => req.destroy(new Error('timeout after 25s')));
-    req.on('error', (e) => reject(new Error(e.code || e.message)));
   });
 }
 
-async function fetchText(url, tries = 3) {
+async function fetchText(url, tries = 2) {
   let lastErr = 'request failed';
   for (let i = 0; i < tries; i++) {
-    try { return await httpGet(url); }
+    try { return await curlGet(url); }
     catch (e) { lastErr = e.message; }
     if (i < tries - 1) await sleep(2000);
   }
@@ -74,9 +68,9 @@ async function countFires(box) {
   const url = 'https://firms.modaps.eosdis.nasa.gov/api/area/csv/' +
     KEY + '/' + SRC + '/' + w + ',' + s + ',' + e + ',' + n + '/' + DAYS;
   const { status, txt } = await fetchText(url);
-  if (status !== 200) throw new Error('HTTP ' + status + ': ' + txt.slice(0, 80).replace(/\s+/g, ' '));
+  if (status && status !== 200) throw new Error('HTTP ' + status + ': ' + txt.slice(0, 80).replace(/\s+/g, ' '));
   const lines = txt.trim().split(/\r?\n/).filter((l) => l.length);
-  if (!lines.length) return 0;                                   // no fires in window
+  if (!lines.length) return 0;
   if (!/latitude/i.test(lines[0])) throw new Error('FIRMS: ' + lines[0].slice(0, 90).replace(/\s+/g, ' '));
   return Math.max(0, lines.length - 1);
 }
