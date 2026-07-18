@@ -1,8 +1,8 @@
 {
-  "generated": "2026-07-17T19:38:24.199Z",
+  "generated": "2026-07-18T01:07:48.792Z",
   "source": "NASA FIRMS VIIRS S-NPP",
   "day_range": 1,
-  "frame": "2026-07-17",
+  "frame": "2026-07-18",
   "regions": [
     {
       "name": "Sumatra",
@@ -22,5 +22,5 @@
     }
   ],
   "total": null,
-  "note": "FIRMS fetch failed — fetch failed [ETIMEDOUT]"
+  "note": "FIRMS fetch failed — timeout after 25s"
 }
