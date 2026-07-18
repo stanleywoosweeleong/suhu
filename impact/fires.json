@@ -1,5 +1,5 @@
 {
-  "generated": "2026-07-18T08:15:51.906Z",
+  "generated": "2026-07-18T13:59:48.441Z",
   "source": "NASA FIRMS VIIRS S-NPP",
   "day_range": 1,
   "frame": "2026-07-18",
@@ -10,7 +10,7 @@
     },
     {
       "name": "Kalimantan",
-      "count": 24
+      "count": 0
     },
     {
       "name": "Peninsular Malaysia",
@@ -18,8 +18,8 @@
     },
     {
       "name": "Sarawak / Sabah",
-      "count": 16
+      "count": 0
     }
   ],
-  "total": 40
+  "total": 0
 }
