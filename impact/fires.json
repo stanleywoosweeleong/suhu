@@ -1,12 +1,12 @@
 {
-  "generated": "2026-07-21T09:07:48.400Z",
+  "generated": "2026-07-21T14:31:48.621Z",
   "source": "NASA FIRMS VIIRS S-NPP",
   "day_range": 1,
   "frame": "2026-07-21",
   "regions": [
     {
       "name": "Sumatra",
-      "count": 18
+      "count": 43
     },
     {
       "name": "Kalimantan",
@@ -21,5 +21,5 @@
       "count": 12
     }
   ],
-  "total": 186
+  "total": 211
 }
