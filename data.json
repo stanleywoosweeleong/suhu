@@ -1,6 +1,6 @@
 {
-  "generated": "2026-07-21T19:41:36.830Z",
-  "snapshotDate": "21 July 2026",
+  "generated": "2026-07-22T03:25:59.214Z",
+  "snapshotDate": "22 July 2026",
   "note": "Written by the cloud pipeline (fetch-data.js via GitHub Actions). Values are a real snapshot; the workflow overwrites this on each scheduled run.",
   "banner": {
     "tone": "warm",
@@ -159,7 +159,7 @@
       "DMI (IOD)",
       "JAMSTEC SINTEX-F",
       "JMA TCC · NOAA PSL",
-      "stale",
+      "live",
       "just now"
     ],
     [
