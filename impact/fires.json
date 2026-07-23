@@ -1,25 +1,25 @@
 {
-  "generated": "2026-07-22T19:51:27.091Z",
+  "generated": "2026-07-23T03:55:51.030Z",
   "source": "NASA FIRMS VIIRS S-NPP",
   "day_range": 1,
-  "frame": "2026-07-22",
+  "frame": "2026-07-23",
   "regions": [
     {
       "name": "Sumatra",
-      "count": 53
+      "count": 0
     },
     {
       "name": "Kalimantan",
-      "count": 233
+      "count": 0
     },
     {
       "name": "Peninsular Malaysia",
-      "count": 3
+      "count": 0
     },
     {
       "name": "Sarawak / Sabah",
-      "count": 88
+      "count": 0
     }
   ],
-  "total": 377
+  "total": 0
 }
