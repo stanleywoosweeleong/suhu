@@ -145,27 +145,27 @@ function classifyFlavor(n12, n3, n4, n34) {
   return ['Neutral — no clear flavor', 's-neu', 'var(--neutral)', 50];
 }
 
-// CPC index files (wpac850, olr, ...) stack THREE year×12-month blocks: actual,
-// anomaly, standardized — each preceded by a "STARTYR ENDYR" header, missing = -999.9.
-// Returns the latest STANDARDIZED value (last block): unambiguous in magnitude
-// (~±3) and same sign as the anomaly, so it's the safe one to classify on.
+// CPC index files (wpac850, olr, ...) stack blocks of "YEAR v1..v12" rows and end
+// with the STANDARDIZED block. Two gotchas handled here: (1) fill values run
+// together with no spaces, e.g. "-1.1-999.9-999.9" and "2027-999.9..." — so we
+// extract numbers by regex, not by whitespace-splitting; (2) the same (year,month)
+// recurs across blocks, so a ">=" tie-break keeps the LAST occurrence = standardized
+// (unambiguous magnitude ~±3, same sign as the anomaly). Missing = ±999.9.
 function latestCpcStd(text) {
-  const lines = text.replace(/<[^>]+>/g, ' ').split(NL).map(l => l.trim()).filter(Boolean);
-  const blocks = []; let cur = null;
-  for (const line of lines) {
-    const t = line.split(/\s+/);
-    if (t.length === 2 && /^\d{4}$/.test(t[0]) && /^\d{4}$/.test(t[1])) { cur = []; blocks.push(cur); continue; }
-    if (cur && /^\d{4}$/.test(t[0])) cur.push(t.map(Number));
-  }
-  if (!blocks.length) return null;
-  const block = blocks[blocks.length - 1]; // standardized = last block
+  const lines = text.replace(/<[^>]+>/g, ' ').split(NL);
   let best = null;
-  for (const row of block) {
-    const year = row[0];
-    for (let m = 1; m <= 12 && m < row.length; m++) {
-      const v = row[m];
-      if (!Number.isFinite(v) || v <= -99 || v >= 999) continue;
-      if (!best || year > best.year || (year === best.year && m > best.month)) best = { year, month: m, value: v };
+  for (const line of lines) {
+    const nums = (line.match(/-?\d+(?:\.\d+)?/g) || []).map(Number);
+    if (nums.length < 2) continue;
+    const year = nums[0];
+    if (!Number.isInteger(year) || year < 1950 || year > 2100) continue;
+    const vals = nums.slice(1, 13); // up to 12 months
+    for (let m = 0; m < vals.length; m++) {
+      const v = vals[m];
+      if (!Number.isFinite(v) || Math.abs(v) >= 999) continue; // -999.9 fill (and year-range header's 2nd token)
+      if (!best || year > best.year || (year === best.year && m + 1 >= best.month)) {
+        best = { year, month: m + 1, value: v };
+      }
     }
   }
   return best;
@@ -277,15 +277,17 @@ async function fetchMJO() {
   return { patch: { value: 'Ph ' + phase + ' · ' + amp.toFixed(1), status, cls, gcol, gauge } };
 }
 
-// WWV (subsurface heat content) — PMEL GODAS, monthly. Tolerant parse: a data row
-// begins with an 8-digit date (YYYYMMDD); the ANOMALY is the last numeric column.
+// WWV (subsurface heat content) — PMEL GODAS, monthly.
+// Rows are "YYYYMM  WWVmean  WWVanom", values in scientific notation (m^3), e.g.
+//   202606 0.2691901E+16 0.3004249E+15   ->  anomaly = 3.004e14 m^3 = +3.0 (×10^14).
+// Last column is the anomaly; we scale to the conventional 10^14 m^3 unit (~±3).
 async function fetchWWV() {
   const txt = await getText('https://www.pmel.noaa.gov/tao/wwv/data/wwv.dat');
-  const rows = txt.split(NL).map(l => l.trim().split(/\s+/)).filter(r => /^\d{8}$/.test(r[0]));
+  const rows = txt.split(NL).map(l => l.trim().split(/\s+/)).filter(r => /^\d{6}$/.test(r[0]));
   let val;
   for (let i = rows.length - 1; i >= 0; i--) {
-    const v = parseFloat(rows[i][rows[i].length - 1]);
-    if (Number.isFinite(v) && Math.abs(v) < 1e4) { val = v; break; }
+    const a = parseFloat(rows[i][rows[i].length - 1]); // handles "0.30E+15" and "-.12E+15"
+    if (Number.isFinite(a)) { val = a / 1e14; break; }
   }
   if (val === undefined) throw new Error('no WWV row parsed');
   const [status, cls, gcol, gauge] = classifyWWV(val);
