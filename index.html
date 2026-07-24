@@ -89,6 +89,13 @@
   .impact-ctrl label{font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:6px}
   .impact-ctrl select{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:13px}
   .big{font-size:32px;font-weight:800;line-height:1.1;margin:4px 0 2px}
+  .verdict{margin-bottom:16px;border:1px solid var(--line)}
+  .verdict.tone-warm{border-left:4px solid var(--hot);background:linear-gradient(135deg,rgba(58,29,16,.45),var(--panel))}
+  .verdict.tone-cool{border-left:4px solid var(--accent);background:linear-gradient(135deg,rgba(13,36,54,.45),var(--panel))}
+  .verdict.tone-neutral{border-left:4px solid var(--neutral)}
+  .vtitle{font-size:18px;font-weight:800;margin-bottom:6px}
+  .vwhy{font-size:13px;color:#c9d5ea;line-height:1.6;margin-bottom:8px}
+  .vfarm{font-size:13px;color:var(--ink);background:var(--panel2);border-radius:8px;padding:9px 11px;line-height:1.55}
   .subrow{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:8px}
   .subrow b{color:var(--ink)}
   .advice{font-size:12.5px;color:var(--muted);margin-top:8px;padding-top:8px;border-top:1px solid var(--line)}
@@ -150,6 +157,7 @@
 
   <div class="section-title" data-i18n="st_drivers">气候驱动因子</div>
   <div class="gsrc" style="margin:-4px 0 12px" data-i18n-html="drivers_intro"></div>
+  <div class="panel verdict" id="ensoVerdict"></div>
   <div class="grid" id="drivers"></div>
 
   <div class="section-title" data-i18n="st_regions">区域展望 — 对各地的影响</div>
@@ -441,8 +449,43 @@ const MONMAP={Jan:'1月',Feb:'2月',Mar:'3月',Apr:'4月',May:'5月',Jun:'6月',
 function chartLabel(l){ if(LANG==='en')return l; const star=l.endsWith('*'); const base=star?l.slice(0,-1):l; return (MONMAP[base]||base)+(star?'*':''); }
 function trUpdated(s){ if(LANG==='en')return s; return String(s).replace('just now','刚刚').replace(' h ago',' 小时前').replace(' d ago',' 天前').replace(' min ago',' 分钟前').replace(' ago',' 前'); }
 
+// Plain-language ENSO verdict — reconciles the official ONI with the relative RONI
+function ensoVerdict(oni, roni){
+  const F={
+    warmStrong:{tone:'warm',icon:'🔴',title:L('强厄尔尼诺','Strong El Niño'),
+      why:L('三项指标一致偏暖，且扣除全球变暖背景后仍强——一次实实在在的强厄尔尼诺。','All indices are warm and stay strong even after the global-warming background is removed — a genuine strong El Niño.'),
+      farm:L('偏干偏热明显：严防干旱、山火与烟霾，做好蓄水与灌溉规划。','Clearly drier and hotter: guard against drought, fire and haze; plan water storage and irrigation.')},
+    warmConfirmed:{tone:'warm',icon:'🟠',title:L('厄尔尼诺（已确认）','El Niño (confirmed)'),
+      why:L('官方指数（ONI）与相对指数（RONI）都已越过门槛——厄尔尼诺已确立，强度中等。','Both the official ONI and the relative RONI have crossed the threshold — El Niño is established, at moderate strength.'),
+      farm:L('偏干偏热的倾向明确：留意用水与火险，关注是否继续增强。','A clear drier, warmer lean: mind water use and fire risk; watch for further strengthening.')},
+    warmEmerging:{tone:'warm',icon:'🟡',title:L('厄尔尼诺初生（偏弱）','El Niño — emerging (weak)'),
+      why:L('官方 ONI 刚越过厄尔尼诺门槛，但扣除全球变暖背景后（RONI）信号仍在边缘——所以是偏弱、刚形成的厄尔尼诺，并不像原始海温数字看起来那么强。','The official ONI has just crossed the El Niño line, but with the global-warming background removed (RONI) the signal is still borderline — so this is a weak, just-forming El Niño, not as strong as the raw sea-temperature number looks.'),
+      farm:L('略偏干、偏热的倾向，但暂无严重干旱信号。照常灌溉，密切留意是否增强。','A slight lean to drier and warmer — but no severe-drought signal yet. Irrigate as usual and watch closely for strengthening.')},
+    coolStrong:{tone:'cool',icon:'🔵',title:L('强拉尼娜','Strong La Niña'),
+      why:L('各指标一致偏冷且强——一次实实在在的强拉尼娜。','Indices are cold and strong across the board — a genuine strong La Niña.'),
+      farm:L('偏湿明显：严防洪水与滑坡，注意排水与作物防涝。','Clearly wetter: guard against floods and landslides; mind drainage and waterlogging.')},
+    coolConfirmed:{tone:'cool',icon:'🟦',title:L('拉尼娜（已确认）','La Niña (confirmed)'),
+      why:L('官方与相对指数都已越过冷侧门槛——拉尼娜已确立。','Both the official and the relative index have crossed the cool threshold — La Niña is established.'),
+      farm:L('偏湿的倾向明确：留意洪水与排水，东北季风期尤需注意。','A clear wetter lean: mind flooding and drainage, especially in the NE monsoon.')},
+    coolEmerging:{tone:'cool',icon:'🟢',title:L('拉尼娜初生（偏弱）','La Niña — emerging (weak)'),
+      why:L('官方指数刚进入拉尼娜，但相对指数仍在边缘——偏弱、刚形成的拉尼娜。','The official index has just entered La Niña, but the relative index is still borderline — a weak, just-forming La Niña.'),
+      farm:L('略偏湿的倾向，暂无严重洪涝信号。留意后续是否增强。','A slight wetter lean, no severe-flood signal yet. Watch for strengthening.')},
+    neutral:{tone:'neutral',icon:'⚪',title:L('中性（无厄尔尼诺 / 拉尼娜）','Neutral (no El Niño / La Niña)'),
+      why:L('太平洋接近中性，没有明显的厄尔尼诺或拉尼娜推动，天气主要由季风主导。','The Pacific is near neutral — no clear El Niño or La Niña push; weather is mainly monsoon-driven.'),
+      farm:L('按常年季风安排即可；留意 MJO 带来的短期干湿波动。','Plan around the usual monsoon; watch the MJO for short-term wet/dry swings.')}
+  };
+  if(oni>=0.5){ if(roni>=1.0)return F.warmStrong; if(roni>=0.5)return F.warmConfirmed; return F.warmEmerging; }
+  if(oni<=-0.5){ if(roni<=-1.0)return F.coolStrong; if(roni<=-0.5)return F.coolConfirmed; return F.coolEmerging; }
+  return F.neutral;
+}
 function renderAll(D){
   DATA=D;
+  // plain-language verdict, computed from the live ONI + RONI
+  const _gv=k=>{const c=D.drivers.find(d=>d.key===k);return c?(parseFloat(String(c.value).replace('−','-'))||0):0;};
+  const _vd=ensoVerdict(_gv('oni'), _gv('roni'));
+  const _ve=document.getElementById('ensoVerdict');
+  if(_ve){ _ve.className='panel verdict tone-'+_vd.tone;
+    _ve.innerHTML='<div class="vtitle">'+_vd.icon+' '+_vd.title+'</div><div class="vwhy">'+_vd.why+'</div><div class="vfarm">'+L('🌾 对农田：','🌾 For farms: ')+_vd.farm+'</div>'; }
   const nar=buildNarrative(D);
   const b=nar.banner;
   document.getElementById('banner').className='banner tone-'+(b.tone||'warm');
@@ -451,7 +494,9 @@ function renderAll(D){
   document.getElementById('bDesc').textContent=b.desc;
   document.getElementById('bPills').innerHTML=b.pills.map(p=>`<span class="pill ${p[0]}">${p[1]}</span>`).join('');
 
-  document.getElementById('drivers').innerHTML=D.drivers.map(d=>{
+  const ORDER=['oni','roni','enso','soi','iod','mjo'];
+  const _rank=k=>{const i=ORDER.indexOf(k);return i<0?99:i;};
+  document.getElementById('drivers').innerHTML=[...D.drivers].sort((a,b)=>_rank(a.key)-_rank(b.key)).map(d=>{
     const info=DRV[d.key]||{h:[d.h,d.h],name:[d.name,d.name],interp:[d.interp,d.interp]};
     const idx=LANG==='zh'?0:1;
     let val=d.value; if(d.key==='mjo'&&LANG==='zh') val=String(val).replace('Ph ','相位');

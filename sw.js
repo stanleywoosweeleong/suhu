@@ -1,5 +1,5 @@
 // SUHU service worker — offline app shell + fresh-data strategy
-const VERSION = 'suhu-v9';
+const VERSION = 'suhu-v10';
 const APP_SHELL = [
   './',
   './index.html',

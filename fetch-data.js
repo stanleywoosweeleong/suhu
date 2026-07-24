@@ -144,12 +144,12 @@ async function fetchSeasonal(url) {
 async function fetchONI() {
   const { anom } = await fetchSeasonal('https://www.cpc.ncep.noaa.gov/data/indices/oni.ascii.txt');
   const [status, cls, gcol, gauge] = classifyNino(anom);
-  return { patch: { value: fmt(anom) + '°C', status, cls, gcol, gauge } };
+  return { patch: { value: fmt(anom, 2) + '°C', status, cls, gcol, gauge } };
 }
 async function fetchRONI() {
   const { anom } = await fetchSeasonal('https://www.cpc.ncep.noaa.gov/data/indices/RONI.ascii.txt');
   const [status, cls, gcol, gauge] = classifyNino(anom);
-  return { patch: { value: fmt(anom) + '°C', status, cls, gcol, gauge } };
+  return { patch: { value: fmt(anom, 2) + '°C', status, cls, gcol, gauge } };
 }
 
 // SOI — Australia BoM Troup SOI, monthly plain text.
