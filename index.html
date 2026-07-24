@@ -51,6 +51,7 @@
   .card h3{margin:0 0 2px;font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
   .card .name{font-size:12px;color:var(--muted)}
   .val{font-size:26px;font-weight:800;margin:6px 0 2px}
+  .val.val-sm{font-size:18px;line-height:1.25}
   .status{display:inline-block;font-size:12px;font-weight:700;padding:3px 9px;border-radius:6px;margin-bottom:8px}
   .s-dry{background:rgba(245,158,11,.18);color:var(--dry)} .s-hot{background:rgba(239,68,68,.18);color:var(--hot)}
   .s-wet{background:rgba(34,197,94,.18);color:var(--wet)} .s-neu{background:rgba(100,116,139,.2);color:#9fb0c9}
@@ -96,6 +97,8 @@
   .vtitle{font-size:18px;font-weight:800;margin-bottom:6px}
   .vwhy{font-size:13px;color:#c9d5ea;line-height:1.6;margin-bottom:8px}
   .vfarm{font-size:13px;color:var(--ink);background:var(--panel2);border-radius:8px;padding:9px 11px;line-height:1.55}
+  .vshort{font-size:12.5px;color:var(--ink);line-height:1.55;margin-top:8px;padding:8px 11px;border-radius:8px;background:rgba(6,10,20,.35);border-left:3px solid var(--muted)}
+  .vshort b{color:var(--ink)}
   .subrow{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:8px}
   .subrow b{color:var(--ink)}
   .advice{font-size:12.5px;color:var(--muted);margin-top:8px;padding-top:8px;border-top:1px solid var(--line)}
@@ -153,11 +156,12 @@
     <h2 id="bTitle">—</h2>
     <div class="desc" id="bDesc"></div>
     <div class="pills" id="bPills"></div>
+    <div class="vfarm" id="bFarm" style="margin-top:12px;background:rgba(6,10,20,.45)"></div>
+    <div class="vshort" id="bShort"></div>
   </div>
 
   <div class="section-title" data-i18n="st_drivers">气候驱动因子</div>
   <div class="gsrc" style="margin:-4px 0 12px" data-i18n-html="drivers_intro"></div>
-  <div class="panel verdict" id="ensoVerdict"></div>
   <div class="grid" id="drivers"></div>
 
   <div class="section-title" data-i18n="st_regions">区域展望 — 对各地的影响</div>
@@ -449,6 +453,45 @@ const MONMAP={Jan:'1月',Feb:'2月',Mar:'3月',Apr:'4月',May:'5月',Jun:'6月',
 function chartLabel(l){ if(LANG==='en')return l; const star=l.endsWith('*'); const base=star?l.slice(0,-1):l; return (MONMAP[base]||base)+(star?'*':''); }
 function trUpdated(s){ if(LANG==='en')return s; return String(s).replace('just now','刚刚').replace(' h ago',' 小时前').replace(' d ago',' 天前').replace(' min ago',' 分钟前').replace(' ago',' 前'); }
 
+// Plain-language MJO reading — turns "Ph 6–7 · ~1.3" + status into "is it raining on us now?"
+// MJO phases 4–5 sit the wet pulse over the Maritime Continent (our region); 6–7–8–1 suppress it.
+function mjoReading(D){
+  const c=(D.drivers||[]).find(d=>d.key==='mjo'); if(!c) return {effect:'neu',plain:L('中性','Neutral'),tag:L('无短期信号','No short-term signal'),detail:L('MJO 数据暂缺。','MJO data unavailable.')};
+  const st=String(c.status||''), val=String(c.value||'');
+  const amp=parseFloat((val.match(/([\d.]+)\s*$/)||[])[1])||0;      // amplitude, e.g. ~1.3
+  const weak=amp<1 || /little|weak/i.test(st);
+  const wet=/wet pulse|enhanc|active over maritime/i.test(st);
+  const suppressed=/suppress/i.test(st);
+  if(weak) return {effect:'neu',
+    plain:L('目前几乎没有影响','Barely a factor now'),
+    tag:L('未来1–2周：中性','Next 1–2 weeks: neutral'),
+    detail:L('MJO 现在很弱，未来一两周对马来西亚的短期降雨没有明显推动。','The MJO is weak right now, so it won’t push Malaysia’s rainfall much either way over the next week or two.')};
+  if(suppressed) return {effect:'dry',
+    plain:L('正在压制降雨','Holding rain back now'),
+    tag:L('未来1–2周：偏干','Next 1–2 weeks: drier'),
+    detail:L('MJO 的“干位相”正经过我们上空，未来一两周雨量偏少——叠加在季节格局之上。','The MJO’s dry phase is passing over us, so the next week or two lean drier — on top of the seasonal pattern.')};
+  if(wet) return {effect:'wet',
+    plain:L('正在增强降雨','Boosting rain now'),
+    tag:L('未来1–2周：偏湿','Next 1–2 weeks: wetter'),
+    detail:L('MJO 的“湿位相”正经过我们上空，未来一两周有一波偏多的降雨。','The MJO’s wet phase is passing over us, so expect a wetter pulse over the next week or two.')};
+  return {effect:'neu',plain:L('中性','Neutral'),tag:L('未来1–2周：中性','Next 1–2 weeks: neutral'),
+    detail:(DRV.mjo?DRV.mjo.interp[LANG==='zh'?0:1]:'')};
+}
+
+// Short-term "on top of the season" note — folds IOD + MJO into the hero so the
+// verdict reflects all four drivers, not just ONI/RONI.
+function shortTermNote(D){
+  const gv=k=>{const c=(D.drivers||[]).find(d=>d.key===k);return c?(parseFloat(String(c.value).replace('−','-'))||0):0;};
+  const dmi=gv('iod'); const m=mjoReading(D);
+  const iodTxt = dmi>=0.4 ? L('印度洋偶极子转正，正加重干旱','a positive Indian Ocean Dipole is adding to the drying')
+             : dmi<=-0.4 ? L('印度洋偶极子转负，正带来额外降雨','a negative Indian Ocean Dipole is adding extra rain')
+             : L('印度洋偶极子中性（暂不加码）','the Indian Ocean Dipole is neutral (not adding either way)');
+  const mjoTxt = m.effect==='dry' ? L('MJO 正压制降雨，未来1–2周更干','the MJO is holding rain back, so the next 1–2 weeks lean drier')
+             : m.effect==='wet' ? L('MJO 正增强降雨，未来1–2周更湿','the MJO is boosting rain, so the next 1–2 weeks lean wetter')
+             : L('MJO 目前很弱，短期无明显推动','the MJO is weak now, no clear short-term push');
+  return L('🌀 <b>短期叠加：</b>','🌀 <b>Short-term, on top of the season:</b> ')+iodTxt+L('；','; ')+mjoTxt+L('。','.');
+}
+
 // Plain-language ENSO verdict — reconciles the official ONI with the relative RONI
 function ensoVerdict(oni, roni){
   const F={
@@ -480,26 +523,36 @@ function ensoVerdict(oni, roni){
 }
 function renderAll(D){
   DATA=D;
-  // plain-language verdict, computed from the live ONI + RONI
+  // ONE hero: honest ENSO verdict (ONI+RONI) as the headline, with the monsoon
+  // context, seasonal risk pills, and the farm line — merges the old banner + verdict card.
   const _gv=k=>{const c=D.drivers.find(d=>d.key===k);return c?(parseFloat(String(c.value).replace('−','-'))||0):0;};
-  const _vd=ensoVerdict(_gv('oni'), _gv('roni'));
-  const _ve=document.getElementById('ensoVerdict');
-  if(_ve){ _ve.className='panel verdict tone-'+_vd.tone;
-    _ve.innerHTML='<div class="vtitle">'+_vd.icon+' '+_vd.title+'</div><div class="vwhy">'+_vd.why+'</div><div class="vfarm">'+L('🌾 对农田：','🌾 For farms: ')+_vd.farm+'</div>'; }
+  const vd=ensoVerdict(_gv('oni'), _gv('roni'));
   const nar=buildNarrative(D);
   const b=nar.banner;
-  document.getElementById('banner').className='banner tone-'+(b.tone||'warm');
+  document.getElementById('banner').className='banner tone-'+vd.tone;
   document.getElementById('bTag').textContent=b.tag;
-  document.getElementById('bTitle').textContent=b.title;
-  document.getElementById('bDesc').textContent=b.desc;
+  document.getElementById('bTitle').textContent=vd.icon+' '+vd.title;
+  document.getElementById('bDesc').textContent=vd.why;
   document.getElementById('bPills').innerHTML=b.pills.map(p=>`<span class="pill ${p[0]}">${p[1]}</span>`).join('');
+  const _bf=document.getElementById('bFarm'); if(_bf) _bf.innerHTML=L('🌾 对农田：','🌾 For farms: ')+vd.farm;
+  const _bs=document.getElementById('bShort'); if(_bs) _bs.innerHTML=shortTermNote(D);
 
   const ORDER=['oni','roni','enso','soi','iod','mjo'];
   const _rank=k=>{const i=ORDER.indexOf(k);return i<0?99:i;};
   document.getElementById('drivers').innerHTML=[...D.drivers].sort((a,b)=>_rank(a.key)-_rank(b.key)).map(d=>{
     const info=DRV[d.key]||{h:[d.h,d.h],name:[d.name,d.name],interp:[d.interp,d.interp]};
     const idx=LANG==='zh'?0:1;
-    let val=d.value; if(d.key==='mjo'&&LANG==='zh') val=String(val).replace('Ph ','相位');
+    if(d.key==='mjo'){
+      const m=mjoReading(D);
+      const tech=(LANG==='zh'?String(d.value).replace('Ph ','相位'):d.value);
+      const stCls=m.effect==='dry'?'s-dry':m.effect==='wet'?'s-wet':'s-neu';
+      return `<div class="card"><h3>${info.h[idx]}</h3>
+        <div class="name">${L('短期降雨脉冲','Short-term rain pulse')} · ${tech}</div>
+        <div class="val val-sm">${m.plain}</div><div class="status ${stCls}">${m.tag}</div>
+        <div class="gauge"><div class="fill" style="width:${d.gauge}%;background:${d.gcol}"></div></div>
+        <div class="interp">${m.detail}</div></div>`;
+    }
+    let val=d.value;
     return `<div class="card"><h3>${info.h[idx]}</h3>
       <div class="name">${info.name[idx]}</div>
       <div class="val">${val}</div><div class="status ${d.cls}">${trStatus(d.status)}</div>
