@@ -295,14 +295,14 @@ const T = {
     g_d_iod:'<span class="gt">印度洋偶极子（DMI）</span><p>位于我们西侧的独立驱动因子。正值 = 东南亚偏干（叠加厄尔尼诺干旱）；负值 = 偏湿。</p>',
     g_d_mjo:'<span class="gt">MJO</span><p>季节内振荡：每 30–60 天绕行热带的降雨脉冲，在季节格局之上给马来西亚带来短期干湿波动。</p>',
     g_chart_h:'近期趋势图', g_chart_p:'来自 NOAA 的 Niño 3.4 最近 12 个月。当前（不完整）月份以星号标注。正值 = 厄尔尼诺，负值 = 拉尼娜——纵轴会随之翻转。',
-    g_regions_h:'区域展望', g_regions_p:'驱动因子对半岛（西 / 东）、沙巴与砂拉越的实际影响——以低 / 中 / 高风险着色，并按季风季节调整。',
+    g_regions_h:'区域展望', g_regions_p:'驱动因子对半岛（西 / 东）、沙巴与砂拉越的实际影响。每个地区的风险（低 / 中 / 高）来自 ENSO（ONI）、印度洋偶极子（IOD）与 MJO 的综合“压力指数”，并按季风季节调整。每张卡片会列出背后的驱动因子。',
     g_sat_h:'实况 — 向日葵卫星', g_sat_p:'东南亚上空最新向日葵9号红外影像的自托管镜像（昼夜可用）。在云端刷新并缓存以供离线查看。',
     g_impact_h:'本地影响 — 你今天的体感',
     g_i_haze:'<span class="gt">烟霾 · 空气质量</span><p>当前 PM2.5（构成烟霾的颗粒物），附健康等级与口罩建议；同时显示 US AQI、PM10 与沙尘。官方指数见 DOE MyEQMS。</p>',
     g_i_heat:'<span class="gt">高温与紫外线</span><p>当前体感温度与紫外线，另加今日峰值，方便你避开一天中最热、最晒的时段。</p>',
     g_i_fire:'<span class="gt">火点</span><p>来自 NASA FIRMS 的苏门答腊与加里曼丹（上风向烟霾来源）24 小时活跃火点数——烟霾来临前的预警。</p>',
     g_impact_note:'空气质量与高温按地点实时更新——选择城市或使用你的定位。',
-    g_engine_h:'解读引擎如何运作', g_engine_p:'SUHU 将 ENSO 位相、IOD 与季风日历组合成横幅与区域展望。其应用的规则如下：',
+    g_engine_h:'解读引擎如何运作', g_engine_p:'SUHU 将 ENSO 信号（ONI）、印度洋偶极子（IOD）与 MJO 结合季风日历，为每个地区计算一个综合压力指数（正 = 偏干/火险，负 = 偏湿/洪涝），再据此着色。其应用的主要规则如下：',
     g_health_h:'数据来源与冗余', g_health_p:'每个指标都有主来源和至少一个备用来源，因此没有任何单一机构（包括 NOAA）会成为单点故障。实时状态：',
     g_noaa_h:'与 NOAA 有何不同',
     g_noaa_body:'<ul><li><b>多驱动，而非仅 ENSO</b>——ENSO + IOD + MJO + 季风，即真正主导马来西亚降雨的驱动因子。</li><li><b>面向海洋大陆</b>——相较东太平洋指数，更重视面向本区域的 BoM 与 JAMSTEC / JMA。</li><li><b>本地化解读</b>——把「太平洋的状态」转化为按地区与季节的干旱 / 烟霾或洪水风险。</li><li><b>多来源、容错</b>——多个来源自动回退，单一机构中断不会致盲。</li></ul><p>简言之：NOAA 回答「太平洋在做什么？」——SUHU 回答「这一季对马来西亚意味着什么？」</p>',
@@ -333,14 +333,14 @@ const T = {
     g_d_iod:'<span class="gt">Indian Ocean Dipole (DMI)</span><p>A separate driver to our west. Positive = drier Southeast Asia (adds to El Niño drought); negative = wetter.</p>',
     g_d_mjo:'<span class="gt">MJO</span><p>The Madden–Julian Oscillation: a pulse of rain that circles the tropics every 30–60 days, giving Malaysia short wet or dry spells on top of the seasonal pattern.</p>',
     g_chart_h:'Recent-trend chart', g_chart_p:'The last 12 months of Niño 3.4, straight from NOAA. The current (partial) month is marked with an asterisk. Positive = El Niño, negative = La Niña — the axis flips to match.',
-    g_regions_h:'Regional outlook', g_regions_p:'What the drivers mean on the ground for the Peninsula (west / east), Sabah and Sarawak — colour-coded Low / Moderate / High and adjusted for the monsoon season.',
+    g_regions_h:'Regional outlook', g_regions_p:'What the drivers mean on the ground for the Peninsula (west / east), Sabah and Sarawak. Each region\'s risk (Low / Moderate / High) comes from a combined "stress score" of ENSO (ONI), the Indian Ocean Dipole (IOD) and the MJO, adjusted for the monsoon season. Every card lists the drivers behind it.',
     g_sat_h:'Nowcast — Himawari satellite', g_sat_p:'A self-hosted mirror of the latest Himawari-9 infrared image over Southeast Asia (works day and night). Refreshed server-side and cached for offline.',
     g_impact_h:'Local impact — what you feel today',
     g_i_haze:'<span class="gt">Haze · Air Quality</span><p>Current PM2.5 (the haze particulate) with a health band and mask advice; US AQI, PM10 and dust alongside. For the official index, see DOE MyEQMS.</p>',
     g_i_heat:'<span class="gt">Heat & UV</span><p>Feels-like temperature and UV right now, plus today\'s peak so you can plan around the hottest, sunniest part of the day.</p>',
     g_i_fire:'<span class="gt">Fire hotspots</span><p>24-hour active-fire counts over Sumatra and Kalimantan (the upwind haze sources) from NASA FIRMS — an early warning before haze arrives.</p>',
     g_impact_note:'Air quality & heat update live per location — pick a city or use your location.',
-    g_engine_h:'How the interpretation engine works', g_engine_p:'SUHU combines the ENSO sign, the IOD and the monsoon calendar into the banner and regional outlook. These are the rules it applies:',
+    g_engine_h:'How the interpretation engine works', g_engine_p:'SUHU blends the ENSO signal (ONI), the Indian Ocean Dipole (IOD) and the MJO with the monsoon calendar into a single stress score per region (positive = drier / fire, negative = wetter / flood), then colour-codes the risk. These are the main rules it applies:',
     g_health_h:'Source health & redundancy', g_health_p:'Every indicator has a primary source and at least one fallback, so no single agency (NOAA included) is a point of failure. Live status:',
     g_noaa_h:'How this differs from NOAA',
     g_noaa_body:'<ul><li><b>Multi-driver, not ENSO-only</b> — ENSO + IOD + MJO + monsoon, the drivers that govern Malaysian rain.</li><li><b>Tuned to the Maritime Continent</b> — weights BoM and JAMSTEC / JMA over the eastern-Pacific indices.</li><li><b>Interprets locally</b> — turns "state of the Pacific" into drought / haze vs flood risk, by region and season.</li><li><b>Multi-source & fault-tolerant</b> — several sources with automatic fallback, so no single agency going down blinds the tool.</li></ul><p>In short: NOAA answers "what is the Pacific doing?" — SUHU answers "what does it mean for Malaysia this season?"</p>',
@@ -440,9 +440,9 @@ function buildNarrative(D){
 function ruleRows(){
   const R=[
     [L('厄尔尼诺 + 西南季风','El Niño + SW monsoon'),L('→ 高干旱与烟霾风险','→ High drought & haze risk')],
-    [L('厄尔尼诺 + 正 IOD','El Niño + positive IOD'),L('→ 干旱风险再升一级','→ Escalate dry risk one level')],
+    [L('厄尔尼诺 + 正 IOD','El Niño + positive IOD'),L('→ 加重干旱压力（叠加入区域评分）','→ Adds to dry stress (folded into the region score)')],
     [L('拉尼娜 + 东北季风','La Niña + NE monsoon'),L('→ 高洪灾风险（东海岸/婆罗洲）','→ High flood risk (east coast / Borneo)')],
-    [L('MJO 活跃于第 3–5 位相','MJO active phase 3–5'),L('→ 短期湿位相脉冲','→ Short-term wet pulse')],
+    [L('MJO 干位相 / 湿位相','MJO dry phase / wet phase'),L('→ 未来1–2周偏干 / 偏湿（叠加入评分）','→ Next 1–2 weeks drier / wetter (folded into the score)')],
     [L('ENSO 符号翻转','ENSO sign flips'),L('→ 横幅在暖色↔冷色间切换','→ Banner switches warm ↔ cool')]
   ];
   return `<tr><th>${L('条件','Condition')}</th><th>${L('动作','Action')}</th></tr>`+
@@ -789,7 +789,26 @@ if(window._fillCities) window._fillCities();
 load();
 
 if('serviceWorker' in navigator){
-  window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+  // Reload once when a NEW service worker takes control, so the fresh app shell shows
+  // without the user doing anything. Guarded so it only fires on a real update
+  // (there was already a controller), not on first install, and never loops.
+  const _hadController = !!navigator.serviceWorker.controller;
+  let _reloaded=false;
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{
+    if(_reloaded || !_hadController) return; _reloaded=true; location.reload();
+  });
+  window.addEventListener('load',async()=>{
+    try{
+      // updateViaCache:'none' → always byte-check sw.js against the network, never the
+      // HTTP cache. Without this, a cached sw.js can hide the version bump for hours.
+      const reg=await navigator.serviceWorker.register('sw.js',{updateViaCache:'none'});
+      reg.update();
+      // Installed PWAs are suspended, not closed, so 'load' rarely fires again. Re-check
+      // for a new version every time the app is brought back to the foreground, plus hourly.
+      document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible') reg.update(); });
+      setInterval(()=>reg.update(), 60*60*1000);
+    }catch(e){}
+  });
 }
 </script>
 </body>

@@ -1,5 +1,5 @@
 // SUHU service worker — offline app shell + fresh-data strategy
-const VERSION = 'suhu-v13';
+const VERSION = 'suhu-v15';
 const APP_SHELL = [
   './',
   './index.html',
@@ -26,18 +26,25 @@ self.addEventListener('activate', (e) => {
 });
 
 // Fetch strategy:
-//  - data.json  -> network-first (always try fresh; fall back to cache offline)
-//  - everything -> cache-first (instant, offline-capable app shell)
+//  - the page itself (navigations) + data.json -> NETWORK-FIRST, so an already-installed
+//    app always shows fresh content when online (this is the real fix for "won't update"),
+//    and still works offline from cache.
+//  - static assets (icons, Chart.js) -> cache-first for instant, offline load.
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
 
-  if (url.pathname.endsWith('data.json') || url.pathname.endsWith('meta.json') || url.pathname.endsWith('fires.json')) {
+  const isData = url.pathname.endsWith('data.json') || url.pathname.endsWith('meta.json') || url.pathname.endsWith('fires.json');
+  const isDoc  = e.request.mode === 'navigate' || url.pathname.endsWith('/') || url.pathname.endsWith('index.html');
+
+  if (isData || isDoc) {
     e.respondWith(
       fetch(e.request).then((res) => {
         const copy = res.clone();
         caches.open(VERSION).then((c) => c.put(e.request, copy));
         return res;
-      }).catch(() => caches.match(e.request))
+      }).catch(() =>
+        caches.match(e.request).then((r) => r || caches.match('./index.html') || caches.match('./'))
+      )
     );
     return;
   }
