@@ -1,6 +1,6 @@
 {
-  "generated": "2026-07-23T19:36:10.156Z",
-  "snapshotDate": "23 July 2026",
+  "generated": "2026-07-24T03:27:00.984Z",
+  "snapshotDate": "24 July 2026",
   "note": "Written by the cloud pipeline (fetch-data.js via GitHub Actions). Values are a real snapshot; the workflow overwrites this on each scheduled run.",
   "banner": {
     "tone": "warm",
