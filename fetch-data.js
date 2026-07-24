@@ -97,6 +97,80 @@ function classifyMJO(phase, amp) {
   return ['Active · suppressed over Maritime Continent', 's-dry', 'var(--dry)', gauge];
 }
 
+// Warm Water Volume (upper-ocean heat content, PMEL GODAS). Positive anomaly =
+// recharged (warm water built up — El Niño-FAVOURABLE and a LEADING signal, weeks
+// to months ahead of the surface); negative = discharged (La Niña-favourable).
+// Sign-first: even if the magnitude scale drifts, the recharge/discharge call holds.
+function classifyWWV(a) {
+  const gauge = clamp(50 + a * 20, 0, 100);
+  if (a >= 1.0)  return ['Strongly recharged · El Niño-favourable', 's-dry', 'var(--dry)', gauge];
+  if (a >= 0.3)  return ['Recharging · warm build-up', 's-dry', 'var(--dry)', gauge];
+  if (a > -0.3)  return ['Neutral heat content', 's-neu', 'var(--neutral)', gauge];
+  if (a > -1.0)  return ['Discharging · cool build-up', 's-wet', 'var(--wet)', gauge];
+  return ['Strongly discharged · La Niña-favourable', 's-wet', 'var(--wet)', gauge];
+}
+
+// 850-hPa West-Pacific zonal wind, standardized. CPC convention is u-wind with
+// westerly POSITIVE; anomalous westerlies (weakened trades) accompany El Niño.
+// (If a first live run ever disagrees with the known state, flip the two signs.)
+function classifyWind(z) {
+  const gauge = clamp(50 + z * 20, 0, 100);
+  if (z >= 1)  return ['Westerly anomaly · El Niño-coupled', 's-dry', 'var(--dry)', gauge];
+  if (z <= -1) return ['Easterly anomaly · La Niña-coupled', 's-wet', 'var(--wet)', gauge];
+  return ['Near-normal trade winds', 's-neu', 'var(--neutral)', gauge];
+}
+
+// OLR at the dateline (160°E-160°W), standardized. Negative = enhanced convection
+// shifted east toward the dateline (El Niño coupling; drier over the Maritime
+// Continent / Malaysia). Positive = suppressed there (convection stays over us).
+function classifyOLR(z) {
+  const gauge = clamp(50 - z * 20, 0, 100); // negative OLR -> higher dry-for-us gauge
+  if (z <= -1) return ['Enhanced convection at dateline · El Niño-coupled', 's-dry', 'var(--dry)', gauge];
+  if (z >= 1)  return ['Suppressed convection at dateline', 's-wet', 'var(--wet)', gauge];
+  return ['Near-normal convection', 's-neu', 'var(--neutral)', gauge];
+}
+
+// ENSO "flavor": Eastern-Pacific (canonical) vs Central-Pacific (Modoki). CP events
+// (Niño-4 warmest) push the drought toward the Maritime Continent — worse for
+// Malaysia — so we flag them. Decided by comparing Niño-4 vs Niño-3 anomalies.
+function classifyFlavor(n12, n3, n4, n34) {
+  if (n34 >= 0.5) {
+    if (n4 >= n3) return ['Central-Pacific (Modoki) El Niño', 's-dry', 'var(--dry)', 80];
+    return ['Eastern-Pacific El Niño', 's-dry', 'var(--dry)', 62];
+  }
+  if (n34 <= -0.5) {
+    if (n4 <= n3) return ['Central-Pacific La Niña', 's-wet', 'var(--wet)', 30];
+    return ['Eastern-Pacific La Niña', 's-wet', 'var(--wet)', 38];
+  }
+  return ['Neutral — no clear flavor', 's-neu', 'var(--neutral)', 50];
+}
+
+// CPC index files (wpac850, olr, ...) stack THREE year×12-month blocks: actual,
+// anomaly, standardized — each preceded by a "STARTYR ENDYR" header, missing = -999.9.
+// Returns the latest STANDARDIZED value (last block): unambiguous in magnitude
+// (~±3) and same sign as the anomaly, so it's the safe one to classify on.
+function latestCpcStd(text) {
+  const lines = text.replace(/<[^>]+>/g, ' ').split(NL).map(l => l.trim()).filter(Boolean);
+  const blocks = []; let cur = null;
+  for (const line of lines) {
+    const t = line.split(/\s+/);
+    if (t.length === 2 && /^\d{4}$/.test(t[0]) && /^\d{4}$/.test(t[1])) { cur = []; blocks.push(cur); continue; }
+    if (cur && /^\d{4}$/.test(t[0])) cur.push(t.map(Number));
+  }
+  if (!blocks.length) return null;
+  const block = blocks[blocks.length - 1]; // standardized = last block
+  let best = null;
+  for (const row of block) {
+    const year = row[0];
+    for (let m = 1; m <= 12 && m < row.length; m++) {
+      const v = row[m];
+      if (!Number.isFinite(v) || v <= -99 || v >= 999) continue;
+      if (!best || year > best.year || (year === best.year && m > best.month)) best = { year, month: m, value: v };
+    }
+  }
+  return best;
+}
+
 // ---- source fetchers ------------------------------------------------------
 
 // Niño 3.4 — NOAA CPC detrended monthly ASCII: YR MON TOTAL CLIM ANOM.
@@ -201,6 +275,51 @@ async function fetchMJO() {
   if (amp === undefined) throw new Error('no valid RMM row parsed');
   const [status, cls, gcol, gauge] = classifyMJO(phase, amp);
   return { patch: { value: 'Ph ' + phase + ' · ' + amp.toFixed(1), status, cls, gcol, gauge } };
+}
+
+// WWV (subsurface heat content) — PMEL GODAS, monthly. Tolerant parse: a data row
+// begins with an 8-digit date (YYYYMMDD); the ANOMALY is the last numeric column.
+async function fetchWWV() {
+  const txt = await getText('https://www.pmel.noaa.gov/tao/wwv/data/wwv.dat');
+  const rows = txt.split(NL).map(l => l.trim().split(/\s+/)).filter(r => /^\d{8}$/.test(r[0]));
+  let val;
+  for (let i = rows.length - 1; i >= 0; i--) {
+    const v = parseFloat(rows[i][rows[i].length - 1]);
+    if (Number.isFinite(v) && Math.abs(v) < 1e4) { val = v; break; }
+  }
+  if (val === undefined) throw new Error('no WWV row parsed');
+  const [status, cls, gcol, gauge] = classifyWWV(val);
+  return { patch: { value: fmt(val, 1), status, cls, gcol, gauge } };
+}
+
+// 850-hPa West-Pacific trade winds — CPC wpac850 (standardized anomaly).
+async function fetchWind() {
+  const b = latestCpcStd(await getText('https://www.cpc.ncep.noaa.gov/data/indices/wpac850'));
+  if (!b) throw new Error('no wind value parsed');
+  const [status, cls, gcol, gauge] = classifyWind(b.value);
+  return { patch: { value: fmt(b.value, 1) + 'σ', status, cls, gcol, gauge } };
+}
+
+// Dateline OLR (convection) — CPC olr (standardized anomaly).
+async function fetchOLR() {
+  const b = latestCpcStd(await getText('https://www.cpc.ncep.noaa.gov/data/indices/olr'));
+  if (!b) throw new Error('no OLR value parsed');
+  const [status, cls, gcol, gauge] = classifyOLR(b.value);
+  return { patch: { value: fmt(b.value, 1) + 'σ', status, cls, gcol, gauge } };
+}
+
+// ENSO flavor (EP vs CP) — CPC ERSSTv5 Niño regions, monthly.
+// Columns: YR MON  NINO1+2 ANOM  NINO3 ANOM  NINO4 ANOM  NINO3.4 ANOM
+async function fetchFlavor() {
+  const txt = await getText('https://www.cpc.ncep.noaa.gov/data/indices/ersst5.nino.mth.91-20.ascii');
+  const rows = txt.trim().split(NL).map(l => l.trim().split(/\s+/))
+    .filter(r => r.length >= 10 && /^\d{4}$/.test(r[0]) && /^\d{1,2}$/.test(r[1]));
+  if (!rows.length) throw new Error('no Niño-region rows parsed');
+  const r = rows[rows.length - 1];
+  const n12 = parseFloat(r[3]), n3 = parseFloat(r[5]), n4 = parseFloat(r[7]), n34 = parseFloat(r[9]);
+  if (![n12, n3, n4, n34].every(Number.isFinite)) throw new Error('bad Niño-region anomalies');
+  const [status, cls, gcol, gauge] = classifyFlavor(n12, n3, n4, n34);
+  return { patch: { value: 'Niño4 ' + fmt(n4, 1) + ' · N1+2 ' + fmt(n12, 1), status, cls, gcol, gauge } };
 }
 
 // ---- driver runner --------------------------------------------------------
@@ -322,7 +441,11 @@ async function main() {
   });
   await runDriver(data, 'oni', 'ONI', fetchONI);
   await runDriver(data, 'roni', 'RONI', fetchRONI);
+  await runDriver(data, 'flavor', 'ENSO flavor', fetchFlavor);
+  await runDriver(data, 'hc', 'Heat content', fetchWWV);
   await runDriver(data, 'soi', 'SOI', fetchSOI);
+  await runDriver(data, 'wind', 'Trade winds', fetchWind);
+  await runDriver(data, 'olr', 'OLR', fetchOLR);
   await runDriver(data, 'iod', 'DMI', fetchDMI);
   await runDriver(data, 'mjo', 'MJO', fetchMJO);
 
@@ -347,4 +470,4 @@ if (require.main === module) {
   main().catch(e => { console.error('fatal', e); process.exit(1); });
 }
 
-module.exports = { latestMonthly, classifyNino, classifySOI, classifyDMI, classifyMJO, fmt };
+module.exports = { latestMonthly, latestCpcStd, classifyNino, classifySOI, classifyDMI, classifyMJO, classifyWWV, classifyWind, classifyOLR, classifyFlavor, fmt };

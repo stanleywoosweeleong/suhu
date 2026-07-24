@@ -222,7 +222,11 @@
       <h3 data-i18n="g_drivers_h"></h3>
       <div class="gitem" data-i18n-html="g_d_ocean"></div>
       <div class="gitem" data-i18n-html="g_d_index"></div>
+      <div class="gitem" data-i18n-html="g_d_flavor"></div>
+      <div class="gitem" data-i18n-html="g_d_hc"></div>
       <div class="gitem" data-i18n-html="g_d_atmos"></div>
+      <div class="gitem" data-i18n-html="g_d_wind"></div>
+      <div class="gitem" data-i18n-html="g_d_olr"></div>
       <div class="gitem" data-i18n-html="g_d_iod"></div>
       <div class="gitem" data-i18n-html="g_d_mjo"></div>
       <h3 data-i18n="g_chart_h"></h3>
@@ -274,7 +278,7 @@ const T = {
   zh:{
     sub:'马来西亚与海洋大陆', guide_btn:'ⓘ 指南', install_btn:'⬇ 安装',
     st_drivers:'气候驱动因子',
-    drivers_intro:'从三个角度看厄尔尼诺 / 拉尼娜——<b>海洋</b>、官方<b>指数</b>与<b>大气</b>，另加 <b>IOD</b> 与 <b>MJO</b> 两个驱动因子。初次使用？打开 <a href="#" onclick="openGuide();return false">ⓘ 指南</a>。',
+    drivers_intro:'从三大支柱监测厄尔尼诺 / 拉尼娜——<b>海表</b>（Niño 3.4 / ONI / RONI / 类型）、<b>次表层</b>（热含量）与<b>大气</b>（SOI / 信风 / 对流），另加 <b>IOD</b> 与 <b>MJO</b>。初次使用？打开 <a href="#" onclick="openGuide();return false">ⓘ 指南</a>。',
     st_regions:'区域展望 — 对各地的影响',
     st_nowcast:'实况与趋势',
     panel_sat:'向日葵9号 · 自托管镜像',
@@ -294,6 +298,10 @@ const T = {
     g_d_atmos:'<span class="gt">ENSO — 大气（SOI）</span><p>塔希提与达尔文之间的气压跷跷板。强负值确认厄尔尼诺已「锁定」；强正值指向拉尼娜。</p>',
     g_d_iod:'<span class="gt">印度洋偶极子（DMI）</span><p>位于我们西侧的独立驱动因子。正值 = 东南亚偏干（叠加厄尔尼诺干旱）；负值 = 偏湿。</p>',
     g_d_mjo:'<span class="gt">MJO</span><p>季节内振荡：每 30–60 天绕行热带的降雨脉冲，在季节格局之上给马来西亚带来短期干湿波动。</p>',
+    g_d_flavor:'<span class="gt">ENSO 类型（东太 vs 中太）</span><p>比较各尼诺分区的海温：中太型（Modoki，Niño4 最暖）把干旱推向海洋大陆，对马来西亚更不利；东太型（经典）影响较温和。</p>',
+    g_d_hc:'<span class="gt">次表层热含量（暖水体积）</span><p>赤道太平洋上层海洋的热量储备——领先海表数周至数月的“充电/放电”信号。正值＝已充电（利于厄尔尼诺），负值＝已放电（利于拉尼娜）。这是本工具此前缺失的关键领先指标。</p>',
+    g_d_wind:'<span class="gt">信风（850 百帕纬向风）</span><p>低层信风的强弱。西风异常（信风减弱）是厄尔尼诺的触发与耦合信号；东风异常（信风增强）偏拉尼娜。</p>',
+    g_d_olr:'<span class="gt">日界线对流（OLR）</span><p>雷暴对流的位置。负值＝对流东移至日界线（厄尔尼诺耦合），正是使海洋大陆变干的机制；正值＝对流受抑制于此，留在我们上空。</p>',
     g_chart_h:'近期趋势图', g_chart_p:'来自 NOAA 的 Niño 3.4 最近 12 个月。当前（不完整）月份以星号标注。正值 = 厄尔尼诺，负值 = 拉尼娜——纵轴会随之翻转。',
     g_regions_h:'区域展望', g_regions_p:'驱动因子对半岛（西 / 东）、沙巴与砂拉越的实际影响。每个地区的风险（低 / 中 / 高）来自 ENSO（ONI）、印度洋偶极子（IOD）与 MJO 的综合“压力指数”，并按季风季节调整。每张卡片会列出背后的驱动因子。',
     g_sat_h:'实况 — 向日葵卫星', g_sat_p:'东南亚上空最新向日葵9号红外影像的自托管镜像（昼夜可用）。在云端刷新并缓存以供离线查看。',
@@ -312,7 +320,7 @@ const T = {
   en:{
     sub:'Malaysia & the Maritime Continent', guide_btn:'ⓘ Guide', install_btn:'⬇ Install',
     st_drivers:'Climate drivers',
-    drivers_intro:'El Niño / La Niña seen from three angles — <b>ocean</b>, official <b>index</b> and <b>atmosphere</b> — plus the <b>IOD</b> and <b>MJO</b>. New here? Open the <a href="#" onclick="openGuide();return false">ⓘ Guide</a>.',
+    drivers_intro:'El Niño / La Niña across three pillars — <b>surface</b> (Niño 3.4 / ONI / RONI / flavor), <b>subsurface</b> (heat content) and <b>atmosphere</b> (SOI / trade winds / convection) — plus the <b>IOD</b> and <b>MJO</b>. New here? Open the <a href="#" onclick="openGuide();return false">ⓘ Guide</a>.',
     st_regions:'Regional outlook — what it means on the ground',
     st_nowcast:'Nowcast & trend',
     panel_sat:'Himawari-9 · self-hosted mirror',
@@ -332,6 +340,10 @@ const T = {
     g_d_atmos:'<span class="gt">ENSO — Atmosphere (SOI)</span><p>The air-pressure seesaw between Tahiti and Darwin. Strongly negative confirms El Niño is "locked in"; strongly positive points to La Niña.</p>',
     g_d_iod:'<span class="gt">Indian Ocean Dipole (DMI)</span><p>A separate driver to our west. Positive = drier Southeast Asia (adds to El Niño drought); negative = wetter.</p>',
     g_d_mjo:'<span class="gt">MJO</span><p>The Madden–Julian Oscillation: a pulse of rain that circles the tropics every 30–60 days, giving Malaysia short wet or dry spells on top of the seasonal pattern.</p>',
+    g_d_flavor:'<span class="gt">ENSO flavor (EP vs CP)</span><p>Compares the Niño sub-regions. A Central-Pacific / Modoki type (Niño 4 warmest) shifts drought toward the Maritime Continent — worse for Malaysia; an Eastern-Pacific (canonical) type is milder for us.</p>',
+    g_d_hc:'<span class="gt">Subsurface heat content (Warm Water Volume)</span><p>The equatorial Pacific\'s upper-ocean heat reserve — a "charge / discharge" signal that leads the surface by weeks to months. Positive = recharged (favours El Niño); negative = discharged (favours La Niña). This is the key leading indicator the tool was missing.</p>',
+    g_d_wind:'<span class="gt">Trade winds (850 hPa zonal wind)</span><p>The strength of the low-level trades. A westerly anomaly (weakened trades) is the trigger and coupling signature of El Niño; an easterly anomaly (strengthened trades) leans La Niña.</p>',
+    g_d_olr:'<span class="gt">Dateline convection (OLR)</span><p>Where the thunderstorms sit. Negative = convection shifted east to the dateline (El Niño coupling) — the mechanism that dries the Maritime Continent; positive = suppressed there, staying over us.</p>',
     g_chart_h:'Recent-trend chart', g_chart_p:'The last 12 months of Niño 3.4, straight from NOAA. The current (partial) month is marked with an asterisk. Positive = El Niño, negative = La Niña — the axis flips to match.',
     g_regions_h:'Regional outlook', g_regions_p:'What the drivers mean on the ground for the Peninsula (west / east), Sabah and Sarawak. Each region\'s risk (Low / Moderate / High) comes from a combined "stress score" of ENSO (ONI), the Indian Ocean Dipole (IOD) and the MJO, adjusted for the monsoon season. Every card lists the drivers behind it.',
     g_sat_h:'Nowcast — Himawari satellite', g_sat_p:'A self-hosted mirror of the latest Himawari-9 infrared image over Southeast Asia (works day and night). Refreshed server-side and cached for offline.',
@@ -356,7 +368,11 @@ const DRV = {
   roni:{h:['ENSO — 相对指数','ENSO — Relative'], name:['RONI（相对海洋尼诺指数）','RONI (Relative ONI)'], interp:['与 ONI 同一指数，但减去热带整体增温背景——在变暖气候下读数比 ONI 低，更能反映纯厄尔尼诺信号。','Same index as ONI but with the tropical-mean warming removed — reads lower than ONI in a warming climate, isolating the pure ENSO signal.']},
   soi:{h:['ENSO — 大气','ENSO — Atmosphere'], name:['SOI（南方涛动 · Troup）','SOI (monthly, Troup)'], interp:['塔希提与达尔文之间的气压跷跷板，确认 ENSO 与大气耦合。','Tahiti–Darwin pressure seesaw; confirms ENSO is coupled to the atmosphere.']},
   iod:{h:['印度洋偶极子','Indian Ocean Dipole'], name:['DMI（偶极子指数）','DMI (Dipole Mode Index)'], interp:['西侧的独立驱动因子。正值使东南亚偏干（叠加厄尔尼诺）；负值偏湿。','A separate driver to our west. Positive = drier SE Asia; negative = wetter.']},
-  mjo:{h:['MJO','MJO'], name:['RMM 位相与振幅','RMM phase & amplitude'], interp:['热带每30–60天绕行的降雨脉冲，带来短期干湿波动。','A rain pulse circling the tropics every 30–60 days — short wet/dry spells.']}
+  mjo:{h:['MJO','MJO'], name:['RMM 位相与振幅','RMM phase & amplitude'], interp:['热带每30–60天绕行的降雨脉冲，带来短期干湿波动。','A rain pulse circling the tropics every 30–60 days — short wet/dry spells.']},
+  flavor:{h:['ENSO — 类型','ENSO — Flavor'], name:['尼诺分区型态（东太 vs 中太）','Niño region pattern (EP vs CP)'], interp:['暖（冷）水集中在哪里：中太型（Modoki，Niño4 最暖）会把干旱推向海洋大陆，对马来西亚更不利；东太型影响较温和。','Where the warm (cool) water sits: a Central-Pacific / Modoki type (Niño 4 warmest) pushes drought toward the Maritime Continent — worse for Malaysia; an Eastern-Pacific type is milder for us.']},
+  hc:{h:['ENSO — 次表层','ENSO — Subsurface'], name:['暖水体积（海洋热含量）','Warm Water Volume (heat content)'], interp:['赤道太平洋上层海洋的热量储备——领先海表数周至数月的预警信号。正值＝已充电（利于厄尔尼诺），负值＝已放电（利于拉尼娜）。','The equatorial Pacific’s upper-ocean heat reserve — a leading signal that runs weeks to months ahead of the surface. Positive = recharged (favours El Niño); negative = discharged (favours La Niña).']},
+  wind:{h:['ENSO — 信风','ENSO — Trade Winds'], name:['850 百帕纬向风（西太平洋）','850 hPa zonal wind, W Pacific'], interp:['低层信风的强弱。西风异常（信风减弱）是厄尔尼诺的触发与耦合信号；东风异常（信风增强）则偏拉尼娜。','The strength of the low-level trade winds. A westerly anomaly (weakened trades) is the trigger and coupling signature of El Niño; an easterly anomaly (strengthened trades) leans La Niña.']},
+  olr:{h:['ENSO — 对流','ENSO — Convection'], name:['日界线外逸长波辐射（160°E–160°W）','OLR at the dateline (160°E–160°W)'], interp:['对流（雷暴）活动的位置。负值＝对流东移至日界线（厄尔尼诺耦合，海洋大陆偏干）；正值＝对流受抑制于此（留在我们上空）。','Where the convection (thunderstorms) sits. Negative = convection shifted east to the dateline (El Niño coupling, drier Maritime Continent); positive = suppressed there (stays over us).']}
 };
 
 // Status phrase map (translate the English status from data.json into Chinese)
@@ -367,7 +383,17 @@ const PH={
  'Strongly El Niño-coupled':'强厄尔尼诺耦合','El Niño-coupled':'厄尔尼诺耦合','La Niña-coupled':'拉尼娜耦合','Strongly La Niña-coupled':'强拉尼娜耦合',
  'Positive IOD':'正印度洋偶极子','drier for SE Asia':'东南亚偏干','Negative IOD':'负印度洋偶极子','wetter for SE Asia':'东南亚偏湿',
  'Weak':'弱','little MJO influence':'MJO影响小','Active':'活跃','wet pulse over Maritime Continent':'海洋大陆湿位相','suppressed over Maritime Continent':'海洋大陆受抑制',
- 'El Niño (moderate)':'厄尔尼诺（中等）','positive forecast':'预计转正'
+ 'El Niño (moderate)':'厄尔尼诺（中等）','positive forecast':'预计转正',
+ // Subsurface / Warm Water Volume
+ 'Strongly recharged':'强充电','El Niño-favourable':'利于厄尔尼诺','Recharging':'充电中','warm build-up':'暖水累积',
+ 'Neutral heat content':'热含量中性','Discharging':'放电中','cool build-up':'冷水累积','Strongly discharged':'强放电','La Niña-favourable':'利于拉尼娜',
+ // Trade winds (850 hPa)
+ 'Westerly anomaly':'西风异常','Easterly anomaly':'东风异常','Near-normal trade winds':'信风接近常年',
+ // OLR / convection
+ 'Enhanced convection at dateline':'日界线对流增强','Suppressed convection at dateline':'日界线对流受抑制','Near-normal convection':'对流接近常年',
+ // ENSO flavor
+ 'Central-Pacific (Modoki) El Niño':'中太型（Modoki）厄尔尼诺','Eastern-Pacific El Niño':'东太型厄尔尼诺',
+ 'Central-Pacific La Niña':'中太型拉尼娜','Eastern-Pacific La Niña':'东太型拉尼娜','Neutral — no clear flavor':'中性 — 无明显类型'
 };
 function trStatus(s){ if(LANG==='en')return s; return String(s).split(' · ').map(x=>PH[x]||x).join(' · '); }
 
@@ -589,7 +615,7 @@ function renderAll(D){
   const _bf=document.getElementById('bFarm'); if(_bf) _bf.innerHTML=L('🌾 对农田：','🌾 For farms: ')+vd.farm;
   const _bs=document.getElementById('bShort'); if(_bs) _bs.innerHTML=shortTermNote(D);
 
-  const ORDER=['oni','roni','enso','soi','iod','mjo'];
+  const ORDER=['oni','roni','enso','flavor','hc','soi','wind','olr','iod','mjo'];
   const _rank=k=>{const i=ORDER.indexOf(k);return i<0?99:i;};
   document.getElementById('drivers').innerHTML=[...D.drivers].sort((a,b)=>_rank(a.key)-_rank(b.key)).map(d=>{
     const info=DRV[d.key]||{h:[d.h,d.h],name:[d.name,d.name],interp:[d.interp,d.interp]};
@@ -605,9 +631,10 @@ function renderAll(D){
         <div class="interp">${m.detail}</div></div>`;
     }
     let val=d.value;
+    const valCls=(d.key==='flavor')?'val val-sm':'val';   // flavor value is text, not a number
     return `<div class="card"><h3>${info.h[idx]}</h3>
       <div class="name">${info.name[idx]}</div>
-      <div class="val">${val}</div><div class="status ${d.cls}">${trStatus(d.status)}</div>
+      <div class="${valCls}">${val}</div><div class="status ${d.cls}">${trStatus(d.status)}</div>
       <div class="gauge"><div class="fill" style="width:${d.gauge}%;background:${d.gcol}"></div></div>
       <div class="interp">${info.interp[idx]}</div></div>`;
   }).join('');
