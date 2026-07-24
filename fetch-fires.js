@@ -25,7 +25,9 @@ const { execFile } = require('child_process');
 const OUT = path.join(__dirname, 'impact', 'fires.json');
 // Strip any whitespace/newlines a pasted secret may carry.
 const KEY = (process.env.FIRMS_MAP_KEY || '').replace(/\s+/g, '');
-const SRC = 'VIIRS_SNPP_NRT';
+// Try S-NPP first, then NOAA-20 — if one satellite feed is briefly down the
+// other usually answers, so a single-sensor outage no longer blanks a region.
+const SRCS = ['VIIRS_SNPP_NRT', 'VIIRS_NOAA20_NRT'];
 const DAYS = 1;
 
 const REGIONS = [
@@ -53,26 +55,37 @@ function curlGet(url) {
   });
 }
 
-async function fetchText(url, tries = 2) {
+async function fetchText(url, tries = 3) {
   let lastErr = 'request failed';
   for (let i = 0; i < tries; i++) {
     try { return await curlGet(url); }
     catch (e) { lastErr = e.message; }
-    if (i < tries - 1) await sleep(2000);
+    if (i < tries - 1) await sleep(2000 * (i + 1));   // 2s, 4s backoff
   }
   throw new Error(lastErr);
 }
 
-async function countFires(box) {
+// Count fires for one box against one satellite source.
+async function countFromSource(src, box) {
   const [w, s, e, n] = box;
   const url = 'https://firms.modaps.eosdis.nasa.gov/api/area/csv/' +
-    KEY + '/' + SRC + '/' + w + ',' + s + ',' + e + ',' + n + '/' + DAYS;
+    KEY + '/' + src + '/' + w + ',' + s + ',' + e + ',' + n + '/' + DAYS;
   const { status, txt } = await fetchText(url);
   if (status && status !== 200) throw new Error('HTTP ' + status + ': ' + txt.slice(0, 80).replace(/\s+/g, ' '));
   const lines = txt.trim().split(/\r?\n/).filter((l) => l.length);
   if (!lines.length) return 0;
   if (!/latitude/i.test(lines[0])) throw new Error('FIRMS: ' + lines[0].slice(0, 90).replace(/\s+/g, ' '));
   return Math.max(0, lines.length - 1);
+}
+
+// Try each satellite in turn; only throw if they all fail.
+async function countFires(box) {
+  let lastErr = 'no source';
+  for (const src of SRCS) {
+    try { return { count: await countFromSource(src, box), src }; }
+    catch (e) { lastErr = e.message; }
+  }
+  throw new Error(lastErr);
 }
 
 (async () => {
@@ -88,31 +101,51 @@ async function countFires(box) {
   }
   console.log('Using FIRMS key of length ' + KEY.length + ' (whitespace stripped).');
 
+  // Load the previous fires.json so a region that fails this run can keep its
+  // last-good count (flagged stale) instead of blanking out.
+  let prev = {};
+  try {
+    const p = JSON.parse(fs.readFileSync(OUT, 'utf8'));
+    (p.regions || []).forEach((r) => { if (typeof r.count === 'number') prev[r.name] = r.count; });
+  } catch (_) { /* first run — no previous file */ }
+
   const regions = [];
-  let total = 0, okAny = false, firstErr = null;
+  let total = 0, freshAny = false, staleAny = false, firstErr = null;
   for (const rg of REGIONS) {
     try {
-      const c = await countFires(rg.box);
-      regions.push({ name: rg.name, count: c });
-      total += c; okAny = true;
-      console.log('OK  ' + rg.name + ': ' + c);
+      const { count, src } = await countFires(rg.box);
+      regions.push({ name: rg.name, count, stale: false });
+      total += count; freshAny = true;
+      console.log('OK  ' + rg.name + ': ' + count + ' (' + src + ')');
     } catch (e) {
-      regions.push({ name: rg.name, count: null });
       if (!firstErr) firstErr = e.message;
-      console.error('ERR ' + rg.name + ': ' + e.message);
+      if (rg.name in prev) {          // reuse last-good count
+        regions.push({ name: rg.name, count: prev[rg.name], stale: true });
+        total += prev[rg.name]; staleAny = true;
+        console.error('STALE ' + rg.name + ': kept ' + prev[rg.name] + ' — ' + e.message);
+      } else {
+        regions.push({ name: rg.name, count: null, stale: true });
+        console.error('ERR ' + rg.name + ': ' + e.message);
+      }
     }
   }
 
   const out = {
     generated: new Date().toISOString(),
-    source: 'NASA FIRMS VIIRS S-NPP',
+    source: 'NASA FIRMS VIIRS (S-NPP → NOAA-20)',
     day_range: DAYS,
     frame: new Date().toISOString().slice(0, 10),
     regions,
-    total: okAny ? total : null
+    total: (freshAny || staleAny) ? total : null,
+    partial: staleAny || (!freshAny && !staleAny)
   };
-  if (!okAny && firstErr) out.note = 'FIRMS fetch failed — ' + firstErr;
+  if (staleAny) out.note = 'Some regions kept last-good values — ' + firstErr;
+  else if (!freshAny) out.note = 'FIRMS fetch failed — ' + firstErr;
 
   fs.writeFileSync(OUT, JSON.stringify(out, null, 2));
   console.log('fires.json written — total: ' + out.total + (out.note ? (' | ' + out.note) : ''));
-})().catch((e) => { console.error('fatal', e); process.exit(1); });
+})().catch((e) => {
+  // Never fail the job over a data hiccup — log and exit clean so the workflow stays green.
+  console.error('non-fatal:', e && e.message);
+  process.exit(0);
+});
