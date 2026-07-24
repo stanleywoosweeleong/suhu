@@ -49,6 +49,7 @@
   .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:13px;margin-bottom:16px}
   .dgroup{grid-column:1/-1;font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:8px 0 -4px;padding-top:9px;border-top:1px solid rgba(255,255,255,.08)}
   .dgroup:first-child{margin-top:0;padding-top:0;border-top:none}
+  .mjowrap{max-width:320px;margin:0 auto}
   .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:15px}
   .card h3{margin:0 0 2px;font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
   .card .name{font-size:12px;color:var(--muted)}
@@ -166,6 +167,12 @@
   <div class="gsrc" style="margin:-4px 0 12px" data-i18n-html="drivers_intro"></div>
   <div class="grid" id="drivers"></div>
 
+  <div class="section-title" data-i18n="st_mjo">MJO 相位追踪</div>
+  <div class="panel">
+    <div class="mjowrap"><div id="mjowheel"></div></div>
+    <div class="gsrc" id="mjowheelnote" style="margin-top:10px;text-align:center;line-height:1.5"></div>
+  </div>
+
   <div class="section-title" data-i18n="st_regions">区域展望 — 对各地的影响</div>
   <div class="regions" id="regions"></div>
 
@@ -281,6 +288,7 @@ const T = {
   zh:{
     sub:'马来西亚与海洋大陆', guide_btn:'ⓘ 指南', install_btn:'⬇ 安装',
     st_drivers:'气候驱动因子',
+    st_mjo:'MJO 相位追踪',
     drivers_intro:'从三大支柱监测厄尔尼诺 / 拉尼娜——<b>海表</b>（Niño 3.4 / ONI / RONI / 类型）、<b>次表层</b>（热含量）与<b>大气</b>（SOI / 信风 / 对流），另加 <b>IOD</b> 与 <b>MJO</b>。初次使用？打开 <a href="#" onclick="openGuide();return false">ⓘ 指南</a>。',
     st_regions:'区域展望 — 对各地的影响',
     st_nowcast:'实况与趋势',
@@ -324,6 +332,7 @@ const T = {
   en:{
     sub:'Malaysia & the Maritime Continent', guide_btn:'ⓘ Guide', install_btn:'⬇ Install',
     st_drivers:'Climate drivers',
+    st_mjo:'MJO phase tracker',
     drivers_intro:'El Niño / La Niña across three pillars — <b>surface</b> (Niño 3.4 / ONI / RONI / flavor), <b>subsurface</b> (heat content) and <b>atmosphere</b> (SOI / trade winds / convection) — plus the <b>IOD</b> and <b>MJO</b>. New here? Open the <a href="#" onclick="openGuide();return false">ⓘ Guide</a>.',
     st_regions:'Regional outlook — what it means on the ground',
     st_nowcast:'Nowcast & trend',
@@ -511,6 +520,63 @@ function mjoReading(D){
     detail:(DRV.mjo?DRV.mjo.interp[LANG==='zh'?0:1]:'')};
 }
 
+// ===== MJO phase wheel (ported from the enso app, recoloured for dark theme) =====
+// Standard 8-phase RMM diagram. Highlights the current phase, tints the Maritime
+// Continent sectors (4-5 = "us"), plots the current (RMM1,RMM2) point, and draws
+// the last ~40 days as a faint trail so you can see the MJO spiral eastward.
+function mjoWheelSvg(d){
+  if(!d) return '';
+  const phase = d.phase||0;
+  const amp = (typeof d.amp==='number')?d.amp:(parseFloat(String(d.value).replace(/[^0-9.]/g,''))||0);
+  const track = Array.isArray(d.track)?d.track:[];
+  const cx=130, cy=132, R=92, rIn=26;
+  const pol=(ang,r)=>{const a=ang*Math.PI/180; return [cx+r*Math.cos(a), cy-r*Math.sin(a)];};
+  const wedge=(a0,a1,fill)=>{const p0=pol(a0,rIn),p1=pol(a0,R),p2=pol(a1,R),p3=pol(a1,rIn);
+    return `<path d="M${p0[0].toFixed(1)} ${p0[1].toFixed(1)}L${p1[0].toFixed(1)} ${p1[1].toFixed(1)}A${R} ${R} 0 0 0 ${p2[0].toFixed(1)} ${p2[1].toFixed(1)}L${p3[0].toFixed(1)} ${p3[1].toFixed(1)}A${rIn} ${rIn} 0 0 1 ${p0[0].toFixed(1)} ${p0[1].toFixed(1)}Z" fill="${fill}" stroke="rgba(255,255,255,.14)" stroke-width="0.7"/>`;};
+  const PH={1:[180,225],2:[225,270],3:[270,315],4:[315,360],5:[0,45],6:[45,90],7:[90,135],8:[135,180]};
+  const eff=ph=>([3,4,5].includes(ph)?'wet':([7,8,1].includes(ph)?'dry':'trans'));
+  const active = amp>=1;
+  let svg=`<svg viewBox="0 0 260 268" role="img" aria-label="MJO phase wheel" style="width:100%;height:auto;display:block">`;
+  for(let ph=1; ph<=8; ph++){
+    const a=PH[ph]; let fill='rgba(148,163,184,.10)';
+    if(ph===4||ph===5) fill='rgba(245,158,11,.18)';                    // Maritime band
+    if(ph===phase){ const e=eff(ph);
+      if(active) fill = e==='wet'?'rgba(56,189,248,.42)':e==='dry'?'rgba(239,68,68,.40)':'rgba(148,163,184,.30)';
+      else { fill = e==='wet'?'rgba(56,189,248,.18)':e==='dry'?'rgba(239,68,68,.16)':'rgba(148,163,184,.16)';
+             if(ph===4||ph===5) fill='rgba(245,158,11,.18)'; }
+    }
+    svg+=wedge(a[0],a[1],fill);
+    const mid=(a[0]+a[1])/2, lp=pol(mid,(R+rIn)/2);
+    svg+=`<text x="${lp[0].toFixed(1)}" y="${(lp[1]+3).toFixed(1)}" font-size="10" font-weight="bold" fill="#aab7cf" text-anchor="middle">${ph}</text>`;
+  }
+  svg+=`<circle cx="${cx}" cy="${cy}" r="${rIn}" fill="rgba(8,12,22,.6)" stroke="rgba(255,255,255,.30)" stroke-width="1" stroke-dasharray="2 2"/>`;
+  svg+=`<text x="${cx}" y="${cy+rIn-5}" font-size="7" fill="#8493ad" text-anchor="middle">${L('振幅1','amp 1')}</text>`;
+  svg+=`<text x="${cx}" y="20" font-size="8.5" fill="#93a1bd" text-anchor="middle">${L('西太平洋','W. Pacific')}</text>`;
+  svg+=`<text x="${cx}" y="258" font-size="8.5" font-weight="bold" fill="#f5b301" text-anchor="middle">${L('海洋大陆（我们）','Maritime Continent (us)')}</text>`;
+  svg+=`<text x="6" y="${cy+3}" font-size="8.5" fill="#93a1bd" text-anchor="start">${L('印度洋','Indian Ocean')}</text>`;
+  svg+=`<text x="254" y="${cy+3}" font-size="8.5" fill="#93a1bd" text-anchor="end">${L('太平洋','Pacific')}</text>`;
+  if(track.length>1){
+    const pts=track.map(tp=>{ let tr_=rIn+((tp.amp||0)-1)*((R-rIn)/2); if(tr_<4)tr_=4; if(tr_>R)tr_=R;
+      const ta=Math.atan2(tp.rmm2,tp.rmm1); return (cx+tr_*Math.cos(ta)).toFixed(1)+','+(cy-tr_*Math.sin(ta)).toFixed(1);});
+    svg+=`<polyline points="${pts.join(' ')}" fill="none" stroke="#38bdf8" stroke-width="1.3" opacity="0.35" stroke-linejoin="round"/>`;
+    const p0=pts[0].split(','); svg+=`<circle cx="${p0[0]}" cy="${p0[1]}" r="2.5" fill="none" stroke="#38bdf8" stroke-width="1" opacity="0.45"/>`;
+  }
+  if(phase||track.length){
+    const lastPt = track.length?track[track.length-1]:null;
+    let cr1, cr2;
+    if(lastPt){ cr1=lastPt.rmm1; cr2=lastPt.rmm2; }
+    else { const cd={1:202.5,2:247.5,3:292.5,4:337.5,5:22.5,6:67.5,7:112.5,8:157.5}[phase]||0, ar=cd*Math.PI/180; cr1=Math.cos(ar)*amp; cr2=Math.sin(ar)*amp; }
+    let rPlot=rIn+(amp-1)*((R-rIn)/2); if(rPlot<4)rPlot=4; if(rPlot>R)rPlot=R;
+    const ang=Math.atan2(cr2,cr1);
+    const px=cx+rPlot*Math.cos(ang), py=cy-rPlot*Math.sin(ang);
+    const lx=cx+(rPlot+6)*Math.cos(ang), ly=cy-(rPlot+6)*Math.sin(ang);
+    svg+=`<line x1="${cx}" y1="${cy}" x2="${lx.toFixed(1)}" y2="${ly.toFixed(1)}" stroke="#38bdf8" stroke-width="1.5" opacity="0.5"/>`;
+    svg+=`<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="5" fill="#38bdf8" stroke="#0a0f19" stroke-width="1.5"/>`;
+  }
+  svg+='</svg>';
+  return svg;
+}
+
 // ===== Holistic region model =====
 // Blend ENSO (ONI), IOD (DMI) and MJO into ONE signed stress index per region:
 //   positive = drier / more fire+haze,  negative = wetter / more flood+landslide.
@@ -660,6 +726,15 @@ function renderAll(D){
     const cards=g.keys.map(k=>_byKey[k]).filter(Boolean).map(cardHtml).join('');
     return cards?`<div class="dgroup">${g.label}</div>`+cards:'';
   }).join('');
+
+  // MJO phase wheel + trail
+  const _mjod=_byKey['mjo'];
+  const _mw=document.getElementById('mjowheel'); if(_mw) _mw.innerHTML=mjoWheelSvg(_mjod);
+  const _mwn=document.getElementById('mjowheelnote');
+  if(_mwn){ const mr=mjoReading(D);
+    _mwn.innerHTML=`<b>${mr.plain}</b> · ${mr.tag}<br>`+
+      L('蓝点＝现在的位置，蓝线＝近40天路径。MJO 每30–60天绕行热带一圈，逆时针＝向东传播；落在下方“海洋大陆”时（第4–5位相）本区偏湿。',
+        'Blue dot = now, blue trail = the last ~40 days. The MJO circles the tropics every 30–60 days; counter-clockwise = travelling east. When it sits over the “Maritime Continent” (phases 4–5) we get wetter.'); }
 
   document.getElementById('regions').innerHTML=nar.regions.map(r=>`
     <div class="region"><div class="rn">${r.rn}</div>

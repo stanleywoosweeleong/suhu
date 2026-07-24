@@ -259,22 +259,30 @@ async function fetchDMI() {
   return { patch: { value: fmt(best.value, 2) + '°C', status, cls, gcol, gauge, src } };
 }
 
-// MJO — Australia BoM real-time RMM: year month day RMM1 RMM2 phase amplitude
+// MJO — Australia BoM real-time RMM: year month day RMM1 RMM2 phase amplitude.
+// We also keep the last ~40 valid days (RMM1,RMM2,amp) as a "track" for the phase
+// wheel's trail — the same feed already carries the full daily history.
 async function fetchMJO() {
   const txt = await getText('http://www.bom.gov.au/climate/mjo/graphics/rmm.74toRealtime.txt');
   const rows = txt.split(NL)
     .map(l => l.trim().split(/\s+/))
     .filter(r => r.length >= 7 && /^\d{4}$/.test(r[0]));
-  // walk backward to the last row with a valid (non-1e36 / non-999) amplitude
-  let phase, amp;
-  for (let i = rows.length - 1; i >= 0; i--) {
-    const a = parseFloat(rows[i][6]);
-    const p = parseInt(rows[i][5], 10);
-    if (Number.isFinite(a) && a < 100 && Number.isFinite(p)) { amp = a; phase = p; break; }
+  const valid = [];
+  for (const r of rows) {
+    const rmm1 = parseFloat(r[3]), rmm2 = parseFloat(r[4]);
+    const p = parseInt(r[5], 10), a = parseFloat(r[6]);
+    // 1e36 / 999 are BoM missing flags
+    if (Number.isFinite(a) && a < 90 && Number.isFinite(p) &&
+        Math.abs(rmm1) < 90 && Math.abs(rmm2) < 90) {
+      valid.push({ rmm1: +rmm1.toFixed(3), rmm2: +rmm2.toFixed(3), amp: +a.toFixed(2), phase: p });
+    }
   }
-  if (amp === undefined) throw new Error('no valid RMM row parsed');
-  const [status, cls, gcol, gauge] = classifyMJO(phase, amp);
-  return { patch: { value: 'Ph ' + phase + ' · ' + amp.toFixed(1), status, cls, gcol, gauge } };
+  if (!valid.length) throw new Error('no valid RMM row parsed');
+  const last = valid[valid.length - 1];
+  const track = valid.slice(-40).map(v => ({ rmm1: v.rmm1, rmm2: v.rmm2, amp: v.amp }));
+  const [status, cls, gcol, gauge] = classifyMJO(last.phase, last.amp);
+  return { patch: { value: 'Ph ' + last.phase + ' · ' + last.amp.toFixed(1), status, cls, gcol, gauge,
+                    phase: last.phase, amp: last.amp, track } };
 }
 
 // WWV (subsurface heat content) — PMEL GODAS, monthly.
