@@ -431,7 +431,9 @@ function buildNarrative(D){
       region(L('砂拉越','Sarawak'),'r-low',L('接近常年的季节性天气。','Near-normal seasonal conditions.'))
     ];
   }
-  return {banner,regions};
+  // Regions now come from the holistic ENSO+IOD+MJO scorer (banner branches above
+  // are kept only for the hero tag/pills; region arrays there are superseded).
+  return {banner, regions: holisticRegions(D)};
 }
 
 // Interpretation-engine rules (static, bilingual)
@@ -476,6 +478,56 @@ function mjoReading(D){
     detail:L('MJO 的“湿位相”正经过我们上空，未来一两周有一波偏多的降雨。','The MJO’s wet phase is passing over us, so expect a wetter pulse over the next week or two.')};
   return {effect:'neu',plain:L('中性','Neutral'),tag:L('未来1–2周：中性','Next 1–2 weeks: neutral'),
     detail:(DRV.mjo?DRV.mjo.interp[LANG==='zh'?0:1]:'')};
+}
+
+// ===== Holistic region model =====
+// Blend ENSO (ONI), IOD (DMI) and MJO into ONE signed stress index per region:
+//   positive = drier / more fire+haze,  negative = wetter / more flood+landslide.
+// Magnitude → risk level. This is what makes IOD + MJO actually move the
+// ground-level outlook instead of only decorating the hero.
+function driverContribs(D){
+  const gv=k=>{const c=(D.drivers||[]).find(d=>d.key===k);return c?(parseFloat(String(c.value).replace('−','-'))||0):0;};
+  const oni=gv('oni'), dmi=gv('iod'); const m=mjoReading(D);
+  const mjo=m.effect==='dry'?0.4:(m.effect==='wet'?-0.4:0);   // MJO is a short-term nudge, not a dominant term
+  return {oni,dmi,mjo,mjoEffect:m.effect};
+}
+function riskFromNet(n){const a=Math.abs(n);return a>=1.5?'r-high':a>=0.7?'r-mod':'r-low';}
+function driverClause(oni,dmi,mjoEffect,monTag){
+  const d=[];
+  if(oni>=0.5)d.push(L('厄尔尼诺','El Niño')); else if(oni<=-0.5)d.push(L('拉尼娜','La Niña'));
+  if(dmi>=0.4)d.push(L('正 IOD','positive IOD')); else if(dmi<=-0.4)d.push(L('负 IOD','negative IOD'));
+  if(mjoEffect==='dry')d.push(L('MJO 干位相','MJO dry phase')); else if(mjoEffect==='wet')d.push(L('MJO 湿位相','MJO wet phase'));
+  if(monTag)d.push(monTag);
+  if(!d.length)return L('主要由季风主导。','Mainly monsoon-driven.');
+  return L('驱动因子：','Driven by: ')+d.join(' + ')+'.';
+}
+function holisticRegions(D){
+  const {oni,dmi,mjo,mjoEffect}=driverContribs(D);
+  const month=D.generated?new Date(D.generated).getUTCMonth()+1:(new Date()).getUTCMonth()+1;
+  const mon=MON(month), ml=monLabel(mon), monTag=(mon!=='INTER')?ml:null;
+  const base=oni+dmi+mjo;   // basin-scale + short-term drivers, dry = positive
+  const defs=[
+    {rn:L('半岛西海岸','Peninsula — West Coast'), seas:mon==='SW'?0.3:(mon==='NE'?-0.1:0),
+     dry:L('最干旱、最易起烟霾的地区；留意巴生谷/马六甲空气质量。','Driest & most haze-prone zone; watch Klang Valley/Melaka air quality.'),
+     wet:L('强降雨时有局部骤发洪水风险。','Localised flash-flood risk in heavy downpours.')},
+    {rn:L('半岛东海岸','Peninsula — East Coast'), seas:mon==='NE'?-0.8:(mon==='SW'?0.1:0),
+     dry:L('本季洪灾风险低。','Low flood risk this season.'),
+     wet:L('洪灾季——留意吉兰丹、登嘉楼、彭亨。','Flood season — watch Kelantan, Terengganu, Pahang.')},
+    {rn:L('沙巴','Sabah'), seas:mon==='NE'?-0.3:0.1,
+     dry:L('农业用水紧张，局部火灾风险。','Agricultural water stress and localised fire risk.'),
+     wet:L('降雨增强；洪水与滑坡风险，尤以东海岸为甚。','Enhanced rainfall; flood and landslide risk, especially the east coast.')},
+    {rn:L('砂拉越','Sarawak'), seas:mon==='NE'?-0.4:0.2,
+     dry:L('泥炭地火灾与烟霾风险；关注热点。','Peatland fire & haze risk; monitor hotspots.'),
+     wet:L('内陆河流洪水与滑坡风险。','River flooding and landslide risk in the interior.')}
+  ];
+  return defs.map(r=>{
+    const net=base+r.seas, risk=riskFromNet(net), dryH=net>=0;
+    const head = risk==='r-high' ? (dryH?L('高干旱与烟霾风险。','High drought & haze risk. '):L('高洪灾与滑坡风险。','High flood & landslide risk. '))
+               : risk==='r-mod'  ? (dryH?L('较常年偏干。','Drier than normal. '):L('较常年偏湿。','Wetter than normal. '))
+               :                    L('接近常年。','Near-normal. ');
+    const spec = risk==='r-low' ? '' : (dryH?r.dry:r.wet)+' ';
+    return region(r.rn, risk, head+spec+driverClause(oni,dmi,mjoEffect,monTag));
+  });
 }
 
 // Short-term "on top of the season" note — folds IOD + MJO into the hero so the
