@@ -1,9 +1,25 @@
 {
-  "generated": "1970-01-01T00:00:00Z",
+  "generated": "2026-07-24T11:02:55.392Z",
   "source": "NASA FIRMS VIIRS S-NPP",
   "day_range": 1,
-  "frame": "awaiting first run",
-  "regions": [],
-  "total": null,
-  "note": "Add a free NASA FIRMS map key as repo secret FIRMS_MAP_KEY to enable fire data (see README)."
+  "frame": "2026-07-24",
+  "regions": [
+    {
+      "name": "Sumatra",
+      "count": 45
+    },
+    {
+      "name": "Kalimantan",
+      "count": 261
+    },
+    {
+      "name": "Peninsular Malaysia",
+      "count": 0
+    },
+    {
+      "name": "Sarawak / Sabah",
+      "count": 69
+    }
+  ],
+  "total": 375
 }
