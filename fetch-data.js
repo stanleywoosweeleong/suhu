@@ -129,6 +129,29 @@ async function fetchNino34() {
   return { anom, months, patch: { value: fmt(latest) + '°C', status, cls, gcol, gauge } };
 }
 
+// ONI / RONI — NOAA CPC seasonal indices. Files are "SEAS YR [TOTAL] ANOM";
+// ANOM is always the last column. ONI = official 3-month Niño 3.4 index.
+// RONI = the SAME index minus the tropical-mean SST anomaly (removes the
+// global-warming background), so it reads lower than ONI in recent years.
+async function fetchSeasonal(url) {
+  const txt = await getText(url);
+  const rows = txt.trim().split(NL).map(l => l.trim().split(/\s+/))
+    .filter(r => r.length >= 3 && /^[A-Za-z]{3}$/.test(r[0]) && /^\d{4}$/.test(r[1]));
+  if (!rows.length) throw new Error('no seasonal rows parsed');
+  const last = rows[rows.length - 1];
+  return { seas: last[0], anom: parseFloat(last[last.length - 1]) };
+}
+async function fetchONI() {
+  const { anom } = await fetchSeasonal('https://www.cpc.ncep.noaa.gov/data/indices/oni.ascii.txt');
+  const [status, cls, gcol, gauge] = classifyNino(anom);
+  return { patch: { value: fmt(anom) + '°C', status, cls, gcol, gauge } };
+}
+async function fetchRONI() {
+  const { anom } = await fetchSeasonal('https://www.cpc.ncep.noaa.gov/data/indices/RONI.ascii.txt');
+  const [status, cls, gcol, gauge] = classifyNino(anom);
+  return { patch: { value: fmt(anom) + '°C', status, cls, gcol, gauge } };
+}
+
 // SOI — Australia BoM Troup SOI, monthly plain text.
 async function fetchSOI() {
   const txt = await getText('http://www.bom.gov.au/climate/enso/soiplaintext.html');
@@ -297,14 +320,11 @@ async function main() {
       h.labels[h.labels.length - 1] += '*'; // mark current (partial) month
     }
   });
+  await runDriver(data, 'oni', 'ONI', fetchONI);
+  await runDriver(data, 'roni', 'RONI', fetchRONI);
   await runDriver(data, 'soi', 'SOI', fetchSOI);
   await runDriver(data, 'iod', 'DMI', fetchDMI);
   await runDriver(data, 'mjo', 'MJO', fetchMJO);
-
-  // Keep the ONI card's colour in step with the latest Niño 3.4 value.
-  const enso = data.drivers.find(d => d.key === 'enso');
-  const oni = data.drivers.find(d => d.key === 'oni');
-  if (enso && oni) { oni.cls = enso.cls; oni.gcol = enso.gcol; }
 
   // National narrative from the live ENSO sign + IOD + monsoon month
   try {

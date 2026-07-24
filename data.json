@@ -1,12 +1,12 @@
 {
-  "generated": "2026-07-24T08:36:34.059Z",
-  "snapshotDate": "24 July 2026",
+  "generated": "2026-07-16T08:38:48.287Z",
+  "snapshotDate": "16 July 2026",
   "note": "Written by the cloud pipeline (fetch-data.js via GitHub Actions). Values are a real snapshot; the workflow overwrites this on each scheduled run.",
   "banner": {
     "tone": "warm",
     "tag": "National Climate-Driver Status · Southwest Monsoon",
-    "title": "El Niño — Strengthening",
-    "desc": "El Niño is strengthening during Malaysia's drier season. Expect a warm, dry bias with elevated drought and transboundary-haze risk.",
+    "title": "El Niño — Easing",
+    "desc": "A strong El Niño, easing slightly, during Malaysia's drier southwest-monsoon season. Expect a warm, dry bias with elevated drought and transboundary-haze risk.",
     "pills": [
       [
         "hot",
@@ -19,6 +19,10 @@
       [
         "watch",
         "🔥 Haze watch"
+      ],
+      [
+        "watch",
+        "IOD watch"
       ]
     ]
   },
@@ -29,9 +33,9 @@
       "name": "Niño 3.4 SST anomaly",
       "value": "+1.5°C",
       "cls": "s-hot",
-      "status": "Strong El Niño · strengthening",
+      "status": "Strong El Niño · easing",
       "interp": "El Niño in the strong range. For Malaysia: hotter, drier bias.",
-      "gauge": 88,
+      "gauge": 85,
       "gcol": "var(--hot)",
       "src": "NOAA CPC · weekly (mid-Jun) · fallback BoM"
     },
@@ -39,13 +43,25 @@
       "key": "oni",
       "h": "ENSO — Index",
       "name": "ONI (3-month running)",
-      "value": "≈ +1.3°C",
-      "cls": "s-hot",
-      "status": "El Niño (moderate)",
-      "interp": "Official 3-month index in moderate El Niño range and rising. ≥ +1.5 = strong; ≥ +2.0 = 'super'.",
-      "gauge": 72,
-      "gcol": "var(--hot)",
-      "src": "NOAA CPC ONI · fallback NOAA PSL"
+      "value": "+1.0°C",
+      "cls": "s-dry",
+      "status": "Weak El Niño",
+      "interp": "Official 3-month Niño 3.4 index. ≥ +0.5 = El Niño, ≤ −0.5 = La Niña.",
+      "gauge": 65,
+      "gcol": "var(--dry)",
+      "src": "NOAA CPC ONI"
+    },
+    {
+      "key": "roni",
+      "h": "ENSO — Relative",
+      "name": "RONI",
+      "value": "−0.5°C",
+      "cls": "s-neu",
+      "status": "Neutral",
+      "interp": "Relative ONI — the same index minus tropical-mean warming.",
+      "gauge": 46,
+      "gcol": "var(--neutral)",
+      "src": "NOAA CPC RONI"
     },
     {
       "key": "soi",
@@ -63,24 +79,24 @@
       "key": "iod",
       "h": "Indian Ocean Dipole",
       "name": "DMI (Dipole Mode Index)",
-      "value": "+0.15°C",
+      "value": "−0.06°C",
       "cls": "s-neu",
-      "status": "Neutral",
+      "status": "Neutral · positive forecast",
       "interp": "Currently neutral, but a POSITIVE IOD is forecast to develop — that would compound El Niño drying over Malaysia. Watch closely.",
-      "gauge": 57.45,
+      "gauge": 48,
       "gcol": "var(--neutral)",
-      "src": "DMI chain: JAMSTEC -> NOAA PSL (used NOAA PSL)"
+      "src": "DMI chain: JAMSTEC -> NOAA PSL (auto-fallback)"
     },
     {
       "key": "mjo",
       "h": "MJO",
       "name": "RMM phase & amplitude",
-      "value": "Ph 7 · 0.1",
-      "cls": "s-neu",
-      "status": "Weak · little MJO influence",
+      "value": "Ph 6–7 · ~1.3",
+      "cls": "s-dry",
+      "status": "Active · suppressed over Maritime Continent",
       "interp": "MJO stalled in the western Pacific under El Niño westerlies — not delivering a wet pulse to Malaysia right now.",
-      "gauge": 5.78243205,
-      "gcol": "var(--neutral)",
+      "gauge": 60,
+      "gcol": "var(--dry)",
       "src": "Australia BoM RMM · fallback NOAA CPC"
     }
   ],
@@ -89,54 +105,44 @@
       "rn": "Peninsula — West Coast",
       "risk": "r-high",
       "label": "High risk",
-      "p": "Driest & most haze-prone zone now. Heat + reduced rainfall; watch Klang Valley/Melaka air quality."
+      "p": "Driest & most haze-prone zone in SW monsoon. Heat + reduced rainfall; watch Klang Valley/Melaka air quality."
     },
     {
       "rn": "Peninsula — East Coast",
       "risk": "r-mod",
       "label": "Moderate",
-      "p": "Near-normal to drier; main flood season is Nov–Mar."
+      "p": "Near-normal to drier now (NE monsoon inactive). Main flood season is Nov–Mar — watch if La Niña returns."
     },
     {
       "rn": "Sabah",
       "risk": "r-mod",
       "label": "Moderate",
-      "p": "Drier bias; agricultural water stress and localised fire risk possible."
+      "p": "Drier bias; agricultural water stress and localised fire risk possible as El Niño strengthens."
     },
     {
       "rn": "Sarawak",
       "risk": "r-high",
       "label": "High risk",
-      "p": "Peatland fire & haze risk elevated under prolonged dry conditions; monitor hotspots."
+      "p": "Peatland fire & haze risk elevated under prolonged dry El Niño conditions; monitor hotspots."
     }
   ],
   "nino34history": {
     "labels": [
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
       "Jan",
       "Feb",
       "Mar",
       "Apr",
       "May",
-      "Jun*"
+      "Jun",
+      "Jul*"
     ],
     "values": [
-      -0.1,
-      -0.3,
-      -0.4,
-      -0.4,
-      -0.6,
-      -0.6,
-      -0.4,
-      -0.1,
-      0.1,
-      0.4,
+      0.3,
+      0.5,
+      0.7,
       1,
+      1.3,
+      1.7,
       1.5
     ]
   },
@@ -146,13 +152,13 @@
       "NOAA CPC",
       "NOAA PSL · BoM",
       "live",
-      "just now"
+      "2 h ago"
     ],
     [
       "SOI",
       "Australia BoM",
       "NOAA NCEI",
-      "stale",
+      "live",
       "6 h ago"
     ],
     [
@@ -160,14 +166,14 @@
       "JAMSTEC SINTEX-F",
       "JMA TCC · NOAA PSL",
       "live",
-      "just now"
+      "1 d ago"
     ],
     [
       "MJO (RMM)",
       "Australia BoM",
       "NOAA CPC",
       "live",
-      "just now"
+      "12 h ago"
     ],
     [
       "Himawari imagery",
