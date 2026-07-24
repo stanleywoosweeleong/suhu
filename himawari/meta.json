@@ -1,8 +1,8 @@
 {
   "source": "JMA · Southeast Asia · B13 infrared (day & night)",
   "image": "latest.jpg",
-  "frame_utc": "2026-07-23 23:10 UTC",
-  "fetched": "2026-07-23T23:51:04.868Z",
-  "bytes": 153335,
+  "frame_utc": "2026-07-24 01:10 UTC",
+  "fetched": "2026-07-24T01:43:22.561Z",
+  "bytes": 152539,
   "attribution": "Imagery: JMA / NICT (Himawari-9)"
 }
