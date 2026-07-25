@@ -378,7 +378,8 @@ async function fetchFlavor() {
   const n12 = parseFloat(r[3]), n3 = parseFloat(r[5]), n4 = parseFloat(r[7]), n34 = parseFloat(r[9]);
   if (![n12, n3, n4, n34].every(Number.isFinite)) throw new Error('bad Niño-region anomalies');
   const [status, cls, gcol, gauge] = classifyFlavor(n12, n3, n4, n34);
-  return { patch: { value: 'Niño4 ' + fmt(n4, 1) + ' · N1+2 ' + fmt(n12, 1), status, cls, gcol, gauge } };
+  const nreg = { n12: +n12.toFixed(2), n3: +n3.toFixed(2), n4: +n4.toFixed(2), n34: +n34.toFixed(2) };
+  return { patch: { value: 'Niño4 ' + fmt(n4, 1) + ' · N1+2 ' + fmt(n12, 1), status, cls, gcol, gauge, nreg } };
 }
 
 // ---- driver runner --------------------------------------------------------

@@ -253,6 +253,7 @@
       "interp": "Warmth concentrated in the central Pacific (Niño 4) — a Modoki pattern that pushes drought toward the Maritime Continent, worse for Malaysia.",
       "gauge": 62,
       "gcol": "var(--dry)",
+      "nreg": { "n12": 2.8, "n3": 2.0, "n4": 1.2, "n34": 1.2 },
       "src": "NOAA CPC ERSSTv5 Niño regions"
     },
     {
@@ -436,13 +437,6 @@
       "NOAA CPC",
       "live",
       "12 h ago"
-    ],
-    [
-      "Himawari imagery",
-      "JMA MSC",
-      "NICT · RAMMB · JAXA",
-      "live",
-      "just now"
     ]
   ],
   "rules": [

@@ -41,7 +41,7 @@
   .banner.tone-neutral{background:linear-gradient(135deg,#1a2230,#181f2e);border-color:#2a3550}
   .banner .tag{display:inline-block;font-size:10.5px;letter-spacing:1.4px;text-transform:uppercase;color:#cdd9ee;font-weight:700}
   .banner h2{margin:6px 0 4px;font-size:26px}
-  .banner .desc{color:#e6edfa;max-width:660px;font-size:14px}
+  .banner .desc{color:#e6edfa;max-width:660px;font-size:14px;margin-top:16px}
   .pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
   .btop{display:flex;align-items:center;gap:11px;margin:8px 0 2px}
   .btop h2{margin:0;font-size:26px}
@@ -192,14 +192,9 @@
   <div class="section-title" data-i18n="st_nowcast">实况与趋势</div>
   <div class="two">
     <div class="panel">
-      <h4 data-i18n="panel_sat">向日葵9号 · 自托管镜像</h4>
-      <div class="sat" id="sat"><span class="live">● MIRROR</span><div class="msg" id="satMsg">…</div></div>
-      <div class="btnrow">
-        <a class="btn" href="https://www.data.jma.go.jp/mscweb/data/himawari/sat_img.php" target="_blank">JMA SE-Asia ↗</a>
-        <a class="btn" href="https://himawari8.nict.go.jp/" target="_blank">NICT ↗</a>
-        <a class="btn" href="https://slider.cira.colostate.edu/?sat=himawari" target="_blank">SLIDER ↗</a>
-      </div>
-      <div class="gsrc" style="margin-top:8px" data-i18n="sat_note"></div>
+      <h4 data-i18n="panel_sst">海表温度距平 · 太平洋</h4>
+      <div id="sstmap"></div>
+      <div class="gsrc" style="margin-top:8px" data-i18n="sst_note"></div>
     </div>
     <div class="panel">
       <h4 data-i18n="panel_chart">Niño 3.4 海温距平 — 近期趋势</h4>
@@ -310,8 +305,8 @@ const T = {
     drivers_intro:'从三大支柱监测厄尔尼诺 / 拉尼娜——<b>海表</b>（Niño 3.4 / ONI / RONI / 类型）、<b>次表层</b>（热含量）与<b>大气</b>（SOI / 信风 / 对流），另加 <b>IOD</b> 与 <b>MJO</b>。初次使用？打开 <a href="#" onclick="openGuide();return false">ⓘ 指南</a>。',
     st_regions:'区域展望 — 对各地的影响',
     st_nowcast:'实况与趋势',
-    panel_sat:'向日葵9号 · 自托管镜像',
-    sat_note:'由本站自有副本提供，经「Mirror Himawari」流程在云端刷新（无热链问题，可离线缓存）。影像：NICT / JMA。上方链接可打开实时区域动画。',
+    panel_sst:'海表温度距平 · 印度洋–太平洋',
+    sat_note:'以海洋大陆（马来西亚）为中心的示意图：向东伸展的暖舌＝厄尔尼诺，白框为 Niño 3.4 测量区。暖舌的强弱与位置（偏东＝东太型，偏中＝中太型）由现有的尼诺分区海温实时绘制，非卫星实况。',
     panel_chart:'Niño 3.4 海温距平 — 近期趋势',
     chart_note:'°C 距平。正值且上升 = 厄尔尼诺增强。来源：NOAA CPC / BoM。',
     st_impact:'本地影响 — ', loc_label:'地点', geo_btn:'📍 使用我的定位',
@@ -334,7 +329,7 @@ const T = {
     g_d_walker:'<span class="gt">沃克环流（SOI＋信风＋对流）</span><p>上面三张卡——SOI（气压跷跷板）、信风与日界线对流——量度的其实是同一件事：沿赤道太平洋的巨大东西向环流。厄尔尼诺时它减弱（信风松弛、上升支东移离开我们），拉尼娜时增强。三者同时指向同一方向，即表示大气与海洋已耦合。</p>',
     g_chart_h:'近期趋势图', g_chart_p:'来自 NOAA 的 Niño 3.4 最近 12 个月。当前（不完整）月份以星号标注。正值 = 厄尔尼诺，负值 = 拉尼娜——纵轴会随之翻转。',
     g_regions_h:'区域展望', g_regions_p:'驱动因子对半岛（西 / 东）、沙巴与砂拉越的实际影响。每个地区的风险（低 / 中 / 高）来自 ENSO（ONI）、其型态（中太型 Modoki 会加重本区干旱）、印度洋偶极子（IOD）与 MJO 的综合“压力指数”，并按季风季节调整。每张卡片会列出背后的驱动因子。',
-    g_sat_h:'实况 — 向日葵卫星', g_sat_p:'东南亚上空最新向日葵9号红外影像的自托管镜像（昼夜可用）。在云端刷新并缓存以供离线查看。',
+    g_sat_h:'海表温度距平图', g_sat_p:'以海洋大陆为中心的印度洋–太平洋示意图：向东伸展的暖舌＝厄尔尼诺（冷舌＝拉尼娜），白框为 Niño 3.4 测量区。由现有的尼诺分区海温（1+2/3/4/3.4）实时绘制，海岸线内嵌可离线显示——这是示意图，不是卫星实况。',
     g_impact_h:'本地影响 — 你今天的体感',
     g_i_haze:'<span class="gt">烟霾 · 空气质量</span><p>当前 PM2.5（构成烟霾的颗粒物），附健康等级与口罩建议；同时显示 US AQI、PM10 与沙尘。官方指数见 DOE MyEQMS。</p>',
     g_i_heat:'<span class="gt">高温与紫外线</span><p>当前体感温度与紫外线，另加今日峰值，方便你避开一天中最热、最晒的时段。</p>',
@@ -345,7 +340,7 @@ const T = {
     g_noaa_h:'与 NOAA 有何不同',
     g_noaa_body:'<ul><li><b>多驱动，而非仅 ENSO</b>——ENSO + IOD + MJO + 季风，即真正主导马来西亚降雨的驱动因子。</li><li><b>面向海洋大陆</b>——相较东太平洋指数，更重视面向本区域的 BoM 与 JAMSTEC / JMA。</li><li><b>本地化解读</b>——把「太平洋的状态」转化为按地区与季节的干旱 / 烟霾或洪水风险。</li><li><b>多来源、容错</b>——多个来源自动回退，单一机构中断不会致盲。</li></ul><p>简言之：NOAA 回答「太平洋在做什么？」——SUHU 回答「这一季对马来西亚意味着什么？」</p>',
     g_attr_h:'数据与署名',
-    g_attr_p:'ENSO / Niño 3.4 / ONI / RONI — NOAA CPC · ENSO 类型（Niño 1+2/3/4）— NOAA CPC ERSSTv5 · 次表层热含量（暖水体积 WWV）— NOAA PMEL / GODAS · SOI — 澳大利亚 BoM（Troup）· 信风（850 百帕）与日界线 OLR — NOAA CPC · IOD / DMI — JAMSTEC SINTEX-F、NOAA PSL · MJO / RMM — 澳大利亚 BoM · 卫星 — JMA / JAXA（向日葵）· 空气质量与高温 — Open-Meteo · 火点 — NASA FIRMS · 季节展望 — ECMWF C3S。使用时须署名；不代表上述机构的认可。'
+    g_attr_p:'ENSO / Niño 3.4 / ONI / RONI — NOAA CPC · ENSO 类型（Niño 1+2/3/4）— NOAA CPC ERSSTv5 · 次表层热含量（暖水体积 WWV）— NOAA PMEL / GODAS · SOI — 澳大利亚 BoM（Troup）· 信风（850 百帕）与日界线 OLR — NOAA CPC · IOD / DMI — JAMSTEC SINTEX-F、NOAA PSL · MJO / RMM — 澳大利亚 BoM · 空气质量与高温 — Open-Meteo · 火点 — NASA FIRMS · 季节展望 — ECMWF C3S。使用时须署名；不代表上述机构的认可。'
   },
   en:{
     sub:'Malaysia & the Maritime Continent', guide_btn:'ⓘ Guide', install_btn:'⬇ Install',
@@ -355,8 +350,8 @@ const T = {
     drivers_intro:'El Niño / La Niña across three pillars — <b>surface</b> (Niño 3.4 / ONI / RONI / flavor), <b>subsurface</b> (heat content) and <b>atmosphere</b> (SOI / trade winds / convection) — plus the <b>IOD</b> and <b>MJO</b>. New here? Open the <a href="#" onclick="openGuide();return false">ⓘ Guide</a>.',
     st_regions:'Regional outlook — what it means on the ground',
     st_nowcast:'Nowcast & trend',
-    panel_sat:'Himawari-9 · self-hosted mirror',
-    sat_note:'Served from our own copy, refreshed server-side by the Mirror Himawari workflow (no hotlink issue, offline-cached). Imagery: NICT / JMA. Links above open live regional loops.',
+    panel_sst:'SST anomaly · Indo-Pacific',
+    sat_note:'Schematic centred on the Maritime Continent (Malaysia): the warm tongue reaching east is El Niño; the white box is Niño 3.4. Its strength and position (east = EP type, central = CP/Modoki) are drawn live from the Niño-region SSTs the app already fetches — not a satellite image.',
     panel_chart:'Niño 3.4 SST anomaly — recent trend',
     chart_note:'°C anomaly. Positive & rising = El Niño strengthening. Source: NOAA CPC / BoM.',
     st_impact:'Local impact — ', loc_label:'Location', geo_btn:'📍 Use my location',
@@ -379,7 +374,7 @@ const T = {
     g_d_walker:'<span class="gt">The Walker Circulation (SOI + winds + OLR)</span><p>The three cards above — SOI (the pressure seesaw), the trade winds, and dateline OLR — are all measuring one thing: the giant east–west loop along the equatorial Pacific. It weakens during El Niño (slack trades, the rising branch shifts east away from us) and strengthens during La Niña. When all three point the same way, the atmosphere and ocean are coupled.</p>',
     g_chart_h:'Recent-trend chart', g_chart_p:'The last 12 months of Niño 3.4, straight from NOAA. The current (partial) month is marked with an asterisk. Positive = El Niño, negative = La Niña — the axis flips to match.',
     g_regions_h:'Regional outlook', g_regions_p:'What the drivers mean on the ground for the Peninsula (west / east), Sabah and Sarawak. Each region\'s risk (Low / Moderate / High) comes from a combined "stress score" of ENSO (ONI), its flavor (a Central-Pacific / Modoki pattern deepens drought here), the Indian Ocean Dipole (IOD) and the MJO, adjusted for the monsoon season. Every card lists the drivers behind it.',
-    g_sat_h:'Nowcast — Himawari satellite', g_sat_p:'A self-hosted mirror of the latest Himawari-9 infrared image over Southeast Asia (works day and night). Refreshed server-side and cached for offline.',
+    g_sat_h:'SST anomaly map', g_sat_p:'An Indo-Pacific schematic centred on the Maritime Continent: the warm tongue reaching east is El Niño (a cool tongue is La Niña); the white box is Niño 3.4. Drawn live from the Niño-region SSTs (1+2/3/4/3.4) already in the app, with coastlines baked in for offline use — a schematic, not a satellite image.',
     g_impact_h:'Local impact — what you feel today',
     g_i_haze:'<span class="gt">Haze · Air Quality</span><p>Current PM2.5 (the haze particulate) with a health band and mask advice; US AQI, PM10 and dust alongside. For the official index, see DOE MyEQMS.</p>',
     g_i_heat:'<span class="gt">Heat & UV</span><p>Feels-like temperature and UV right now, plus today\'s peak so you can plan around the hottest, sunniest part of the day.</p>',
@@ -390,7 +385,7 @@ const T = {
     g_noaa_h:'How this differs from NOAA',
     g_noaa_body:'<ul><li><b>Multi-driver, not ENSO-only</b> — ENSO + IOD + MJO + monsoon, the drivers that govern Malaysian rain.</li><li><b>Tuned to the Maritime Continent</b> — weights BoM and JAMSTEC / JMA over the eastern-Pacific indices.</li><li><b>Interprets locally</b> — turns "state of the Pacific" into drought / haze vs flood risk, by region and season.</li><li><b>Multi-source & fault-tolerant</b> — several sources with automatic fallback, so no single agency going down blinds the tool.</li></ul><p>In short: NOAA answers "what is the Pacific doing?" — SUHU answers "what does it mean for Malaysia this season?"</p>',
     g_attr_h:'Data & attribution',
-    g_attr_p:'ENSO / Niño 3.4 / ONI / RONI — NOAA CPC · ENSO flavor (Niño 1+2/3/4) — NOAA CPC ERSSTv5 · Subsurface heat content (WWV) — NOAA PMEL / GODAS · SOI — Australia BoM (Troup) · Trade winds (850 hPa) & dateline OLR — NOAA CPC · IOD / DMI — JAMSTEC SINTEX-F, NOAA PSL · MJO / RMM — Australia BoM · Satellite — JMA / JAXA (Himawari) · Air quality & heat — Open-Meteo · Fire — NASA FIRMS · Seasonal — ECMWF C3S. Used with attribution; no endorsement by these agencies is implied.'
+    g_attr_p:'ENSO / Niño 3.4 / ONI / RONI — NOAA CPC · ENSO flavor (Niño 1+2/3/4) — NOAA CPC ERSSTv5 · Subsurface heat content (WWV) — NOAA PMEL / GODAS · SOI — Australia BoM (Troup) · Trade winds (850 hPa) & dateline OLR — NOAA CPC · IOD / DMI — JAMSTEC SINTEX-F, NOAA PSL · MJO / RMM — Australia BoM · Air quality & heat — Open-Meteo · Fire — NASA FIRMS · Seasonal — ECMWF C3S. Used with attribution; no endorsement by these agencies is implied.'
   }
 };
 
@@ -510,25 +505,12 @@ function ruleRows(){
 
 // ============ Render ============
 let chart;
-let _himaMeta=null;                 // real Himawari mirror metadata (himawari/meta.json)
-function relTime(iso){ const t=Date.parse(iso); if(!t) return null;
-  const m=Math.max(0,Math.round((Date.now()-t)/60000));
-  if(m<60) return m+' min ago'; const h=Math.round(m/60); if(h<24) return h+' h ago'; return Math.round(h/24)+' d ago'; }
-// Source-health table. The Himawari row is driven by the REAL mirror timestamp
-// (its image comes from a separate workflow, so its status isn't in data.json).
 function renderSources(D){
   const sT=document.getElementById('sources'); if(!sT) return;
   sT.innerHTML=`<tr><th>${L('指标','Indicator')}</th><th>${L('主来源','Primary')}</th><th>${L('备用','Fallback')}</th><th>${L('状态','Status')}</th><th>${L('更新','Updated')}</th></tr>`+
-    (D.sources||[]).map(s=>{
-      let status=s[3], updated=s[4];
-      if(/^Himawari/i.test(s[0]) && _himaMeta && _himaMeta.fetched){
-        const rt=relTime(_himaMeta.fetched);
-        if(rt){ updated=rt; status=(Date.now()-Date.parse(_himaMeta.fetched) < 3*3600*1000)?'live':'stale'; }
-      }
-      return `<tr><td>${s[0]}</td><td>${s[1]}</td><td style="color:var(--muted)">${s[2]}</td>`+
-        `<td><span class="dot ${status==='live'?'live-dot':'stale-dot'}"></span>${status==='live'?L('实时','live'):L('过期','stale')}</td>`+
-        `<td style="color:var(--muted)">${trUpdated(updated)}</td></tr>`;
-    }).join('');
+    (D.sources||[]).map(s=>`<tr><td>${s[0]}</td><td>${s[1]}</td><td style="color:var(--muted)">${s[2]}</td>`+
+      `<td><span class="dot ${s[3]==='live'?'live-dot':'stale-dot'}"></span>${s[3]==='live'?L('实时','live'):L('过期','stale')}</td>`+
+      `<td style="color:var(--muted)">${trUpdated(s[4])}</td></tr>`).join('');
 }
 const MONMAP={Jan:'1月',Feb:'2月',Mar:'3月',Apr:'4月',May:'5月',Jun:'6月',Jul:'7月',Aug:'8月',Sep:'9月',Oct:'10月',Nov:'11月',Dec:'12月'};
 function chartLabel(l){ if(LANG==='en')return l; const star=l.endsWith('*'); const base=star?l.slice(0,-1):l; return (MONMAP[base]||base)+(star?'*':''); }
@@ -828,6 +810,43 @@ function sparkRow(d){
   if(!d.hist||d.hist.length<2) return '';
   return `<div class="spark">${sparkline(d.hist,d.gcol)}<span>${trendBadge(d.hist, SPARK_DP[d.key]!=null?SPARK_DP[d.key]:1)}</span></div>`;
 }
+// ===== SST anomaly map (Indo-Pacific, focused on the Maritime Continent) =====
+// Coastlines: real lon/lat outlines projected equirectangular, baked in as inline
+// paths (offline-friendly). The anomaly "tongue" is drawn live from the Niño-region
+// anomalies (1+2/3/4/3.4) the pipeline already fetches — its sign, strength and
+// EP-vs-CP position come straight from the data.
+const SST_LAND=["M123.5 90.5L128.8 95.3L134.8 101.5L141.0 110.8L146.3 117.4L152.3 123.3L160.7 132.6L155.8 131.4L148.8 123.7L141.8 115.2L135.5 106.3L130.2 99.0L125.7 93.0L123.5 90.5Z","M140.3 86.0L142.1 92.3L144.5 98.2L149.1 103.0L152.6 105.6L154.0 101.2L151.9 96.0L148.4 90.8L144.2 85.3L141.8 82.0L140.3 86.0Z","M173.6 103.4L178.5 97.5L187.3 93.0L197.7 93.8L205.5 102.6L206.5 110.8L201.6 119.6L196.0 125.2L185.5 125.5L176.8 118.2L172.2 110.0L171.2 106.3L173.6 103.4Z","M158.5 132.6L168.0 135.1L178.5 136.6L190.8 141.4L194.3 141.8L185.5 140.7L175.0 139.2L164.5 137.4L158.5 132.6Z","M209.3 104.9L211.8 112.6L210.7 120.4L214.2 125.5L212.1 131.4L218.8 129.2L217.0 121.1L221.9 115.2L226.8 116.7L222.6 109.3L215.3 104.9L212.1 102.6L209.3 104.9Z","M248.5 114.1L257.3 119.6L262.5 115.2L273.0 120.4L283.5 121.5L294.0 126.3L306.3 132.2L317.8 135.5L308.0 140.3L290.5 141.4L273.0 137.4L257.3 130.0L250.6 123.3L247.4 116.7L248.5 114.1Z","M211.4 42.5L215.6 49.8L213.5 58.3L218.4 61.3L224.0 60.6L219.1 52.4L214.9 45.0L211.4 42.5Z","M216.7 79.0L224.0 80.5L232.8 81.2L231.7 87.5L225.8 89.0L218.8 86.4L216.7 79.0Z","M133.0 25.8L140.0 27.3L148.8 29.5L157.5 32.5L166.3 40.6L171.5 49.8L169.4 60.9L163.5 72.0L157.5 78.6L152.6 70.9L147.0 62.8L141.8 53.5L136.5 42.5L133.0 33.2L133.0 25.8Z","M49.0 0.0L91.0 0.0L140.0 0.0L182.0 0.0L217.0 3.7L248.5 14.8L231.0 25.8L196.0 33.2L161.0 36.9L133.0 33.2L105.0 25.8L77.0 14.8L56.0 7.4L49.0 0.0Z","M35.0 18.5L42.0 33.2L49.0 51.7L59.5 70.2L68.3 80.1L71.8 66.5L78.8 51.7L87.5 38.8L98.0 25.8L84.0 14.8L66.5 11.1L49.0 12.9L35.0 18.5Z","M185.5 192.0L192.5 184.6L213.5 179.1L231.0 162.5L245.0 155.1L262.5 156.9L280.0 173.5L292.3 158.8L301.0 177.2L315.0 192.0L325.5 210.5L315.0 232.6L301.0 251.1L280.0 251.1L259.0 232.6L241.5 227.1L220.5 232.6L203.0 236.3L190.8 221.5L185.5 204.9L185.5 192.0Z"];
+function sstMap(D){
+  const gv=k=>{const c=D.drivers.find(d=>d.key===k);return c?(parseFloat(String(c.value).replace('−','-'))||0):0;};
+  const f=(D.drivers.find(d=>d.key==='flavor')||{}).nreg||{};
+  const n34=(f.n34!=null?+f.n34:gv('oni')), n4=(f.n4!=null?+f.n4:n34), n3=(f.n3!=null?+f.n3:n34);
+  const eqY=111;
+  const gid=v=>{const a=Math.abs(v); if(a<0.3) return 'sNeu'; if(v>0) return a>=1.2?'sW2':'sW1'; return a>=1.2?'sC2':'sC1';};
+  const blob=(x,v)=>{ if(Math.abs(v)<0.12) return ''; const rx=(58+Math.min(2.3,Math.abs(v))*56).toFixed(0); return `<ellipse cx="${x}" cy="${eqY}" rx="${rx}" ry="42" fill="url(#${gid(v)})"/>`; };
+  const anom = blob(245,-n34*0.5)+blob(402,n4)+blob(543,n34)+blob(630,n3);
+  const land = SST_LAND.map(dd=>`<path d="${dd}" fill="#313f54" stroke="#5b6b82" stroke-width="0.8"/>`).join('');
+  const grd=(id,c)=>`<radialGradient id="${id}" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="${c}"/><stop offset="55%" stop-color="${c}" stop-opacity="0.5"/><stop offset="100%" stop-color="${c}" stop-opacity="0"/></radialGradient>`;
+  const defs=`<defs>${grd('sW2','#e23b28')}${grd('sW1','#e8913a')}${grd('sC1','#5b9bd0')}${grd('sC2','#2f6fb0')}${grd('sNeu','#8a93a6')}${grd('mcg','#2dd4bf')}</defs>`;
+  let grid=''; [70,140,210,280,350,420,490,560,630].forEach(x=>grid+=`<line x1="${x}" y1="0" x2="${x}" y2="240" stroke="#fff" stroke-width="0.5" opacity="0.05"/>`);
+  grid+=`<line x1="0" y1="73.8" x2="700" y2="73.8" stroke="#fff" stroke-width="0.5" opacity="0.05"/><line x1="0" y1="147.7" x2="700" y2="147.7" stroke="#fff" stroke-width="0.5" opacity="0.05"/>`;
+  const tongue = n34>=0.3?L('暖舌 = 厄尔尼诺','warm tongue = El Niño'):n34<=-0.3?L('冷舌 = 拉尼娜','cool tongue = La Niña'):L('接近常年','near-normal');
+  const tcol = n34>=0.3?'#f0b088':n34<=-0.3?'#8fc0ea':'#aab7cf';
+  return `<svg viewBox="0 0 700 240" style="width:100%;height:auto;display:block;border-radius:8px" role="img" aria-label="SST anomaly map centred on the Maritime Continent">
+    ${defs}<rect x="0" y="0" width="700" height="240" fill="#152a44"/>
+    <ellipse cx="210" cy="111" rx="150" ry="92" fill="url(#mcg)" opacity="0.5"/>
+    ${anom}${grid}
+    <text x="210" y="12" font-size="9" fill="#7f8ca6" text-anchor="middle">120°E</text><text x="420" y="12" font-size="9" fill="#7f8ca6" text-anchor="middle">180°</text><text x="630" y="12" font-size="9" fill="#7f8ca6" text-anchor="middle">120°W</text>
+    <line x1="0" y1="110.8" x2="700" y2="110.8" stroke="#dfe8f5" stroke-width="1" stroke-dasharray="5 4" opacity="0.4"/>
+    ${land}
+    <rect x="455" y="92" width="175" height="37" fill="none" stroke="#fff" stroke-width="1.5" stroke-dasharray="5 3"/>
+    <text x="543" y="87" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">Niño 3.4</text>
+    <text x="545" y="152" font-size="11" font-weight="700" fill="${tcol}" text-anchor="middle">${tongue}</text>
+    <circle cx="146" cy="99" r="4.5" fill="#2dd4bf" stroke="#0a1420" stroke-width="1"/>
+    <text x="138" y="102" font-size="11" font-weight="700" fill="#5eead4" text-anchor="end">${L('马来西亚','Malaysia')}</text>
+    <text x="210" y="181" font-size="10" fill="#9fe6da" text-anchor="middle">${L('海洋大陆','Maritime Continent')}</text>
+    <g transform="translate(20,224)"><rect width="26" height="9" fill="#2f6fb0"/><rect x="26" width="26" height="9" fill="#7fa8cf"/><rect x="52" width="26" height="9" fill="#8a93a6"/><rect x="78" width="26" height="9" fill="#e8b64e"/><rect x="104" width="26" height="9" fill="#e97b2e"/><rect x="130" width="26" height="9" fill="#e23b28"/><text x="0" y="21" font-size="8.5" fill="#aab7cf">−2°C</text><text x="78" y="21" font-size="8.5" fill="#aab7cf" text-anchor="middle">0</text><text x="156" y="21" font-size="8.5" fill="#aab7cf" text-anchor="end">+2°C</text></g>
+  </svg>`;
+}
 // Colour of the headline status dot, keyed off the verdict icon.
 const DOTCOL={'🔴':'#ef4444','🟠':'#f59e0b','🟡':'#f2b01e','🔵':'#3b82f6','🟦':'#60a5fa','🟢':'#22c55e','⚪':'#94a3b8'};
 const _fsig=v=>(v>=0?'+':'')+v.toFixed(2);
@@ -919,6 +938,8 @@ function renderAll(D){
 
   renderSources(D);
 
+  const _sm=document.getElementById('sstmap'); if(_sm) _sm.innerHTML=sstMap(D);
+
   const rT=document.getElementById('rules'); if(rT) rT.innerHTML=ruleRows();
 
   const ctx=document.getElementById('nino34chart');
@@ -946,21 +967,6 @@ async function load(){
   catch(e){ /* offline — cached values remain */ }
 }
 
-// ============ Himawari mirror ============
-(function(){
-  const sat=document.getElementById('sat'), msg=document.getElementById('satMsg');
-  fetch('himawari/meta.json',{cache:'no-store'}).then(r=>r.ok?r.json():null).catch(()=>null).then(meta=>{
-    _himaMeta=meta; if(DATA) renderSources(DATA);   // wire the source-panel row to the real mirror time
-    const fresh=meta&&meta.bytes>0; const bust=fresh?(Date.parse(meta.fetched)||Date.now()):Date.now();
-    const imgFile=(meta&&meta.image)?meta.image:'latest.png'; const src='himawari/'+imgFile+'?t='+bust;
-    const img=new Image();
-    img.onload=()=>{ sat.style.backgroundImage='url('+src+')'; msg.textContent='';
-      const s=document.createElement('div'); s.className='satstamp';
-      s.textContent=fresh?(meta.frame_utc+' · '+meta.source):L('等待首次镜像运行——将自动更新','Awaiting first mirror run — updates automatically'); sat.appendChild(s); };
-    img.onerror=()=>{ msg.innerHTML=L('🛰️ 镜像尚未就绪。<br>请先运行一次 <b>Mirror Himawari</b> 流程，或打开下方实时动画。','🛰️ Mirror not available yet.<br>Run the <b>Mirror Himawari</b> workflow once, or open a live loop below.'); };
-    img.src=src;
-  });
-})();
 
 // ============ PWA install ============
 let deferredPrompt;
