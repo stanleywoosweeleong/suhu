@@ -1,17 +1,17 @@
 {
-  "generated": "2026-07-25T14:12:06.586Z",
+  "generated": "2026-07-25T19:42:45.230Z",
   "source": "NASA FIRMS VIIRS (S-NPP → NOAA-20)",
   "day_range": 1,
   "frame": "2026-07-25",
   "regions": [
     {
       "name": "Sumatra",
-      "count": 0,
+      "count": 41,
       "stale": false
     },
     {
       "name": "Kalimantan",
-      "count": 0,
+      "count": 952,
       "stale": false
     },
     {
@@ -25,6 +25,6 @@
       "stale": false
     }
   ],
-  "total": 0,
+  "total": 993,
   "partial": false
 }
