@@ -49,7 +49,9 @@
   .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:13px;margin-bottom:16px}
   .dgroup{grid-column:1/-1;font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:8px 0 -4px;padding-top:9px;border-top:1px solid rgba(255,255,255,.08)}
   .dgroup:first-child{margin-top:0;padding-top:0;border-top:none}
-  .mjowrap{max-width:320px;margin:0 auto}
+  .mjowrap{max-width:380px;margin:0 auto}
+  .gmap{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px 10px 6px;margin:10px 0}
+  .gmap .gmt{font-size:12px;font-weight:700;color:var(--ink);margin-bottom:6px}
   .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:15px}
   .card h3{margin:0 0 2px;font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
   .card .name{font-size:12px;color:var(--muted)}
@@ -232,12 +234,15 @@
       <div class="gitem" data-i18n-html="g_d_ocean"></div>
       <div class="gitem" data-i18n-html="g_d_index"></div>
       <div class="gitem" data-i18n-html="g_d_flavor"></div>
+      <div class="gmap"><div class="gmt" data-i18n="gmap_nino"></div><div id="gmapNino"></div></div>
       <div class="gitem" data-i18n-html="g_d_hc"></div>
       <div class="gitem" data-i18n-html="g_d_atmos"></div>
       <div class="gitem" data-i18n-html="g_d_wind"></div>
       <div class="gitem" data-i18n-html="g_d_olr"></div>
       <div class="gitem" data-i18n-html="g_d_walker"></div>
+      <div class="gmap"><div class="gmt" data-i18n="gmap_walker"></div><div id="gmapWalker"></div></div>
       <div class="gitem" data-i18n-html="g_d_iod"></div>
+      <div class="gmap"><div class="gmt" data-i18n="gmap_iod"></div><div id="gmapIod"></div></div>
       <div class="gitem" data-i18n-html="g_d_mjo"></div>
       <h3 data-i18n="g_chart_h"></h3>
       <p data-i18n="g_chart_p"></p>
@@ -278,6 +283,7 @@ function applyLang(){
   document.querySelectorAll('[data-i18n]').forEach(el=>{ const v=T[LANG][el.dataset.i18n]; if(v!=null) el.textContent=v; });
   document.querySelectorAll('[data-i18n-html]').forEach(el=>{ const v=T[LANG][el.dataset.i18nHtml]; if(v!=null) el.innerHTML=v; });
   const _cs=document.getElementById('citySel'); if(_cs&&window._fillCities){const _v=_cs.value;window._fillCities();_cs.value=_v;}
+  renderGuideDiagrams();
   if(DATA) renderAll(DATA);
   if(LOC) loadImpact(LOC.lat,LOC.lon,LOC.city);
   loadFires();
@@ -289,6 +295,7 @@ const T = {
     sub:'马来西亚与海洋大陆', guide_btn:'ⓘ 指南', install_btn:'⬇ 安装',
     st_drivers:'气候驱动因子',
     st_mjo:'MJO 相位追踪',
+    gmap_nino:'四个监测海域（由西到东）', gmap_walker:'沃克环流：厄尔尼诺时为何我们偏干', gmap_iod:'印度洋偶极子：两极海温对比',
     drivers_intro:'从三大支柱监测厄尔尼诺 / 拉尼娜——<b>海表</b>（Niño 3.4 / ONI / RONI / 类型）、<b>次表层</b>（热含量）与<b>大气</b>（SOI / 信风 / 对流），另加 <b>IOD</b> 与 <b>MJO</b>。初次使用？打开 <a href="#" onclick="openGuide();return false">ⓘ 指南</a>。',
     st_regions:'区域展望 — 对各地的影响',
     st_nowcast:'实况与趋势',
@@ -333,6 +340,7 @@ const T = {
     sub:'Malaysia & the Maritime Continent', guide_btn:'ⓘ Guide', install_btn:'⬇ Install',
     st_drivers:'Climate drivers',
     st_mjo:'MJO phase tracker',
+    gmap_nino:'The four monitoring boxes (west to east)', gmap_walker:'Walker Circulation: why El Niño leaves us drier', gmap_iod:'Indian Ocean Dipole: the two SST poles',
     drivers_intro:'El Niño / La Niña across three pillars — <b>surface</b> (Niño 3.4 / ONI / RONI / flavor), <b>subsurface</b> (heat content) and <b>atmosphere</b> (SOI / trade winds / convection) — plus the <b>IOD</b> and <b>MJO</b>. New here? Open the <a href="#" onclick="openGuide();return false">ⓘ Guide</a>.',
     st_regions:'Regional outlook — what it means on the ground',
     st_nowcast:'Nowcast & trend',
@@ -529,14 +537,14 @@ function mjoWheelSvg(d){
   const phase = d.phase||0;
   const amp = (typeof d.amp==='number')?d.amp:(parseFloat(String(d.value).replace(/[^0-9.]/g,''))||0);
   const track = Array.isArray(d.track)?d.track:[];
-  const cx=130, cy=132, R=92, rIn=26;
+  const cx=160, cy=132, R=92, rIn=26;   // wider viewBox so side labels clear the disc
   const pol=(ang,r)=>{const a=ang*Math.PI/180; return [cx+r*Math.cos(a), cy-r*Math.sin(a)];};
   const wedge=(a0,a1,fill)=>{const p0=pol(a0,rIn),p1=pol(a0,R),p2=pol(a1,R),p3=pol(a1,rIn);
     return `<path d="M${p0[0].toFixed(1)} ${p0[1].toFixed(1)}L${p1[0].toFixed(1)} ${p1[1].toFixed(1)}A${R} ${R} 0 0 0 ${p2[0].toFixed(1)} ${p2[1].toFixed(1)}L${p3[0].toFixed(1)} ${p3[1].toFixed(1)}A${rIn} ${rIn} 0 0 1 ${p0[0].toFixed(1)} ${p0[1].toFixed(1)}Z" fill="${fill}" stroke="rgba(255,255,255,.14)" stroke-width="0.7"/>`;};
   const PH={1:[180,225],2:[225,270],3:[270,315],4:[315,360],5:[0,45],6:[45,90],7:[90,135],8:[135,180]};
   const eff=ph=>([3,4,5].includes(ph)?'wet':([7,8,1].includes(ph)?'dry':'trans'));
   const active = amp>=1;
-  let svg=`<svg viewBox="0 0 260 268" role="img" aria-label="MJO phase wheel" style="width:100%;height:auto;display:block">`;
+  let svg=`<svg viewBox="0 0 320 268" role="img" aria-label="MJO phase wheel" style="width:100%;height:auto;display:block">`;
   for(let ph=1; ph<=8; ph++){
     const a=PH[ph]; let fill='rgba(148,163,184,.10)';
     if(ph===4||ph===5) fill='rgba(245,158,11,.18)';                    // Maritime band
@@ -554,7 +562,7 @@ function mjoWheelSvg(d){
   svg+=`<text x="${cx}" y="20" font-size="8.5" fill="#93a1bd" text-anchor="middle">${L('西太平洋','W. Pacific')}</text>`;
   svg+=`<text x="${cx}" y="258" font-size="8.5" font-weight="bold" fill="#f5b301" text-anchor="middle">${L('海洋大陆（我们）','Maritime Continent (us)')}</text>`;
   svg+=`<text x="6" y="${cy+3}" font-size="8.5" fill="#93a1bd" text-anchor="start">${L('印度洋','Indian Ocean')}</text>`;
-  svg+=`<text x="254" y="${cy+3}" font-size="8.5" fill="#93a1bd" text-anchor="end">${L('太平洋','Pacific')}</text>`;
+  svg+=`<text x="314" y="${cy+3}" font-size="8.5" fill="#93a1bd" text-anchor="end">${L('太平洋','Pacific')}</text>`;
   if(track.length>1){
     const pts=track.map(tp=>{ let tr_=rIn+((tp.amp||0)-1)*((R-rIn)/2); if(tr_<4)tr_=4; if(tr_>R)tr_=R;
       const ta=Math.atan2(tp.rmm2,tp.rmm1); return (cx+tr_*Math.cos(ta)).toFixed(1)+','+(cy-tr_*Math.sin(ta)).toFixed(1);});
@@ -575,6 +583,92 @@ function mjoWheelSvg(d){
   }
   svg+='</svg>';
   return svg;
+}
+
+// ===== Educational SVG diagrams (ported from the enso app, dark-themed) =====
+// Niño-region map: shows where the four monitoring boxes sit across the Pacific.
+function ninoMapSvg(){
+  const eq=L('赤道','Equator');
+  return `<svg viewBox="0 0 360 250" style="width:100%;height:auto;display:block" role="img" aria-label="Niño regions map">`
+    +`<rect x="6" y="70" width="348" height="86" rx="7" fill="rgba(56,189,248,.10)" stroke="rgba(56,189,248,.30)"/>`
+    +`<line x1="6" y1="113" x2="354" y2="113" stroke="rgba(125,211,252,.5)" stroke-width="1" stroke-dasharray="3 3"/>`
+    +`<text x="30" y="129" font-size="8" fill="#7dd3fc">${eq}</text>`
+    +`<rect x="6" y="86" width="20" height="54" rx="3" fill="rgba(148,163,184,.16)" stroke="rgba(148,163,184,.3)"/>`
+    +`<text x="16" y="64" font-size="9" fill="#93a1bd" text-anchor="middle">${L('西','West')}</text>`
+    +`<rect x="334" y="86" width="20" height="54" rx="3" fill="rgba(148,163,184,.16)" stroke="rgba(148,163,184,.3)"/>`
+    +`<text x="344" y="64" font-size="9" fill="#93a1bd" text-anchor="middle">${L('东','East')}</text>`
+    +`<rect x="70" y="86" width="88" height="30" rx="4" fill="rgba(45,212,191,.16)" stroke="rgba(45,212,191,.5)"/>`
+    +`<text x="114" y="99" font-size="10" font-weight="bold" fill="#5eead4" text-anchor="middle">Niño 4</text>`
+    +`<text x="114" y="111" font-size="7.5" fill="#5eead4" text-anchor="middle">${L('中部，近亚洲','central, near Asia')}</text>`
+    +`<rect x="205" y="124" width="108" height="28" rx="4" fill="rgba(251,146,60,.16)" stroke="rgba(251,146,60,.5)"/>`
+    +`<text x="259" y="137" font-size="10" font-weight="bold" fill="#fdba8c" text-anchor="middle">Niño 3</text>`
+    +`<text x="259" y="148" font-size="7.5" fill="#fdba8c" text-anchor="middle">${L('东太平洋','eastern Pacific')}</text>`
+    +`<rect x="158" y="90" width="112" height="34" rx="4" fill="rgba(245,158,11,.22)" stroke="#f59e0b" stroke-width="2"/>`
+    +`<text x="214" y="104" font-size="10.5" font-weight="bold" fill="#fbbf24" text-anchor="middle">Niño 3.4 ★</text>`
+    +`<text x="214" y="116" font-size="7.5" fill="#fbbf24" text-anchor="middle">${L('主指标','the main one')}</text>`
+    +`<rect x="316" y="86" width="34" height="30" rx="3" fill="rgba(244,114,182,.16)" stroke="rgba(244,114,182,.5)"/>`
+    +`<text x="333" y="99" font-size="9" font-weight="bold" fill="#f0abcc" text-anchor="middle">1+2</text>`
+    +`<text x="333" y="110" font-size="7" fill="#f0abcc" text-anchor="middle">${L('近岸','coast')}</text>`
+    +`<circle cx="16" cy="180" r="5" fill="#2dd4bf"/>`
+    +`<text x="26" y="177" font-size="9" font-weight="bold" fill="#2dd4bf">${L('马来西亚','Malaysia')}</text>`
+    +`<text x="26" y="190" font-size="7.5" fill="#93a1bd">${L('最西端 — 厄尔尼诺时偏干','far west — drier in El Niño')}</text>`
+    +`<circle cx="344" cy="210" r="5" fill="#fb923c"/>`
+    +`<text x="336" y="207" font-size="9" font-weight="bold" fill="#fdba8c" text-anchor="end">${L('南美洲','S. America')}</text>`
+    +`<text x="180" y="238" font-size="8" fill="#fbbf24" text-anchor="middle">★ ${L('Niño 3.4 跨在 Niño 3 与 4 之间','Niño 3.4 straddles Niño 3 and 4')}</text>`
+    +`</svg>`;
+}
+// Walker Circulation in the EL NIÑO state: sinking/dry over Malaysia (west),
+// rising/rainy shifted east to the central Pacific.
+function walkerSvg(){
+  const W=320,H=210,oceanY=150,skyTop=30,loopTop=skyTop+8,loopL=48,loopR=250;
+  let s=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block" role="img" aria-label="Walker circulation (El Niño)">`;
+  s+=`<rect x="0" y="0" width="${W}" height="${oceanY}" fill="rgba(56,189,248,.06)" rx="6"/>`;
+  s+=`<rect x="0" y="${oceanY}" width="${W}" height="${H-oceanY}" fill="rgba(37,99,235,.16)"/>`;
+  s+=`<rect x="150" y="${oceanY}" width="150" height="${H-oceanY}" fill="rgba(239,68,68,.22)"/>`;
+  s+=`<text x="225" y="${oceanY+34}" font-size="8.5" fill="#fca5a5" text-anchor="middle">${L('暖海东移 →','warm water shifts east →')}</text>`;
+  s+=`<line x1="${loopR}" y1="${oceanY-6}" x2="${loopR}" y2="${loopTop}" stroke="#3b82f6" stroke-width="3"/>`;
+  s+=`<polygon points="${loopR},${loopTop-2} ${loopR-5},${loopTop+8} ${loopR+5},${loopTop+8}" fill="#3b82f6"/>`;
+  s+=`<line x1="${loopR}" y1="${loopTop}" x2="${loopL}" y2="${loopTop}" stroke="#60a5fa" stroke-width="3"/>`;
+  s+=`<polygon points="${loopL},${loopTop} ${loopL+9},${loopTop-5} ${loopL+9},${loopTop+5}" fill="#60a5fa"/>`;
+  s+=`<line x1="${loopL}" y1="${loopTop}" x2="${loopL}" y2="${oceanY-6}" stroke="#f59e0b" stroke-width="3"/>`;
+  s+=`<polygon points="${loopL},${oceanY-4} ${loopL-5},${oceanY-14} ${loopL+5},${oceanY-14}" fill="#f59e0b"/>`;
+  s+=`<line x1="${loopL}" y1="${oceanY-6}" x2="${loopR}" y2="${oceanY-6}" stroke="rgba(148,163,184,.5)" stroke-width="2" stroke-dasharray="4 3"/>`;
+  for(let i=0;i<4;i++){const rx=loopR-18+i*10; s+=`<line x1="${rx}" y1="${oceanY-30}" x2="${rx-3}" y2="${oceanY-14}" stroke="#60a5fa" stroke-width="1.5"/>`;}
+  s+=`<text x="${loopR}" y="${loopTop+22}" font-size="8.5" font-weight="bold" fill="#93c5fd" text-anchor="middle">${L('上升 · 多雨','rising · rainy')}</text>`;
+  s+=`<circle cx="${loopL}" cy="${loopTop+26}" r="7" fill="#f59e0b"/>`;
+  s+=`<text x="${loopL}" y="${loopTop+48}" font-size="8.5" font-weight="bold" fill="#fbbf24" text-anchor="middle">${L('下沉 · 干燥','sinking · dry')}</text>`;
+  s+=`<text x="${loopL}" y="${H-8}" font-size="9" font-weight="bold" fill="#2dd4bf" text-anchor="middle">★ ${L('马来西亚','Malaysia')}</text>`;
+  s+=`<text x="${loopR}" y="${H-8}" font-size="8.5" fill="#cbd5e1" text-anchor="middle">${L('中太平洋 (Niño 3.4)','Central Pacific (Niño 3.4)')}</text>`;
+  s+=`</svg>`; return s;
+}
+// Indian Ocean Dipole: west pole vs east pole (off Sumatra, next to us).
+function iodMapSvg(){
+  const eq=L('赤道','Equator');
+  return `<svg viewBox="0 0 360 250" style="width:100%;height:auto;display:block" role="img" aria-label="Indian Ocean Dipole map">`
+    +`<rect x="6" y="70" width="348" height="92" rx="7" fill="rgba(56,189,248,.10)" stroke="rgba(56,189,248,.30)"/>`
+    +`<line x1="6" y1="150" x2="354" y2="150" stroke="rgba(125,211,252,.5)" stroke-width="1" stroke-dasharray="3 3"/>`
+    +`<text x="46" y="160" font-size="8" fill="#7dd3fc" text-anchor="middle">${eq}</text>`
+    +`<rect x="10" y="80" width="20" height="64" rx="3" fill="rgba(148,163,184,.16)" stroke="rgba(148,163,184,.3)"/>`
+    +`<text x="20" y="64" font-size="8.5" fill="#93a1bd" text-anchor="middle">${L('非洲','Africa')}</text>`
+    +`<rect x="330" y="80" width="20" height="64" rx="3" fill="rgba(148,163,184,.16)" stroke="rgba(148,163,184,.3)"/>`
+    +`<text x="340" y="64" font-size="8.5" fill="#93a1bd" text-anchor="middle">${L('苏门答腊','Sumatra')}</text>`
+    +`<rect x="44" y="86" width="100" height="44" rx="4" fill="rgba(59,130,246,.16)" stroke="rgba(147,197,253,.6)" stroke-width="1.5"/>`
+    +`<text x="94" y="103" font-size="10" font-weight="bold" fill="#93c5fd" text-anchor="middle">${L('西极','West pole')}</text>`
+    +`<text x="94" y="116" font-size="7.5" fill="#93c5fd" text-anchor="middle">${L('阿拉伯海一带','Arabian Sea side')}</text>`
+    +`<rect x="216" y="84" width="100" height="48" rx="4" fill="rgba(245,158,11,.22)" stroke="#f59e0b" stroke-width="2"/>`
+    +`<text x="266" y="101" font-size="10" font-weight="bold" fill="#fbbf24" text-anchor="middle">${L('东极','East pole')} ★</text>`
+    +`<text x="266" y="114" font-size="7.5" fill="#fbbf24" text-anchor="middle">${L('苏门答腊外海','off Sumatra')}</text>`
+    +`<circle cx="318" cy="184" r="5" fill="#2dd4bf"/>`
+    +`<text x="308" y="181" font-size="9" font-weight="bold" fill="#2dd4bf" text-anchor="end">${L('马来西亚','Malaysia')}</text>`
+    +`<text x="308" y="194" font-size="7.5" fill="#93a1bd" text-anchor="end">${L('紧邻东极','next to the east pole')}</text>`
+    +`<text x="180" y="240" font-size="8" fill="#fbbf24" text-anchor="middle">★ ${L('DMI = 西极减东极海温；正值＝偏干','DMI = west-pole minus east-pole SST; positive = drier')}</text>`
+    +`</svg>`;
+}
+function renderGuideDiagrams(){
+  const set=(id,html)=>{const el=document.getElementById(id); if(el) el.innerHTML=html;};
+  set('gmapNino', ninoMapSvg());
+  set('gmapWalker', walkerSvg());
+  set('gmapIod', iodMapSvg());
 }
 
 // ===== Holistic region model =====
@@ -733,8 +827,8 @@ function renderAll(D){
   const _mwn=document.getElementById('mjowheelnote');
   if(_mwn){ const mr=mjoReading(D);
     _mwn.innerHTML=`<b>${mr.plain}</b> · ${mr.tag}<br>`+
-      L('蓝点＝现在的位置，蓝线＝近40天路径。MJO 每30–60天绕行热带一圈，逆时针＝向东传播；落在下方“海洋大陆”时（第4–5位相）本区偏湿。',
-        'Blue dot = now, blue trail = the last ~40 days. The MJO circles the tropics every 30–60 days; counter-clockwise = travelling east. When it sits over the “Maritime Continent” (phases 4–5) we get wetter.'); }
+      L('蓝点＝现在的位置，空心圈＝约40天前，两者之间的蓝线＝这段期间走过的路径。MJO 每30–60天绕行热带一圈，逆时针＝向东传播；落在下方“海洋大陆”时（第4–5位相）本区偏湿。',
+        'Blue dot = now, hollow ring = about 40 days ago, and the blue line between them is the path it took. The MJO circles the tropics every 30–60 days; counter-clockwise = travelling east. When it sits over the “Maritime Continent” (phases 4–5) we get wetter.'); }
 
   document.getElementById('regions').innerHTML=nar.regions.map(r=>`
     <div class="region"><div class="rn">${r.rn}</div>
