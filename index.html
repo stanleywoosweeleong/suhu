@@ -499,6 +499,26 @@ function ruleRows(){
 
 // ============ Render ============
 let chart;
+let _himaMeta=null;                 // real Himawari mirror metadata (himawari/meta.json)
+function relTime(iso){ const t=Date.parse(iso); if(!t) return null;
+  const m=Math.max(0,Math.round((Date.now()-t)/60000));
+  if(m<60) return m+' min ago'; const h=Math.round(m/60); if(h<24) return h+' h ago'; return Math.round(h/24)+' d ago'; }
+// Source-health table. The Himawari row is driven by the REAL mirror timestamp
+// (its image comes from a separate workflow, so its status isn't in data.json).
+function renderSources(D){
+  const sT=document.getElementById('sources'); if(!sT) return;
+  sT.innerHTML=`<tr><th>${L('指标','Indicator')}</th><th>${L('主来源','Primary')}</th><th>${L('备用','Fallback')}</th><th>${L('状态','Status')}</th><th>${L('更新','Updated')}</th></tr>`+
+    (D.sources||[]).map(s=>{
+      let status=s[3], updated=s[4];
+      if(/^Himawari/i.test(s[0]) && _himaMeta && _himaMeta.fetched){
+        const rt=relTime(_himaMeta.fetched);
+        if(rt){ updated=rt; status=(Date.now()-Date.parse(_himaMeta.fetched) < 3*3600*1000)?'live':'stale'; }
+      }
+      return `<tr><td>${s[0]}</td><td>${s[1]}</td><td style="color:var(--muted)">${s[2]}</td>`+
+        `<td><span class="dot ${status==='live'?'live-dot':'stale-dot'}"></span>${status==='live'?L('实时','live'):L('过期','stale')}</td>`+
+        `<td style="color:var(--muted)">${trUpdated(updated)}</td></tr>`;
+    }).join('');
+}
 const MONMAP={Jan:'1月',Feb:'2月',Mar:'3月',Apr:'4月',May:'5月',Jun:'6月',Jul:'7月',Aug:'8月',Sep:'9月',Oct:'10月',Nov:'11月',Dec:'12月'};
 function chartLabel(l){ if(LANG==='en')return l; const star=l.endsWith('*'); const base=star?l.slice(0,-1):l; return (MONMAP[base]||base)+(star?'*':''); }
 function trUpdated(s){ if(LANG==='en')return s; return String(s).replace('just now','刚刚').replace(' h ago',' 小时前').replace(' d ago',' 天前').replace(' min ago',' 分钟前').replace(' ago',' 前'); }
@@ -620,7 +640,7 @@ function ninoMapSvg(){
 // Walker Circulation in the EL NIÑO state: sinking/dry over Malaysia (west),
 // rising/rainy shifted east to the central Pacific.
 function walkerSvg(){
-  const W=320,H=210,oceanY=150,skyTop=30,loopTop=skyTop+8,loopL=48,loopR=250;
+  const W=320,H=210,oceanY=150,skyTop=30,loopTop=skyTop+8,loopL=58,loopR=260;  // centred loop
   let s=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block" role="img" aria-label="Walker circulation (El Niño)">`;
   s+=`<rect x="0" y="0" width="${W}" height="${oceanY}" fill="rgba(56,189,248,.06)" rx="6"/>`;
   s+=`<rect x="0" y="${oceanY}" width="${W}" height="${H-oceanY}" fill="rgba(37,99,235,.16)"/>`;
@@ -632,8 +652,9 @@ function walkerSvg(){
   s+=`<polygon points="${loopL},${loopTop} ${loopL+9},${loopTop-5} ${loopL+9},${loopTop+5}" fill="#60a5fa"/>`;
   s+=`<line x1="${loopL}" y1="${loopTop}" x2="${loopL}" y2="${oceanY-6}" stroke="#f59e0b" stroke-width="3"/>`;
   s+=`<polygon points="${loopL},${oceanY-4} ${loopL-5},${oceanY-14} ${loopL+5},${oceanY-14}" fill="#f59e0b"/>`;
-  s+=`<line x1="${loopL}" y1="${oceanY-6}" x2="${loopR}" y2="${oceanY-6}" stroke="rgba(148,163,184,.5)" stroke-width="2" stroke-dasharray="4 3"/>`;
-  for(let i=0;i<4;i++){const rx=loopR-18+i*10; s+=`<line x1="${rx}" y1="${oceanY-30}" x2="${rx-3}" y2="${oceanY-14}" stroke="#60a5fa" stroke-width="1.5"/>`;}
+  s+=`<line x1="${loopL}" y1="${oceanY-6}" x2="${loopR}" y2="${oceanY-6}" stroke="rgba(148,163,184,.55)" stroke-width="2" stroke-dasharray="4 3"/>`;
+  s+=`<polygon points="${loopR},${oceanY-6} ${loopR-9},${oceanY-11} ${loopR-9},${oceanY-1}" fill="rgba(148,163,184,.7)"/>`; // return flow → east, completes the loop
+  for(let i=0;i<4;i++){const rx=loopR-32+i*7; s+=`<line x1="${rx}" y1="${oceanY-30}" x2="${rx-3}" y2="${oceanY-14}" stroke="#60a5fa" stroke-width="1.5"/>`;}
   s+=`<text x="${loopR}" y="${loopTop+22}" font-size="8.5" font-weight="bold" fill="#93c5fd" text-anchor="middle">${L('上升 · 多雨','rising · rainy')}</text>`;
   s+=`<circle cx="${loopL}" cy="${loopTop+26}" r="7" fill="#f59e0b"/>`;
   s+=`<text x="${loopL}" y="${loopTop+48}" font-size="8.5" font-weight="bold" fill="#fbbf24" text-anchor="middle">${L('下沉 · 干燥','sinking · dry')}</text>`;
@@ -834,11 +855,7 @@ function renderAll(D){
     <div class="region"><div class="rn">${r.rn}</div>
     <span class="risk ${r.risk}">${r.label}</span><p>${r.p}</p></div>`).join('');
 
-  const sT=document.getElementById('sources');
-  if(sT){ sT.innerHTML=`<tr><th>${L('指标','Indicator')}</th><th>${L('主来源','Primary')}</th><th>${L('备用','Fallback')}</th><th>${L('状态','Status')}</th><th>${L('更新','Updated')}</th></tr>`+
-    (D.sources||[]).map(s=>`<tr><td>${s[0]}</td><td>${s[1]}</td><td style="color:var(--muted)">${s[2]}</td>
-    <td><span class="dot ${s[3]==='live'?'live-dot':'stale-dot'}"></span>${s[3]==='live'?L('实时','live'):L('过期','stale')}</td>
-    <td style="color:var(--muted)">${trUpdated(s[4])}</td></tr>`).join(''); }
+  renderSources(D);
 
   const rT=document.getElementById('rules'); if(rT) rT.innerHTML=ruleRows();
 
@@ -871,6 +888,7 @@ async function load(){
 (function(){
   const sat=document.getElementById('sat'), msg=document.getElementById('satMsg');
   fetch('himawari/meta.json',{cache:'no-store'}).then(r=>r.ok?r.json():null).catch(()=>null).then(meta=>{
+    _himaMeta=meta; if(DATA) renderSources(DATA);   // wire the source-panel row to the real mirror time
     const fresh=meta&&meta.bytes>0; const bust=fresh?(Date.parse(meta.fetched)||Date.now()):Date.now();
     const imgFile=(meta&&meta.image)?meta.image:'latest.png'; const src='himawari/'+imgFile+'?t='+bust;
     const img=new Image();
