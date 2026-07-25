@@ -57,6 +57,8 @@
   .card .name{font-size:12px;color:var(--muted)}
   .val{font-size:26px;font-weight:800;margin:6px 0 2px}
   .val.val-sm{font-size:18px;line-height:1.25}
+  .spark{display:flex;align-items:center;gap:8px;margin:1px 0 9px;font-size:11px;color:var(--muted)}
+  .spark svg{flex:0 0 auto}
   .status{display:inline-block;font-size:12px;font-weight:700;padding:3px 9px;border-radius:6px;margin-bottom:8px}
   .s-dry{background:rgba(245,158,11,.18);color:var(--dry)} .s-hot{background:rgba(239,68,68,.18);color:var(--hot)}
   .s-wet{background:rgba(34,197,94,.18);color:var(--wet)} .s-neu{background:rgba(100,116,139,.2);color:#9fb0c9}
@@ -220,7 +222,7 @@
   <div class="backdrop" onclick="closeGuide()"></div>
   <div class="sheet">
     <div class="sheet-head">
-      <h2 data-i18n="guide_title">指南 — 如何阅读 SUHU</h2>
+      <h2 data-i18n="guide_title">指南 — 如何读懂 SUHU</h2>
       <button class="sheet-close" onclick="closeGuide()" aria-label="Close">✕</button>
     </div>
     <div class="sheet-body guide">
@@ -305,7 +307,7 @@ const T = {
     chart_note:'°C 距平。正值且上升 = 厄尔尼诺增强。来源：NOAA CPC / BoM。',
     st_impact:'本地影响 — ', loc_label:'地点', geo_btn:'📍 使用我的定位',
     impact_note:'空气质量与高温：Open-Meteo（模式数据，按地点实时更新）。火点：NASA FIRMS（VIIRS）。马来西亚官方指数：<a href="https://eqms.doe.gov.my" target="_blank">DOE MyEQMS · APIMS ↗</a>。',
-    guide_title:'指南 — 如何阅读 SUHU',
+    guide_title:'指南 — 如何读懂 SUHU',
     g_intro:'<strong>SUHU 是一个解读层，而非独立预报。</strong>它汇集全球的 ENSO / IOD / MJO 监测（包括 NOAA），并将其转化为对马来西亚降雨、干旱与烟霾的意义。底层科学仍以 NOAA、BoM、JAMSTEC 与 JMA 为权威。',
     g_share_h:'打开 / 分享此应用',
     g_share_p:'扫描二维码，或打开链接，在任何设备上使用本应用：<br><a href="https://stanleywoosweeleong.github.io/suhu/" target="_blank">stanleywoosweeleong.github.io/suhu</a>',
@@ -791,6 +793,32 @@ function ensoVerdict(oni, roni){
   if(oni<=-0.5){ if(roni<=-1.0)return F.coolStrong; if(roni<=-0.5)return F.coolConfirmed; return F.coolEmerging; }
   return F.neutral;
 }
+// Compact per-card history: a tiny sparkline + a "prev value · trend arrow" badge.
+// Shows the recent CHANGE without spending screen space on a full chart per card.
+const SPARK_DP={oni:2,roni:2,iod:2,enso:1,soi:0,wind:1,olr:1,hc:1};
+function sparkline(vals,color){
+  if(!vals||vals.length<2) return '';
+  const w=76,h=22,pad=3;
+  const mn=Math.min(...vals),mx=Math.max(...vals),rng=(mx-mn)||1;
+  const X=i=>pad+i*(w-2*pad)/(vals.length-1), Y=v=>h-pad-((v-mn)/rng)*(h-2*pad);
+  const pts=vals.map((v,i)=>X(i).toFixed(1)+','+Y(v).toFixed(1)).join(' ');
+  const lx=X(vals.length-1).toFixed(1), ly=Y(vals[vals.length-1]).toFixed(1);
+  return `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" style="display:block;overflow:visible">`+
+    `<polyline points="${pts}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" opacity="0.85"/>`+
+    `<circle cx="${lx}" cy="${ly}" r="2.2" fill="${color}"/></svg>`;
+}
+function trendBadge(vals,dp){
+  if(!vals||vals.length<2) return '';
+  const cur=vals[vals.length-1], prev=vals[vals.length-2], d=cur-prev;
+  const eps=dp>=2?0.01:dp>=1?0.05:0.5;
+  const ar=d>eps?'↑':d<-eps?'↓':'→';
+  const delta=Math.abs(d)>eps?` (${d>0?'+':''}${d.toFixed(dp)})`:'';
+  return L('上期 ','prev ')+prev.toFixed(dp)+' · '+ar+delta;
+}
+function sparkRow(d){
+  if(!d.hist||d.hist.length<2) return '';
+  return `<div class="spark">${sparkline(d.hist,d.gcol)}<span>${trendBadge(d.hist, SPARK_DP[d.key]!=null?SPARK_DP[d.key]:1)}</span></div>`;
+}
 function renderAll(D){
   DATA=D;
   // ONE hero: honest ENSO verdict (ONI+RONI) as the headline, with the monsoon
@@ -825,6 +853,7 @@ function renderAll(D){
     return `<div class="card"><h3>${info.h[idx]}</h3>
       <div class="name">${info.name[idx]}</div>
       <div class="${valCls}">${d.value}</div><div class="status ${d.cls}">${trStatus(d.status)}</div>
+      ${sparkRow(d)}
       <div class="gauge"><div class="fill" style="width:${d.gauge}%;background:${d.gcol}"></div></div>
       <div class="interp">${info.interp[idx]}</div></div>`;
   };
@@ -848,8 +877,8 @@ function renderAll(D){
   const _mwn=document.getElementById('mjowheelnote');
   if(_mwn){ const mr=mjoReading(D);
     _mwn.innerHTML=`<b>${mr.plain}</b> · ${mr.tag}<br>`+
-      L('蓝点＝现在的位置，空心圈＝约40天前，两者之间的蓝线＝这段期间走过的路径。MJO 每30–60天绕行热带一圈，逆时针＝向东传播；落在下方“海洋大陆”时（第4–5位相）本区偏湿。',
-        'Blue dot = now, hollow ring = about 40 days ago, and the blue line between them is the path it took. The MJO circles the tropics every 30–60 days; counter-clockwise = travelling east. When it sits over the “Maritime Continent” (phases 4–5) we get wetter.'); }
+      L('蓝点＝现在，空心圈＝约40天前，两者之间的蓝线＝走过的路径（由旧到今）。<b>离圆心越远＝越强：</b>弱的 MJO 会挤在虚线“振幅1”圈内、几乎没影响；活跃时则向外推向外缘。它每30–60天绕行热带一圈——逆时针＝向东移动——当它来到下方“海洋大陆”位相（第4–5位相）时，本区偏湿。',
+        'Blue dot = now, hollow ring = ~40 days ago, and the line between is the path it took (then → now). <b>Distance from the centre = strength:</b> a weak MJO huddles inside the dashed “amp 1” ring and barely matters; an active one pushes out toward the rim. It circles the tropics every 30–60 days — counter-clockwise means moving east — and when it reaches the lower “Maritime Continent” sectors (phases 4–5), we get wetter.'); }
 
   document.getElementById('regions').innerHTML=nar.regions.map(r=>`
     <div class="region"><div class="rn">${r.rn}</div>
