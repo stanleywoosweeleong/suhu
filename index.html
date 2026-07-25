@@ -28,6 +28,8 @@
     padding-left:env(safe-area-inset-left);
     padding-right:env(safe-area-inset-right)}
   a{color:var(--accent);text-decoration:none}
+  html,body{overflow-x:hidden;overscroll-behavior-x:none;max-width:100%}
+  table td{word-break:break-word}
   .wrap{max-width:1120px;margin:0 auto;padding:14px 16px 70px}
   header{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
   h1{font-size:20px;margin:0}
@@ -190,17 +192,15 @@
   <div class="regions" id="regions"></div>
 
   <div class="section-title" data-i18n="st_nowcast">实况与趋势</div>
-  <div class="two">
-    <div class="panel">
-      <h4 data-i18n="panel_sst">海表温度距平 · 太平洋</h4>
-      <div id="sstmap"></div>
-      <div class="gsrc" style="margin-top:8px" data-i18n="sst_note"></div>
-    </div>
-    <div class="panel">
-      <h4 data-i18n="panel_chart">Niño 3.4 海温距平 — 近期趋势</h4>
-      <canvas id="nino34chart" height="150"></canvas>
-      <div class="gsrc" data-i18n="chart_note"></div>
-    </div>
+  <div class="panel">
+    <h4 data-i18n="panel_sst">海表温度距平 · 太平洋</h4>
+    <div id="sstmap"></div>
+    <div class="gsrc" style="margin-top:8px" data-i18n="sst_note"></div>
+  </div>
+  <div class="panel" style="margin-top:14px">
+    <h4 data-i18n="panel_chart">Niño 3.4 海温距平 — 近期趋势</h4>
+    <canvas id="nino34chart" height="150"></canvas>
+    <div class="gsrc" data-i18n="chart_note"></div>
   </div>
 
   <div class="section-title"><span data-i18n="st_impact">本地影响 — </span><span id="locName"></span></div>
@@ -306,7 +306,7 @@ const T = {
     st_regions:'区域展望 — 对各地的影响',
     st_nowcast:'实况与趋势',
     panel_sst:'海表温度距平 · 印度洋–太平洋',
-    sat_note:'以海洋大陆（马来西亚）为中心的示意图：向东伸展的暖舌＝厄尔尼诺，白框为 Niño 3.4 测量区。暖舌的强弱与位置（偏东＝东太型，偏中＝中太型）由现有的尼诺分区海温实时绘制，非卫星实况。',
+    sat_note:'以海洋大陆（马来西亚）为中心的示意图：向东伸展的暖舌＝厄尔尼诺，白框为 Niño 3.4 测量区。暖舌的强弱与位置（偏东＝东太型，偏中＝中太型）由现有的尼诺分区海温实时绘制，非卫星实况。底图风格参考 NASA SVS；海岸线为简化示意。',
     panel_chart:'Niño 3.4 海温距平 — 近期趋势',
     chart_note:'°C 距平。正值且上升 = 厄尔尼诺增强。来源：NOAA CPC / BoM。',
     st_impact:'本地影响 — ', loc_label:'地点', geo_btn:'📍 使用我的定位',
@@ -351,7 +351,7 @@ const T = {
     st_regions:'Regional outlook — what it means on the ground',
     st_nowcast:'Nowcast & trend',
     panel_sst:'SST anomaly · Indo-Pacific',
-    sat_note:'Schematic centred on the Maritime Continent (Malaysia): the warm tongue reaching east is El Niño; the white box is Niño 3.4. Its strength and position (east = EP type, central = CP/Modoki) are drawn live from the Niño-region SSTs the app already fetches — not a satellite image.',
+    sat_note:'Schematic centred on the Maritime Continent (Malaysia): the warm tongue reaching east is El Niño; the white box is Niño 3.4. Its strength and position (east = EP type, central = CP/Modoki) are drawn live from the Niño-region SSTs the app already fetches — not a satellite image. Base-map style after NASA SVS; coastlines are simplified.',
     panel_chart:'Niño 3.4 SST anomaly — recent trend',
     chart_note:'°C anomaly. Positive & rising = El Niño strengthening. Source: NOAA CPC / BoM.',
     st_impact:'Local impact — ', loc_label:'Location', geo_btn:'📍 Use my location',
@@ -505,10 +505,13 @@ function ruleRows(){
 
 // ============ Render ============
 let chart;
+// Chinese labels for the source-health table (indicators + a few descriptive sources).
+const SRCZH={'ENSO flavor (EP/CP)':'ENSO 类型（东太/中太）','Heat content (WWV)':'热含量（暖水体积）','SOI':'SOI（南方涛动）','Trade winds (850 hPa)':'信风（850 百帕）','OLR (dateline)':'OLR（日界线对流）','DMI (IOD)':'DMI（印度洋偶极子）','MJO (RMM)':'MJO（RMM）','Australia BoM':'澳大利亚 BoM','OISST Niño regions':'OISST 尼诺分区','CDAS reanalysis':'CDAS 再分析'};
+function trSrc(x){ if(LANG!=='zh'||x==null) return x; return SRCZH[x]!=null?SRCZH[x]:x; }
 function renderSources(D){
   const sT=document.getElementById('sources'); if(!sT) return;
   sT.innerHTML=`<tr><th>${L('指标','Indicator')}</th><th>${L('主来源','Primary')}</th><th>${L('备用','Fallback')}</th><th>${L('状态','Status')}</th><th>${L('更新','Updated')}</th></tr>`+
-    (D.sources||[]).map(s=>`<tr><td>${s[0]}</td><td>${s[1]}</td><td style="color:var(--muted)">${s[2]}</td>`+
+    (D.sources||[]).map(s=>`<tr><td>${trSrc(s[0])}</td><td>${trSrc(s[1])}</td><td style="color:var(--muted)">${trSrc(s[2])}</td>`+
       `<td><span class="dot ${s[3]==='live'?'live-dot':'stale-dot'}"></span>${s[3]==='live'?L('实时','live'):L('过期','stale')}</td>`+
       `<td style="color:var(--muted)">${trUpdated(s[4])}</td></tr>`).join('');
 }
@@ -815,7 +818,7 @@ function sparkRow(d){
 // paths (offline-friendly). The anomaly "tongue" is drawn live from the Niño-region
 // anomalies (1+2/3/4/3.4) the pipeline already fetches — its sign, strength and
 // EP-vs-CP position come straight from the data.
-const SST_LAND=["M123.5 90.5L128.8 95.3L134.8 101.5L141.0 110.8L146.3 117.4L152.3 123.3L160.7 132.6L155.8 131.4L148.8 123.7L141.8 115.2L135.5 106.3L130.2 99.0L125.7 93.0L123.5 90.5Z","M140.3 86.0L142.1 92.3L144.5 98.2L149.1 103.0L152.6 105.6L154.0 101.2L151.9 96.0L148.4 90.8L144.2 85.3L141.8 82.0L140.3 86.0Z","M173.6 103.4L178.5 97.5L187.3 93.0L197.7 93.8L205.5 102.6L206.5 110.8L201.6 119.6L196.0 125.2L185.5 125.5L176.8 118.2L172.2 110.0L171.2 106.3L173.6 103.4Z","M158.5 132.6L168.0 135.1L178.5 136.6L190.8 141.4L194.3 141.8L185.5 140.7L175.0 139.2L164.5 137.4L158.5 132.6Z","M209.3 104.9L211.8 112.6L210.7 120.4L214.2 125.5L212.1 131.4L218.8 129.2L217.0 121.1L221.9 115.2L226.8 116.7L222.6 109.3L215.3 104.9L212.1 102.6L209.3 104.9Z","M248.5 114.1L257.3 119.6L262.5 115.2L273.0 120.4L283.5 121.5L294.0 126.3L306.3 132.2L317.8 135.5L308.0 140.3L290.5 141.4L273.0 137.4L257.3 130.0L250.6 123.3L247.4 116.7L248.5 114.1Z","M211.4 42.5L215.6 49.8L213.5 58.3L218.4 61.3L224.0 60.6L219.1 52.4L214.9 45.0L211.4 42.5Z","M216.7 79.0L224.0 80.5L232.8 81.2L231.7 87.5L225.8 89.0L218.8 86.4L216.7 79.0Z","M133.0 25.8L140.0 27.3L148.8 29.5L157.5 32.5L166.3 40.6L171.5 49.8L169.4 60.9L163.5 72.0L157.5 78.6L152.6 70.9L147.0 62.8L141.8 53.5L136.5 42.5L133.0 33.2L133.0 25.8Z","M49.0 0.0L91.0 0.0L140.0 0.0L182.0 0.0L217.0 3.7L248.5 14.8L231.0 25.8L196.0 33.2L161.0 36.9L133.0 33.2L105.0 25.8L77.0 14.8L56.0 7.4L49.0 0.0Z","M35.0 18.5L42.0 33.2L49.0 51.7L59.5 70.2L68.3 80.1L71.8 66.5L78.8 51.7L87.5 38.8L98.0 25.8L84.0 14.8L66.5 11.1L49.0 12.9L35.0 18.5Z","M185.5 192.0L192.5 184.6L213.5 179.1L231.0 162.5L245.0 155.1L262.5 156.9L280.0 173.5L292.3 158.8L301.0 177.2L315.0 192.0L325.5 210.5L315.0 232.6L301.0 251.1L280.0 251.1L259.0 232.6L241.5 227.1L220.5 232.6L203.0 236.3L190.8 221.5L185.5 204.9L185.5 192.0Z"];
+const SST_LAND=["M0.0 0.0L52.5 0.0L112.0 0.0L168.0 0.0L217.0 0.0L224.0 14.8L213.5 24.0L182.0 27.7L157.5 29.5L143.5 27.7L133.0 18.5L115.5 11.1L77.0 7.4L35.0 3.7L0.0 0.0Z","M28.0 22.2L35.0 36.9L43.8 51.7L54.3 68.3L61.2 80.5L69.3 72.0L71.0 55.4L80.5 42.5L92.8 33.2L99.7 24.0L87.5 14.8L63.0 12.9L42.0 14.8L28.0 22.2Z","M70.0 84.9L76.3 88.2L76.0 79.8L70.7 75.3L69.0 82.7L70.0 84.9Z","M133.0 25.8L145.3 28.8L155.8 30.3L164.5 36.9L172.2 49.8L170.1 62.8L162.8 73.1L157.5 78.6L152.6 71.6L144.2 62.8L138.6 49.8L134.4 38.8L133.0 29.5L133.0 25.8Z","M140.7 87.1L142.1 91.6L144.2 99.0L148.0 102.6L151.2 104.9L153.7 106.0L155.0 104.5L152.6 97.5L151.6 92.7L149.1 89.0L146.3 87.1L143.2 86.4L140.7 87.1Z","M123.5 90.1L126.7 96.0L132.3 103.4L138.6 112.2L142.5 116.7L147.0 122.2L151.9 126.3L156.5 131.1L160.3 132.6L161.0 127.8L157.5 120.4L154.0 114.5L149.8 108.6L144.5 103.0L138.6 97.5L133.0 94.5L123.5 90.1Z","M173.6 104.1L177.1 99.3L184.1 95.3L191.1 93.4L198.1 94.5L202.7 99.3L206.2 105.6L206.5 111.5L202.7 118.9L197.4 124.1L188.7 125.9L179.9 122.6L174.0 115.9L171.2 111.1L171.5 107.1L173.6 104.1Z","M158.2 132.6L164.5 133.3L173.3 134.8L180.3 137.0L187.3 139.9L190.8 141.8L185.5 141.0L175.0 139.2L166.3 137.4L158.2 132.6Z","M192.5 141.0L195.0 141.4L193.9 143.3L191.8 142.5L192.5 141.0Z","M209.7 109.7L211.0 115.2L208.6 120.4L207.5 124.1L210.7 122.2L211.8 128.9L215.3 126.6L217.3 131.1L219.1 127.4L216.7 122.2L220.8 117.8L226.1 117.0L221.9 113.0L224.0 108.6L227.8 105.6L221.9 107.4L215.9 107.8L212.1 106.3L209.7 109.7Z","M235.9 107.1L239.1 104.9L238.0 110.0L240.1 113.0L237.3 112.6L236.6 109.7L235.9 107.1Z","M222.3 145.8L229.3 144.7L235.5 141.8L228.6 142.9L223.0 147.7L222.3 145.8Z","M209.7 50.2L212.1 42.1L218.1 46.5L216.3 55.4L224.0 59.1L218.4 62.8L213.5 56.9L209.7 53.5L209.7 50.2Z","M218.8 67.9L226.1 67.2L228.6 72.4L220.5 74.2L218.8 67.9Z","M216.7 80.1L222.6 74.2L229.6 74.6L233.5 83.4L231.3 88.6L221.9 87.9L216.7 80.1Z","M248.5 113.7L254.1 112.6L257.6 119.3L254.1 121.8L259.7 124.8L266.7 118.9L274.8 117.4L283.5 120.4L294.0 127.4L305.2 133.7L317.1 135.1L308.0 141.0L294.0 142.5L281.8 140.3L269.5 132.9L257.3 127.4L248.5 113.7Z","M186.2 192.0L189.0 184.6L217.0 177.2L232.8 162.5L246.8 155.1L257.3 155.1L269.5 152.1L288.8 151.4L294.0 164.3L302.4 180.9L316.8 193.8L327.3 206.8L326.2 225.2L315.0 249.2L302.8 254.8L280.0 251.1L266.0 240.0L252.0 228.9L241.5 227.1L231.0 232.6L213.5 236.3L194.3 236.3L189.0 217.8L186.2 203.1L186.2 192.0Z","M298.2 262.2L308.0 262.2L306.3 271.0L296.8 266.6L298.2 262.2Z"];
 function sstMap(D){
   const gv=k=>{const c=D.drivers.find(d=>d.key===k);return c?(parseFloat(String(c.value).replace('−','-'))||0):0;};
   const f=(D.drivers.find(d=>d.key==='flavor')||{}).nreg||{};
@@ -824,7 +827,7 @@ function sstMap(D){
   const gid=v=>{const a=Math.abs(v); if(a<0.3) return 'sNeu'; if(v>0) return a>=1.2?'sW2':'sW1'; return a>=1.2?'sC2':'sC1';};
   const blob=(x,v)=>{ if(Math.abs(v)<0.12) return ''; const rx=(58+Math.min(2.3,Math.abs(v))*56).toFixed(0); return `<ellipse cx="${x}" cy="${eqY}" rx="${rx}" ry="42" fill="url(#${gid(v)})"/>`; };
   const anom = blob(245,-n34*0.5)+blob(402,n4)+blob(543,n34)+blob(630,n3);
-  const land = SST_LAND.map(dd=>`<path d="${dd}" fill="#313f54" stroke="#5b6b82" stroke-width="0.8"/>`).join('');
+  const land = SST_LAND.map(dd=>`<path d="${dd}" fill="#5a6473" stroke="#889"  stroke-width="0.9" stroke-linejoin="round"/>`).join('');
   const grd=(id,c)=>`<radialGradient id="${id}" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="${c}"/><stop offset="55%" stop-color="${c}" stop-opacity="0.5"/><stop offset="100%" stop-color="${c}" stop-opacity="0"/></radialGradient>`;
   const defs=`<defs>${grd('sW2','#e23b28')}${grd('sW1','#e8913a')}${grd('sC1','#5b9bd0')}${grd('sC2','#2f6fb0')}${grd('sNeu','#8a93a6')}${grd('mcg','#2dd4bf')}</defs>`;
   let grid=''; [70,140,210,280,350,420,490,560,630].forEach(x=>grid+=`<line x1="${x}" y1="0" x2="${x}" y2="240" stroke="#fff" stroke-width="0.5" opacity="0.05"/>`);
