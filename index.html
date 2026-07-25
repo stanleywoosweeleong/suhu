@@ -67,7 +67,7 @@
   .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:13px;margin-bottom:16px}
   .dgroup{grid-column:1/-1;font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:8px 0 -4px;padding-top:9px;border-top:1px solid rgba(255,255,255,.08)}
   .dgroup:first-child{margin-top:0;padding-top:0;border-top:none}
-  .mjowrap{max-width:460px;margin:0 auto}
+  .mjowrap{max-width:500px;margin:0 auto}
   .windtgl{display:inline-flex;align-items:center;gap:7px;margin-top:9px;font-size:12px;color:var(--muted);cursor:pointer;user-select:none}
   .windtgl input{accent-color:var(--accent);cursor:pointer;margin:0}
   .gmap{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px 10px 6px;margin:10px 0}
@@ -197,6 +197,7 @@
     <h4 data-i18n="panel_sst">海表温度距平 · 太平洋</h4>
     <div id="sstmap"></div>
     <label class="windtgl"><input type="checkbox" id="windChk" onchange="toggleWind()"><span data-i18n="wind_arrow">显示信风 / 暖水推移箭头</span></label>
+    <div id="windnote" style="margin-top:8px;font-size:11px;line-height:1.55;color:#c99a5b"></div>
     <div class="gsrc" style="margin-top:8px" data-i18n="sst_note"></div>
   </div>
   <div class="panel" style="margin-top:14px">
@@ -560,14 +561,14 @@ function mjoWheelSvg(d){
   const phase = d.phase||0;
   const amp = (typeof d.amp==='number')?d.amp:(parseFloat(String(d.value).replace(/[^0-9.]/g,''))||0);
   const track = Array.isArray(d.track)?d.track:[];
-  const cx=230, cy=132, R=92, rIn=26;   // wider viewBox so side labels clear the disc
+  const cx=250, cy=132, R=92, rIn=26;   // wider viewBox so side labels clear the disc
   const pol=(ang,r)=>{const a=ang*Math.PI/180; return [cx+r*Math.cos(a), cy-r*Math.sin(a)];};
   const wedge=(a0,a1,fill)=>{const p0=pol(a0,rIn),p1=pol(a0,R),p2=pol(a1,R),p3=pol(a1,rIn);
     return `<path d="M${p0[0].toFixed(1)} ${p0[1].toFixed(1)}L${p1[0].toFixed(1)} ${p1[1].toFixed(1)}A${R} ${R} 0 0 0 ${p2[0].toFixed(1)} ${p2[1].toFixed(1)}L${p3[0].toFixed(1)} ${p3[1].toFixed(1)}A${rIn} ${rIn} 0 0 1 ${p0[0].toFixed(1)} ${p0[1].toFixed(1)}Z" fill="${fill}" stroke="rgba(255,255,255,.14)" stroke-width="0.7"/>`;};
   const PH={1:[180,225],2:[225,270],3:[270,315],4:[315,360],5:[0,45],6:[45,90],7:[90,135],8:[135,180]};
   const eff=ph=>([3,4,5].includes(ph)?'wet':([7,8,1].includes(ph)?'dry':'trans'));
   const active = amp>=1;
-  let svg=`<svg viewBox="0 0 460 268" role="img" aria-label="MJO phase wheel" style="width:100%;height:auto;display:block">`;
+  let svg=`<svg viewBox="0 0 500 268" role="img" aria-label="MJO phase wheel" style="width:100%;height:auto;display:block">`;
   for(let ph=1; ph<=8; ph++){
     const a=PH[ph]; let fill='rgba(148,163,184,.10)';
     if(ph===4||ph===5) fill='rgba(245,158,11,.18)';                    // Maritime band
@@ -578,16 +579,16 @@ function mjoWheelSvg(d){
     }
     svg+=wedge(a[0],a[1],fill);
     const mid=(a[0]+a[1])/2, lp=pol(mid,(R+rIn)/2);
-    svg+=`<text x="${lp[0].toFixed(1)}" y="${(lp[1]+3).toFixed(1)}" font-size="10" font-weight="bold" fill="#aab7cf" text-anchor="middle">${ph}</text>`;
+    svg+=`<text x="${lp[0].toFixed(1)}" y="${(lp[1]+4).toFixed(1)}" font-size="13" font-weight="bold" fill="#aab7cf" text-anchor="middle">${ph}</text>`;
   }
   svg+=`<circle cx="${cx}" cy="${cy}" r="${rIn}" fill="rgba(8,12,22,.6)" stroke="rgba(255,255,255,.30)" stroke-width="1" stroke-dasharray="2 2"/>`;
-  svg+=`<text x="${cx}" y="${cy+rIn-5}" font-size="7" fill="#8493ad" text-anchor="middle">${L('振幅1','amp 1')}</text>`;
+  svg+=`<text x="${cx}" y="${cy+rIn-5}" font-size="9" fill="#8493ad" text-anchor="middle">${L('振幅1','amp 1')}</text>`;
   // Region labels follow the standard WH04 geography: phases 6–7 top (W. Pacific),
   // 4–5 right (Maritime Continent = us, amber), 2–3 bottom (Indian Ocean), 8–1 left.
-  svg+=`<text x="${cx}" y="20" font-size="8.5" fill="#93a1bd" text-anchor="middle">${L('西太平洋','W. Pacific')}</text>`;
-  svg+=`<text x="${cx}" y="258" font-size="8.5" fill="#93a1bd" text-anchor="middle">${L('印度洋','Indian Ocean')}</text>`;
-  svg+=`<text x="6" y="${cy+3}" font-size="8.5" fill="#93a1bd" text-anchor="start">${L('西半球 / 非洲','W. Hem. / Africa')}</text>`;
-  svg+=`<text x="454" y="${cy+3}" font-size="8.5" font-weight="bold" fill="#f5b301" text-anchor="end">${L('海洋大陆（这里）','Maritime Continent (here)')}</text>`;
+  svg+=`<text x="${cx}" y="21" font-size="11" fill="#a7b4cc" text-anchor="middle">${L('西太平洋','W. Pacific')}</text>`;
+  svg+=`<text x="${cx}" y="260" font-size="11" fill="#a7b4cc" text-anchor="middle">${L('印度洋','Indian Ocean')}</text>`;
+  svg+=`<text x="6" y="${cy+4}" font-size="11" fill="#a7b4cc" text-anchor="start">${L('西半球 / 非洲','W. Hem. / Africa')}</text>`;
+  svg+=`<text x="494" y="${cy+4}" font-size="11" font-weight="bold" fill="#f5b301" text-anchor="end">${L('海洋大陆（这里）','Maritime Continent (here)')}</text>`;
   // A track point plots in true RMM space: angle = atan2(rmm2,rmm1), radius from amplitude
   // (amp 1 sits on the dashed ring rIn; stronger pushes outward). Dot = last point exactly.
   const plot=(r1,r2,a)=>{ let rr=rIn+((a!=null?a:Math.hypot(r1,r2))-1)*((R-rIn)/2); rr=Math.max(3,Math.min(R,rr));
@@ -837,7 +838,7 @@ function windArrow(D){
   const head=east?`<polygon points="${x2},${ay} ${x2-12},${ay-6.5} ${x2-12},${ay+6.5}" fill="${col}" stroke="${out}" stroke-width="0.8"/>`
                  :`<polygon points="${x1},${ay} ${x1+12},${ay-6.5} ${x1+12},${ay+6.5}" fill="${col}" stroke="${out}" stroke-width="0.8"/>`;
   const lx=east?x1:x1+12, rx=east?x2-12:x2;
-  const label=east?L('信风减弱 · 暖水东移 →','weaker trades → warm water east'):L('← 信风增强 · 暖水西聚','stronger trades → warm water west ←');
+  const label=east?L('信风减弱 · 暖水东移','weaker trades · warm water shifts east'):L('信风增强 · 暖水西聚','stronger trades · warm water piles west');
   return `<g><line x1="${lx}" y1="${ay}" x2="${rx}" y2="${ay}" stroke="${out}" stroke-width="5" stroke-linecap="round" opacity="0.5"/>`+
     `<line x1="${lx}" y1="${ay}" x2="${rx}" y2="${ay}" stroke="${col}" stroke-width="2.6" stroke-linecap="round"/>${head}`+
     `<text x="${((x1+x2)/2).toFixed(0)}" y="${ay-10}" font-size="10" font-weight="700" fill="${col}" text-anchor="middle" stroke="${out}" stroke-width="2.4" paint-order="stroke">${label}</text></g>`;
@@ -956,9 +957,9 @@ function renderAll(D){
   const _mw=document.getElementById('mjowheel'); if(_mw) _mw.innerHTML=mjoWheelSvg(_mjod);
   const _mwn=document.getElementById('mjowheelnote');
   if(_mwn){ const mr=mjoReading(D);
-    _mwn.innerHTML=`<b>${mr.plain}</b> · ${mr.tag}<br>`+
+    _mwn.innerHTML=`<div style="font-size:13.5px;color:#cbd5e8;margin-bottom:7px"><b>${mr.plain}</b> · <span style="color:#aab7cf">${mr.tag}</span></div><div style="font-size:11px;color:#8a97b2;line-height:1.65">`+
       L('蓝点＝现在，空心圈＝约40天前，两者之间的蓝线＝走过的路径（由旧到今）。<b>离圆心越远＝越强：</b>弱的 MJO 会挤在虚线“振幅1”圈内、几乎没影响；活跃时则向外推向外缘。它每30–60天绕行热带一圈——逆时针＝向东移动——当它来到右侧“海洋大陆”位相（第4–5位相，也就是我们这里）时，本区偏湿。',
-        'Blue dot = now, hollow ring = ~40 days ago, and the line between is the path it took (then → now). <b>Distance from the centre = strength:</b> a weak MJO huddles inside the dashed “amp 1” ring and barely matters; an active one pushes out toward the rim. It circles the tropics every 30–60 days — counter-clockwise means moving east — and when it reaches the right-hand “Maritime Continent” sectors (phases 4–5, our region here), we get wetter.'); }
+        'Blue dot = now, hollow ring = ~40 days ago, and the line between is the path it took (then → now). <b>Distance from the centre = strength:</b> a weak MJO huddles inside the dashed “amp 1” ring and barely matters; an active one pushes out toward the rim. It circles the tropics every 30–60 days — counter-clockwise means moving east — and when it reaches the right-hand “Maritime Continent” sectors (phases 4–5, our region here), we get wetter.')+'</div>'; }
 
   document.getElementById('regions').innerHTML=nar.regions.map(r=>`
     <div class="region"><div class="rn">${r.rn}</div>
@@ -968,6 +969,19 @@ function renderAll(D){
 
   const _sm=document.getElementById('sstmap'); if(_sm) _sm.innerHTML=sstMap(D);
   const _wc=document.getElementById('windChk'); if(_wc) _wc.checked=_showWind;
+  // Noisy-signal caveat: shown only when the arrow is visible AND this week's trade
+  // winds run opposite to the ENSO ocean state (ONI) — a short-term wind burst.
+  const _wn=document.getElementById('windnote');
+  if(_wn){
+    const gW=k=>{const c=(D.drivers||[]).find(d=>d.key===k);return c?(parseFloat(String(c.value).replace('−','-'))||0):0;};
+    const w=gW('wind')||gW('oni'), oni=gW('oni');
+    const visible=_showWind && Math.abs(w)>=0.3;
+    const diverge=visible && ((w>0 && oni<=-0.5) || (w<0 && oni>=0.5));
+    if(diverge){ const st=oni>=0.5?L('厄尔尼诺','El Niño'):L('拉尼娜','La Niña');
+      _wn.innerHTML=L('⚠ 信号不一致：箭头跟随本周信风，目前方向与'+st+'的海洋状态相反。信风起伏大、可能逐周反转；上方海温暖舌仍代表整体 ENSO 状态。',
+        '⚠ Mixed signal: the arrow follows this week’s trade winds, which right now run counter to the '+st+' ocean state. Trade winds are noisy and can flip week to week — the warm tongue above still reflects the overall ENSO state.'); }
+    else _wn.innerHTML='';
+  }
 
   const rT=document.getElementById('rules'); if(rT) rT.innerHTML=ruleRows();
 
