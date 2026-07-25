@@ -43,6 +43,22 @@
   .banner h2{margin:6px 0 4px;font-size:26px}
   .banner .desc{color:#e6edfa;max-width:660px;font-size:14px}
   .pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .btop{display:flex;align-items:center;gap:11px;margin:8px 0 2px}
+  .btop h2{margin:0;font-size:26px}
+  .bdot{width:14px;height:14px;border-radius:50%;flex:0 0 auto}
+  .btrend{margin-left:auto;font-size:13px;color:#f0c98a;white-space:nowrap}
+  .escale{position:relative;margin:18px 2px 4px;padding-top:30px}
+  .ebar{display:flex;height:16px;border-radius:8px;overflow:hidden}
+  .ebar>div{height:100%}
+  .emark{position:absolute;transform:translateX(-50%);text-align:center;white-space:nowrap;pointer-events:none}
+  .emark span{font-size:11px;display:block;line-height:1.2}
+  .eoni{top:0} .eoni span{color:#fff;font-weight:700}
+  .eoni i{display:block;width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:7px solid #fff;margin:2px auto 0}
+  .eroni{top:48px} .eroni span{color:#cdd7ea}
+  .eroni i{display:block;width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-bottom:7px solid #cdd7ea;margin:0 auto 1px}
+  .ezones{display:flex;justify-content:space-between;font-size:10px;color:#8b98b3;margin-top:42px}
+  .bgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:13px}
+  @media(max-width:620px){.bgrid{grid-template-columns:1fr}}
   .pill{font-size:12px;font-weight:700;padding:5px 11px;border-radius:999px;background:rgba(255,255,255,.12);color:#fff}
   .pill.hot{background:rgba(239,68,68,.25)} .pill.dry{background:rgba(245,158,11,.25)} .pill.watch{background:rgba(255,255,255,.16)} .pill.wet{background:rgba(34,197,94,.25)}
 
@@ -158,14 +174,7 @@
     <button id="installBtn" onclick="doInstall()" data-i18n="install_btn">⬇ 安装</button>
   </header>
 
-  <div class="banner" id="banner">
-    <span class="tag" id="bTag"></span>
-    <h2 id="bTitle">—</h2>
-    <div class="desc" id="bDesc"></div>
-    <div class="pills" id="bPills"></div>
-    <div class="vfarm" id="bFarm" style="margin-top:12px;background:rgba(6,10,20,.45)"></div>
-    <div class="vshort" id="bShort"></div>
-  </div>
+  <div class="banner" id="banner"></div>
 
   <div class="section-title" data-i18n="st_drivers">气候驱动因子</div>
   <div class="gsrc" style="margin:-4px 0 12px" data-i18n-html="drivers_intro"></div>
@@ -819,21 +828,45 @@ function sparkRow(d){
   if(!d.hist||d.hist.length<2) return '';
   return `<div class="spark">${sparkline(d.hist,d.gcol)}<span>${trendBadge(d.hist, SPARK_DP[d.key]!=null?SPARK_DP[d.key]:1)}</span></div>`;
 }
+// Colour of the headline status dot, keyed off the verdict icon.
+const DOTCOL={'🔴':'#ef4444','🟠':'#f59e0b','🟡':'#f2b01e','🔵':'#3b82f6','🟦':'#60a5fa','🟢':'#22c55e','⚪':'#94a3b8'};
+const _fsig=v=>(v>=0?'+':'')+v.toFixed(2);
+// The ENSO scale: strong-La Niña → neutral → strong-El Niño, with the ONI (solid,
+// above) and RONI (hollow, below) markers so the "official vs relative" story is visual.
+function ensoScale(oni, roni){
+  const MIN=-2.5, MAX=2.5, span=MAX-MIN;
+  const pos=v=>Math.max(2.5,Math.min(97.5,((v-MIN)/span)*100));
+  const seg=(w,c)=>`<div style="width:${w}%;background:${c}"></div>`;
+  return `<div class="escale">
+    <div class="ebar">${seg(30,'#3b6fd4')}${seg(10,'#35a0a0')}${seg(20,'#55617a')}${seg(10,'#d9922b')}${seg(30,'#d84a3a')}</div>
+    <div class="emark eoni" style="left:${pos(oni).toFixed(1)}%"><span>ONI ${_fsig(oni)}</span><i></i></div>
+    <div class="emark eroni" style="left:${pos(roni).toFixed(1)}%"><i></i><span>RONI ${_fsig(roni)}</span></div>
+    <div class="ezones"><span>${L('强拉尼娜','Strong La Niña')}</span><span>${L('中性','Neutral')}</span><span>${L('强厄尔尼诺','Strong El Niño')}</span></div>
+  </div>`;
+}
 function renderAll(D){
   DATA=D;
-  // ONE hero: honest ENSO verdict (ONI+RONI) as the headline, with the monsoon
-  // context, seasonal risk pills, and the farm line — merges the old banner + verdict card.
+  // ONE hero: the honest ENSO verdict (ONI+RONI) as headline, an ENSO scale that
+  // shows where ONI and RONI sit, plus monsoon context, risk pills, farm + short-term.
   const _gv=k=>{const c=D.drivers.find(d=>d.key===k);return c?(parseFloat(String(c.value).replace('−','-'))||0):0;};
-  const vd=ensoVerdict(_gv('oni'), _gv('roni'));
-  const nar=buildNarrative(D);
-  const b=nar.banner;
-  document.getElementById('banner').className='banner tone-'+vd.tone;
-  document.getElementById('bTag').textContent=b.tag;
-  document.getElementById('bTitle').textContent=vd.icon+' '+vd.title;
-  document.getElementById('bDesc').textContent=vd.why;
-  document.getElementById('bPills').innerHTML=b.pills.map(p=>`<span class="pill ${p[0]}">${p[1]}</span>`).join('');
-  const _bf=document.getElementById('bFarm'); if(_bf) _bf.innerHTML=L('🌾 对农田：','🌾 For farms: ')+vd.farm;
-  const _bs=document.getElementById('bShort'); if(_bs) _bs.innerHTML=shortTermNote(D);
+  const oni=_gv('oni'), roni=_gv('roni');
+  const vd=ensoVerdict(oni, roni);
+  const nar=buildNarrative(D); const b=nar.banner;
+  const inp=deriveInputs(D); const tw=trendWord(inp.trend);
+  const arrow=inp.trend==='up'?'↑':inp.trend==='down'?'↓':'→';
+  const bn=document.getElementById('banner');
+  bn.className='banner tone-'+vd.tone;
+  bn.innerHTML=`<span class="tag">${b.tag}</span>
+    <div class="btop"><span class="bdot" style="background:${DOTCOL[vd.icon]||'#94a3b8'}"></span>
+      <h2>${vd.title}</h2>
+      ${Math.abs(oni)>=0.3?`<span class="btrend">${arrow} ${tw}</span>`:''}</div>
+    ${ensoScale(oni, roni)}
+    <div class="desc">${vd.why}</div>
+    <div class="pills">${b.pills.map(p=>`<span class="pill ${p[0]}">${p[1]}</span>`).join('')}</div>
+    <div class="bgrid">
+      <div class="vfarm" style="background:rgba(6,10,20,.45)">${L('🌾 对农田：','🌾 For farms: ')}${vd.farm}</div>
+      <div class="vshort" style="margin-top:0">${shortTermNote(D)}</div>
+    </div>`;
 
   // Build one card. Grouped below into the three ENSO pillars + neighbours.
   const cardHtml=(d)=>{
