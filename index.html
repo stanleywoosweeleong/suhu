@@ -992,7 +992,7 @@ function renderAll(D){
 }
 
 async function load(){
-  try{ const r=await fetch('data.json',{cache:'no-store'}); if(!r.ok) throw 0; renderAll(await r.json()); }
+  try{ const r=await fetch('data.json?t='+Date.now(),{cache:'no-store'}); if(!r.ok) throw 0; renderAll(await r.json()); }
   catch(e){ /* offline — cached values remain */ }
 }
 
@@ -1075,7 +1075,7 @@ async function loadImpact(lat,lon,city){
 async function loadFires(){
   const title=L('火点 · 烟霾来源','Fire hotspots · haze source');
   try{
-    const f=await (await fetch('impact/fires.json',{cache:'no-store'})).json(); const r=hazeRisk(f.total);
+    const f=await (await fetch('impact/fires.json?t='+Date.now(),{cache:'no-store'})).json(); const r=hazeRisk(f.total);
     const rows=(f.regions||[]).map(x=>{const nm=LANG==='zh'?(FIRE_ZH[x.name]||x.name):x.name; return '<span>'+nm+' <b>'+(x.count==null?'—':x.count)+'</b></span>';}).join('');
     const note=(f.total==null)?L('火点数据尚未配置——请添加 NASA FIRMS 密钥（见 README）。',(f.note||'Fire data not configured yet — add a NASA FIRMS key (see README).'))
                               :L('NASA FIRMS VIIRS · 近'+(f.day_range||1)+'日 · 苏门答腊/加里曼丹为上风向来源。','NASA FIRMS VIIRS · last '+(f.day_range||1)+'d · Sumatra/Kalimantan are the upwind sources.');

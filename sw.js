@@ -1,5 +1,5 @@
 // SUHU service worker — offline app shell + fresh-data strategy
-const VERSION = 'suhu-v44';
+const VERSION = 'suhu-v45';
 const APP_SHELL = [
   './',
   './index.html',
@@ -37,13 +37,16 @@ self.addEventListener('fetch', (e) => {
   const isDoc  = e.request.mode === 'navigate' || url.pathname.endsWith('/') || url.pathname.endsWith('index.html');
 
   if (isData || isDoc) {
+    // Data URLs carry a ?t=… cache-buster to defeat the CDN edge cache; normalise the
+    // cache key back to the query-less path so offline matching still finds them.
+    const cacheKey = isData ? new Request(url.origin + url.pathname) : e.request;
     e.respondWith(
       fetch(e.request).then((res) => {
         const copy = res.clone();
-        caches.open(VERSION).then((c) => c.put(e.request, copy));
+        caches.open(VERSION).then((c) => c.put(cacheKey, copy));
         return res;
       }).catch(() =>
-        caches.match(e.request).then((r) => r || caches.match('./index.html') || caches.match('./'))
+        caches.match(cacheKey).then((r) => r || caches.match('./index.html') || caches.match('./'))
       )
     );
     return;
