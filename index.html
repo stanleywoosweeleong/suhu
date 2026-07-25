@@ -86,6 +86,8 @@
   .gauge{height:7px;background:var(--panel2);border-radius:99px;margin:10px 0 4px;position:relative;overflow:hidden}
   .gauge .fill{position:absolute;top:0;bottom:0;border-radius:99px}
   .gsrc{font-size:10.5px;color:#6b7a97;margin-top:8px}
+  #staleNotice{background:rgba(201,154,91,.12);border:1px solid rgba(201,154,91,.38);color:#e0b878;padding:10px 14px;border-radius:10px;margin:0 0 14px;font-size:13px;line-height:1.5}
+  .stalechip{display:inline-block;font-size:10px;font-weight:600;color:#c99a5b;border:1px solid rgba(201,154,91,.45);border-radius:4px;padding:1px 5px;margin-left:7px;vertical-align:middle;white-space:nowrap}
 
   .section-title{font-size:14px;font-weight:700;margin:24px 0 12px;display:flex;align-items:center;gap:8px}
   .section-title::before{content:"";width:4px;height:16px;background:var(--accent);border-radius:2px}
@@ -181,6 +183,8 @@
   </header>
 
   <div class="banner" id="banner"></div>
+
+  <div id="staleNotice" style="display:none"></div>
 
   <div class="section-title" data-i18n="st_drivers">气候驱动因子</div>
   <div class="gsrc" style="margin:-4px 0 12px" data-i18n-html="drivers_intro"></div>
@@ -347,7 +351,7 @@ const T = {
     g_noaa_h:'与 NOAA 有何不同',
     g_noaa_body:'<ul><li><b>多驱动，而非仅 ENSO</b>——ENSO + IOD + MJO + 季风，即真正主导马来西亚降雨的驱动因子。</li><li><b>面向海洋大陆</b>——相较东太平洋指数，更重视面向本区域的 BoM 与 JAMSTEC / JMA。</li><li><b>本地化解读</b>——把「太平洋的状态」转化为按地区与季节的干旱 / 烟霾或洪水风险。</li><li><b>多来源、容错</b>——多个来源自动回退，单一机构中断不会致盲。</li></ul><p>简言之：NOAA 回答「太平洋在做什么？」——SUHU 回答「这一季对马来西亚意味着什么？」</p>',
     g_attr_h:'数据与署名',
-    g_attr_p:'ENSO / Niño 3.4 / ONI / RONI — NOAA CPC · ENSO 类型（Niño 1+2/3/4）— NOAA CPC ERSSTv5 · 次表层热含量（暖水体积 WWV）— NOAA PMEL / GODAS · SOI — 澳大利亚 BoM（Troup）· 信风（850 百帕）与日界线 OLR — NOAA CPC · IOD / DMI — JAMSTEC SINTEX-F、NOAA PSL · MJO / RMM — 澳大利亚 BoM · 空气质量与高温 — Open-Meteo · 火点 — NASA FIRMS · 季节展望 — ECMWF C3S。使用时须署名；不代表上述机构的认可。'
+    g_attr_p:'ENSO / Niño 3.4 / ONI / RONI — NOAA CPC · ENSO 类型（Niño 1+2/3/4）— NOAA CPC ERSSTv5 · 次表层热含量（暖水体积 WWV）— NOAA PMEL / GODAS · SOI — 澳大利亚 BoM（Troup）· 信风（850 百帕）与日界线 OLR — NOAA CPC · IOD / DMI — JAMSTEC SINTEX-F、NOAA PSL · MJO / RMM — 澳大利亚 BoM · 空气质量与高温 — Open-Meteo · 火点 — NASA FIRMS。使用时须署名；不代表上述机构的认可。'
   },
   en:{
     sub:'Malaysia & the Maritime Continent', guide_btn:'ⓘ Guide', install_btn:'⬇ Install',
@@ -393,7 +397,7 @@ const T = {
     g_noaa_h:'How this differs from NOAA',
     g_noaa_body:'<ul><li><b>Multi-driver, not ENSO-only</b> — ENSO + IOD + MJO + monsoon, the drivers that govern Malaysian rain.</li><li><b>Tuned to the Maritime Continent</b> — weights BoM and JAMSTEC / JMA over the eastern-Pacific indices.</li><li><b>Interprets locally</b> — turns "state of the Pacific" into drought / haze vs flood risk, by region and season.</li><li><b>Multi-source & fault-tolerant</b> — several sources with automatic fallback, so no single agency going down blinds the tool.</li></ul><p>In short: NOAA answers "what is the Pacific doing?" — SUHU answers "what does it mean for Malaysia this season?"</p>',
     g_attr_h:'Data & attribution',
-    g_attr_p:'ENSO / Niño 3.4 / ONI / RONI — NOAA CPC · ENSO flavor (Niño 1+2/3/4) — NOAA CPC ERSSTv5 · Subsurface heat content (WWV) — NOAA PMEL / GODAS · SOI — Australia BoM (Troup) · Trade winds (850 hPa) & dateline OLR — NOAA CPC · IOD / DMI — JAMSTEC SINTEX-F, NOAA PSL · MJO / RMM — Australia BoM · Air quality & heat — Open-Meteo · Fire — NASA FIRMS · Seasonal — ECMWF C3S. Used with attribution; no endorsement by these agencies is implied.'
+    g_attr_p:'ENSO / Niño 3.4 / ONI / RONI — NOAA CPC · ENSO flavor (Niño 1+2/3/4) — NOAA CPC ERSSTv5 · Subsurface heat content (WWV) — NOAA PMEL / GODAS · SOI — Australia BoM (Troup) · Trade winds (850 hPa) & dateline OLR — NOAA CPC · IOD / DMI — JAMSTEC SINTEX-F, NOAA PSL · MJO / RMM — Australia BoM · Air quality & heat — Open-Meteo · Fire — NASA FIRMS. Used with attribution; no endorsement by these agencies is implied.'
   }
 };
 
@@ -754,6 +758,39 @@ function holisticRegions(D){
 
 // Short-term "on top of the season" note — folds IOD + MJO into the hero so the
 // verdict reflects all four drivers, not just ONI/RONI.
+// ---- data-freshness guard -------------------------------------------------
+// Two real signals: (1) the file's own age from `generated` — catches a stopped
+// pipeline or a frozen CDN, where everything freezes; (2) the per-feed 'stale'
+// flags the pipeline writes when a fetch fails while the file still regenerates.
+const STALE_H = 48;
+const SRC_ROW = {enso:'Niño 3.4',oni:'Niño 3.4',roni:'Niño 3.4',flavor:'ENSO flavor',hc:'Heat content',soi:'SOI',wind:'Trade winds',olr:'OLR',iod:'DMI',mjo:'MJO'};
+function fileAgeH(D){ const t=D&&D.generated?Date.parse(D.generated):NaN; return isNaN(t)?0:(Date.now()-t)/3.6e6; }
+function fileStale(D){ return fileAgeH(D) > STALE_H; }
+function driverStale(D,key){
+  if(fileStale(D)) return true;                       // whole file frozen -> all stale
+  const nm=SRC_ROW[key]; if(!nm) return false;
+  const row=(D.sources||[]).find(s=>Array.isArray(s)&&String(s[0]).startsWith(nm));
+  return row ? row[3]==='stale' : false;              // pipeline flagged this feed
+}
+function staleChip(){ return `<span class="stalechip" title="${L('该数据源上次未能刷新，或数据管道已停更——数值可能已过时','This feed didn’t refresh on the last run, or the pipeline has stalled — value may be out of date')}">⚠ ${L('数据陈旧','stale')}</span>`; }
+
+// Data-driven IOD outlook: derived from the observed DMI value and its recent
+// trajectory (the fetched 12-month series) — NOT an external forecast model. Honest
+// about being an observed trend, so it stays current and sourced with no hardcoded date.
+function iodOutlookText(D){
+  const iod=(D.drivers||[]).find(d=>d.key==='iod'); if(!iod) return '';
+  const v=parseFloat(String(iod.value).replace('−','-'))||0;
+  const h=Array.isArray(iod.hist)?iod.hist:[];
+  const tr=h.length>=4 ? +(h[h.length-1]-h[h.length-4]).toFixed(2) : 0;   // ~3-month change
+  const oniC=(D.drivers||[]).find(d=>d.key==='oni');
+  const elnino=oniC ? ((parseFloat(String(oniC.value).replace('−','-'))||0)>=0.5) : false;
+  if(v>=0.4)  return L(' 目前已进入正 IOD，正加重本区干旱。',' A positive IOD is now in place, adding to the drying here.');
+  if(v<=-0.4) return L(' 目前为负 IOD，倾向带来额外降雨。',' A negative IOD is in place, leaning toward extra rain.');
+  if(tr>=0.15)  return L(' 近月 DMI 持续上升、正趋向正位相'+(elnino?'，若持续将叠加厄尔尼诺的干旱':'')+'。',
+                        ' The DMI has been climbing toward positive over recent months'+(elnino?', which would add to El Niño’s drying if it holds':'')+'.');
+  if(tr<=-0.15) return L(' 近月 DMI 走低、趋向负位相。',' The DMI has been trending negative over recent months.');
+  return L(' 目前中性、暂无明显趋势。',' Neutral for now, with no clear trend either way.');
+}
 function shortTermNote(D){
   const gv=k=>{const c=(D.drivers||[]).find(d=>d.key===k);return c?(parseFloat(String(c.value).replace('−','-'))||0):0;};
   const dmi=gv('iod'); const m=mjoReading(D);
@@ -894,6 +931,18 @@ function ensoScale(oni, roni){
 }
 function renderAll(D){
   DATA=D;
+  // Whole-file freshness notice: if the pipeline hasn't written in > STALE_H, the
+  // dataset is frozen (stopped workflow / stale CDN) — say so plainly up top.
+  const _sn=document.getElementById('staleNotice');
+  if(_sn){ const ah=fileAgeH(D);
+    if(ah>STALE_H){ const dys=Math.floor(ah/24);
+      const en=dys>=1?(dys+' day'+(dys>1?'s':'')):'over 48 hours';
+      const zh=dys>=1?(dys+' 天'):'超过 48 小时';
+      _sn.style.display='block';
+      _sn.innerHTML=L('⚠ 数据已 '+zh+' 未刷新——下方为最后一次快照，部分数值可能已过时。请稍后再查看。',
+        '⚠ Data hasn’t refreshed in '+en+' — showing the last snapshot; some values may be out of date. Check back later.');
+    } else { _sn.style.display='none'; _sn.innerHTML=''; }
+  }
   // ONE hero: the honest ENSO verdict (ONI+RONI) as headline, an ENSO scale that
   // shows where ONI and RONI sit, plus monsoon context, risk pills, farm + short-term.
   const _gv=k=>{const c=D.drivers.find(d=>d.key===k);return c?(parseFloat(String(c.value).replace('−','-'))||0):0;};
@@ -926,17 +975,17 @@ function renderAll(D){
       const stCls=m.effect==='dry'?'s-dry':m.effect==='wet'?'s-wet':'s-neu';
       return `<div class="card"><h3>${info.h[idx]}</h3>
         <div class="name">${L('短期降雨脉冲','Short-term rain pulse')} · ${tech}</div>
-        <div class="val val-sm">${m.plain}</div><div class="status ${stCls}">${m.tag}</div>
+        <div class="val val-sm">${m.plain}${driverStale(D,'mjo')?staleChip():''}</div><div class="status ${stCls}">${m.tag}</div>
         <div class="gauge"><div class="fill" style="width:${d.gauge}%;background:${d.gcol}"></div></div>
         <div class="interp">${m.detail}</div></div>`;
     }
     const valCls=(d.key==='flavor')?'val val-sm':'val';   // flavor value is text, not a number
     return `<div class="card"><h3>${info.h[idx]}</h3>
       <div class="name">${info.name[idx]}</div>
-      <div class="${valCls}">${d.value}</div><div class="status ${d.cls}">${trStatus(d.status)}</div>
+      <div class="${valCls}">${d.value}${driverStale(D,d.key)?staleChip():''}</div><div class="status ${d.cls}">${trStatus(d.status)}</div>
       ${sparkRow(d)}
       <div class="gauge"><div class="fill" style="width:${d.gauge}%;background:${d.gcol}"></div></div>
-      <div class="interp">${info.interp[idx]}</div></div>`;
+      <div class="interp">${info.interp[idx]}${d.key==='iod'?iodOutlookText(D):''}</div></div>`;
   };
   // Sensible pillar order: surface ocean -> subsurface (leading) -> atmosphere
   // (the Walker Circulation trio) -> neighbouring drivers.
