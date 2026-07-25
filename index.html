@@ -67,7 +67,7 @@
   .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:13px;margin-bottom:16px}
   .dgroup{grid-column:1/-1;font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:8px 0 -4px;padding-top:9px;border-top:1px solid rgba(255,255,255,.08)}
   .dgroup:first-child{margin-top:0;padding-top:0;border-top:none}
-  .mjowrap{max-width:500px;margin:0 auto}
+  .mjowrap{max-width:540px;margin:0 auto}
   .windtgl{display:inline-flex;align-items:center;gap:7px;margin-top:9px;font-size:12px;color:var(--muted);cursor:pointer;user-select:none}
   .windtgl input{accent-color:var(--accent);cursor:pointer;margin:0}
   .gmap{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px 10px 6px;margin:10px 0}
@@ -565,14 +565,14 @@ function mjoWheelSvg(d){
   const phase = d.phase||0;
   const amp = (typeof d.amp==='number')?d.amp:(parseFloat(String(d.value).replace(/[^0-9.]/g,''))||0);
   const track = Array.isArray(d.track)?d.track:[];
-  const cx=250, cy=132, R=92, rIn=26;   // wider viewBox so side labels clear the disc
+  const cx=270, cy=132, R=92, rIn=26;   // wider viewBox so the full side labels clear the disc
   const pol=(ang,r)=>{const a=ang*Math.PI/180; return [cx+r*Math.cos(a), cy-r*Math.sin(a)];};
   const wedge=(a0,a1,fill)=>{const p0=pol(a0,rIn),p1=pol(a0,R),p2=pol(a1,R),p3=pol(a1,rIn);
     return `<path d="M${p0[0].toFixed(1)} ${p0[1].toFixed(1)}L${p1[0].toFixed(1)} ${p1[1].toFixed(1)}A${R} ${R} 0 0 0 ${p2[0].toFixed(1)} ${p2[1].toFixed(1)}L${p3[0].toFixed(1)} ${p3[1].toFixed(1)}A${rIn} ${rIn} 0 0 1 ${p0[0].toFixed(1)} ${p0[1].toFixed(1)}Z" fill="${fill}" stroke="rgba(255,255,255,.14)" stroke-width="0.7"/>`;};
   const PH={1:[180,225],2:[225,270],3:[270,315],4:[315,360],5:[0,45],6:[45,90],7:[90,135],8:[135,180]};
   const eff=ph=>([3,4,5].includes(ph)?'wet':([7,8,1].includes(ph)?'dry':'trans'));
   const active = amp>=1;
-  let svg=`<svg viewBox="0 0 500 268" role="img" aria-label="MJO phase wheel" style="width:100%;height:auto;display:block">`;
+  let svg=`<svg viewBox="0 0 540 268" role="img" aria-label="MJO phase wheel" style="width:100%;height:auto;display:block">`;
   for(let ph=1; ph<=8; ph++){
     const a=PH[ph]; let fill='rgba(148,163,184,.10)';
     if(ph===4||ph===5) fill='rgba(245,158,11,.18)';                    // Maritime band
@@ -589,10 +589,10 @@ function mjoWheelSvg(d){
   svg+=`<text x="${cx}" y="${cy+rIn-5}" font-size="9" fill="#8493ad" text-anchor="middle">${L('振幅1','amp 1')}</text>`;
   // Region labels follow the standard WH04 geography: phases 6–7 top (W. Pacific),
   // 4–5 right (Maritime Continent = us, amber), 2–3 bottom (Indian Ocean), 8–1 left.
-  svg+=`<text x="${cx}" y="21" font-size="11" fill="#a7b4cc" text-anchor="middle">${L('西太平洋','W. Pacific')}</text>`;
+  svg+=`<text x="${cx}" y="21" font-size="11" fill="#a7b4cc" text-anchor="middle">${L('西太平洋','Western Pacific')}</text>`;
   svg+=`<text x="${cx}" y="260" font-size="11" fill="#a7b4cc" text-anchor="middle">${L('印度洋','Indian Ocean')}</text>`;
-  svg+=`<text x="6" y="${cy+4}" font-size="11" fill="#a7b4cc" text-anchor="start">${L('西半球 / 非洲','W. Hem. / Africa')}</text>`;
-  svg+=`<text x="494" y="${cy+4}" font-size="11" font-weight="bold" fill="#f5b301" text-anchor="end">${L('海洋大陆（这里）','Maritime Continent (here)')}</text>`;
+  svg+=`<text x="6" y="${cy+4}" font-size="11" fill="#a7b4cc" text-anchor="start">${L('西半球 / 非洲','Western Hemisphere / Africa')}</text>`;
+  svg+=`<text x="534" y="${cy+4}" font-size="11" font-weight="bold" fill="#f5b301" text-anchor="end">${L('海洋大陆（这里）','Maritime Continent (here)')}</text>`;
   // A track point plots in true RMM space: angle = atan2(rmm2,rmm1), radius from amplitude
   // (amp 1 sits on the dashed ring rIn; stronger pushes outward). Dot = last point exactly.
   const plot=(r1,r2,a)=>{ let rr=rIn+((a!=null?a:Math.hypot(r1,r2))-1)*((R-rIn)/2); rr=Math.max(3,Math.min(R,rr));
