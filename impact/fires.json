@@ -1,12 +1,12 @@
 {
-  "generated": "2026-08-01T08:38:03.180Z",
+  "generated": "2026-08-01T14:04:21.228Z",
   "source": "NASA FIRMS VIIRS (S-NPP → NOAA-20)",
   "day_range": 1,
   "frame": "2026-08-01",
   "regions": [
     {
       "name": "Sumatra",
-      "count": 7,
+      "count": 56,
       "stale": false
     },
     {
@@ -16,7 +16,7 @@
     },
     {
       "name": "Peninsular Malaysia",
-      "count": 0,
+      "count": 1,
       "stale": false
     },
     {
@@ -25,6 +25,6 @@
       "stale": false
     }
   ],
-  "total": 828,
+  "total": 878,
   "partial": false
 }
