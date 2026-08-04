@@ -25,10 +25,14 @@ const { execFile } = require('child_process');
 const OUT = path.join(__dirname, 'impact', 'fires.json');
 // Strip any whitespace/newlines a pasted secret may carry.
 const KEY = (process.env.FIRMS_MAP_KEY || '').replace(/\s+/g, '');
-// Try S-NPP first, then NOAA-20 — if one satellite feed is briefly down the
-// other usually answers, so a single-sensor outage no longer blanks a region.
-const SRCS = ['VIIRS_SNPP_NRT', 'VIIRS_NOAA20_NRT'];
-const DAYS = 1;
+// Query ALL current VIIRS sensors and take the HIGHEST count per region (below).
+// The old logic tried S-NPP first and returned on the first *success* — but a
+// valid CSV with zero rows IS a success, so whenever the aging S-NPP NRT feed
+// came back empty (a known, recurring gap) we reported 0 and never checked the
+// other sensors, even while they were seeing active fires. NOAA-20 is listed
+// first now (most reliable), and NOAA-21/JPSS-2 is the newest bird.
+const SRCS = ['VIIRS_NOAA20_NRT', 'VIIRS_SNPP_NRT', 'VIIRS_NOAA21_NRT'];
+const DAYS = 2;   // 48-h window — smooths over overpass timing and NRT latency
 
 const REGIONS = [
   { name: 'Sumatra',             box: [95, -6, 107, 6] },
@@ -78,14 +82,23 @@ async function countFromSource(src, box) {
   return Math.max(0, lines.length - 1);
 }
 
-// Try each satellite in turn; only throw if they all fail.
+// Query EVERY VIIRS sensor and keep the HIGHEST count — so one sensor's empty or
+// lagging feed can't blank a region another sensor sees burning. Only throw if
+// they ALL error out (real outage / bad key / rate limit). `seen` records the
+// per-sensor breakdown so the Action log makes the cause obvious.
 async function countFires(box) {
-  let lastErr = 'no source';
+  let best = null, bestSrc = null, lastErr = 'no source', anyOk = false;
+  const seen = [];
   for (const src of SRCS) {
-    try { return { count: await countFromSource(src, box), src }; }
-    catch (e) { lastErr = e.message; }
+    try {
+      const c = await countFromSource(src, box);
+      anyOk = true;
+      seen.push(src.replace('VIIRS_', '').replace('_NRT', '') + '=' + c);
+      if (best === null || c > best) { best = c; bestSrc = src; }
+    } catch (e) { lastErr = e.message; seen.push(src.replace('VIIRS_', '').replace('_NRT', '') + '=ERR'); }
   }
-  throw new Error(lastErr);
+  if (!anyOk) throw new Error(lastErr);
+  return { count: best, src: bestSrc, seen: seen.join(' ') };
 }
 
 (async () => {
@@ -113,10 +126,10 @@ async function countFires(box) {
   let total = 0, freshAny = false, staleAny = false, firstErr = null;
   for (const rg of REGIONS) {
     try {
-      const { count, src } = await countFires(rg.box);
+      const { count, src, seen } = await countFires(rg.box);
       regions.push({ name: rg.name, count, stale: false });
       total += count; freshAny = true;
-      console.log('OK  ' + rg.name + ': ' + count + ' (' + src + ')');
+      console.log('OK  ' + rg.name + ': ' + count + ' (best: ' + src + ') [' + seen + ']');
     } catch (e) {
       if (!firstErr) firstErr = e.message;
       if (rg.name in prev) {          // reuse last-good count
@@ -132,7 +145,7 @@ async function countFires(box) {
 
   const out = {
     generated: new Date().toISOString(),
-    source: 'NASA FIRMS VIIRS (S-NPP → NOAA-20)',
+    source: 'NASA FIRMS VIIRS — highest of NOAA-20 / S-NPP / NOAA-21',
     day_range: DAYS,
     frame: new Date().toISOString().slice(0, 10),
     regions,
