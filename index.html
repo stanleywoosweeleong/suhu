@@ -503,16 +503,34 @@ function buildNarrative(D){
 }
 
 // Interpretation-engine rules (static, bilingual)
-function ruleRows(){
+// Live rules table: each rule's "Now" status is computed from the same live data
+// the cards use, so it can never go stale or need a manual edit. Fully bilingual.
+function ruleRows(D){
+  D = D || (typeof DATA!=='undefined'?DATA:null);
+  const gv=k=>{const c=((D&&D.drivers)||[]).find(d=>d.key===k);return c?(parseFloat(String(c.value).replace('−','-'))||0):0;};
+  const oni=gv('oni'), dmi=gv('iod');
+  const mjoC=((D&&D.drivers)||[]).find(d=>d.key==='mjo')||{};
+  const ph=mjoC.phase, amp=(typeof mjoC.amp==='number'?mjoC.amp:0);
+  const mo=new Date().getMonth()+1;
+  const mon=[11,12,1,2,3].includes(mo)?'NE':([5,6,7,8,9].includes(mo)?'SW':'INTER');
+  const elnino=oni>=0.5, lanina=oni<=-0.5, dry=(mon==='SW'||mon==='INTER');
+  const staleN=((D&&D.sources)||[]).filter(s=>Array.isArray(s)&&s[3]==='stale').length;
+  const oniS=oni.toFixed(2), dmiS=(dmi>=0?'+':'')+dmi.toFixed(2);
+  const HOT='color:#f0973f;font-weight:700', WARM='color:#c99a5b;font-weight:600', OFF='color:var(--muted)';
+  const s1 = elnino&&dry ? [HOT,L('生效','ACTIVE')] : elnino ? [WARM,L('待命·非旱季','armed · wet season')] : [OFF,L('未触发（ONI '+oniS+'）','off (ONI '+oniS+')')];
+  const s2 = elnino&&dmi>=0.4 ? [HOT,L('生效 · IOD '+dmiS,'ACTIVE · IOD '+dmiS)] : elnino ? [WARM,L('待命 · IOD '+dmiS,'armed · IOD '+dmiS)] : [OFF,L('未触发','off')];
+  const s3 = lanina&&mon==='NE' ? [HOT,L('生效','ACTIVE')] : lanina ? [WARM,L('待命·非东北季风','armed · not NE')] : [OFF,L('未触发（ONI '+oniS+'）','off (ONI '+oniS+')')];
+  const s4 = (amp>=1&&(ph===4||ph===5)) ? [HOT,L('生效 · 第'+ph+'位相','ACTIVE · Ph '+ph)] : [OFF,(typeof ph==='number'?L('未触发 · 第'+ph+'位相'+(amp>=1?'':'·弱'),'off · Ph '+ph+(amp>=1?'':', weak')):L('未触发','off'))];
+  const s5 = staleN>0 ? [WARM,L(staleN+' 项标记',staleN+' flag'+(staleN>1?'s':''))] : [OFF,L('无','none')];
   const R=[
-    [L('厄尔尼诺 + 西南季风','El Niño + SW monsoon'),L('→ 高干旱与烟霾风险','→ High drought & haze risk')],
-    [L('厄尔尼诺 + 正 IOD','El Niño + positive IOD'),L('→ 加重干旱压力（叠加入区域评分）','→ Adds to dry stress (folded into the region score)')],
-    [L('拉尼娜 + 东北季风','La Niña + NE monsoon'),L('→ 高洪灾风险（东海岸/婆罗洲）','→ High flood risk (east coast / Borneo)')],
-    [L('MJO 干位相 / 湿位相','MJO dry phase / wet phase'),L('→ 未来1–2周偏干 / 偏湿（叠加入评分）','→ Next 1–2 weeks drier / wetter (folded into the score)')],
-    [L('ENSO 符号翻转','ENSO sign flips'),L('→ 横幅在暖色↔冷色间切换','→ Banner switches warm ↔ cool')]
+    [L('厄尔尼诺 + 旱季季风','El Niño + dry-season monsoon'),L('→ 高干旱与烟霾风险','→ High drought & haze'),s1],
+    [L('厄尔尼诺 + 正 IOD (≥+0.4)','El Niño + positive IOD (≥+0.4)'),L('→ 干旱压力升一级','→ Escalate dry risk'),s2],
+    [L('拉尼娜 + 东北季风','La Niña + NE monsoon'),L('→ 高洪灾风险（东海岸/婆罗洲）','→ High flood risk (east / Borneo)'),s3],
+    [L('MJO 活跃 · 第4–5位相','MJO active · phase 4–5'),L('→ 未来1–2周偏湿','→ Wet pulse, next 1–2 wks'),s4],
+    [L('任一数据源 >48 小时','Any source stale >48 h'),L('→ 回退并标记','→ Fall back + flag'),s5]
   ];
-  return `<tr><th>${L('条件','Condition')}</th><th>${L('动作','Action')}</th></tr>`+
-    R.map(r=>`<tr><td>${r[0]}</td><td style="color:var(--muted)">${r[1]}</td></tr>`).join('');
+  return `<tr><th>${L('条件','Condition')}</th><th>${L('动作','Action')}</th><th>${L('现在','Now')}</th></tr>`+
+    R.map(r=>`<tr><td>${r[0]}</td><td style="color:var(--muted)">${r[1]}</td><td style="${r[2][0]}">${r[2][1]}</td></tr>`).join('');
 }
 
 // ============ Render ============
@@ -983,7 +1001,7 @@ function renderAll(D){
     return `<div class="card"><h3>${info.h[idx]}</h3>
       <div class="name">${info.name[idx]}</div>
       <div class="${valCls}">${d.value}${driverStale(D,d.key)?staleChip():''}</div><div class="status ${d.cls}">${trStatus(d.status)}</div>
-      ${sparkRow(d)}
+      ${sparkRow(d)}${d.asOf?`<div class="gsrc" style="margin-top:2px">${L('最新 · BoM 每周 · ','latest · BoM weekly · ')}${d.asOf}</div>`:''}
       <div class="gauge"><div class="fill" style="width:${d.gauge}%;background:${d.gcol}"></div></div>
       <div class="interp">${info.interp[idx]}${d.key==='iod'?iodOutlookText(D):''}</div></div>`;
   };
@@ -1032,7 +1050,7 @@ function renderAll(D){
     else _wn.innerHTML='';
   }
 
-  const rT=document.getElementById('rules'); if(rT) rT.innerHTML=ruleRows();
+  const rT=document.getElementById('rules'); if(rT) rT.innerHTML=ruleRows(D);
 
   const ctx=document.getElementById('nino34chart');
   if(chart) chart.destroy();

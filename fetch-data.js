@@ -295,6 +295,22 @@ const DMI_SOURCES = [
   { name: 'NOAA PSL', url: 'https://psl.noaa.gov/gcos_wgsp/Timeseries/Data/dmi.had.long.data' }
 ];
 async function fetchDMI() {
+  // PRIMARY: BoM WEEKLY IOD — the regionally-authoritative, most-current reading, and
+  // the value the "+0.4 positive IOD" drought-escalation rule keys on. BoM publishes no
+  // clean machine-readable IOD feed, so it is scraped from bom.gov.au/climate/iod/ by the
+  // user's own Cloudflare Worker, which returns {ok,value,asOf}. If the Worker or the
+  // scrape is unavailable, we fall back to the monthly JAMSTEC -> NOAA PSL chain below.
+  try {
+    const o = JSON.parse(await getText('https://enso-proxy.standphoto.workers.dev/?feed=iod'));
+    if (o && o.ok === true && typeof o.value === 'number' && Math.abs(o.value) < 5) {
+      const [status, cls, gcol, gauge] = classifyDMI(o.value);
+      return { patch: {
+        value: fmt(o.value, 2) + '°C', status, cls, gcol, gauge,
+        src: 'Australia BoM — weekly IOD' + (o.asOf ? ' (' + o.asOf + ')' : ''),
+        asOf: o.asOf || null, hist: []   // BoM is a single weekly value — no monthly series
+      } };
+    }
+  } catch (e) { /* Worker/BoM scrape unavailable — fall through to the monthly chain */ }
   let best, used, txtUsed;
   for (const s of DMI_SOURCES) {
     try {
