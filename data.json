@@ -1,5 +1,5 @@
 {
-  "generated": "2026-08-04T09:10:59.095Z",
+  "generated": "2026-08-04T14:31:51.974Z",
   "snapshotDate": "4 August 2026",
   "note": "Written by the cloud pipeline (fetch-data.js via GitHub Actions). Values are a real snapshot; the workflow overwrites this on each scheduled run.",
   "banner": {
@@ -109,15 +109,14 @@
       "key": "soi",
       "h": "ENSO — Atmosphere",
       "name": "SOI (monthly, Troup)",
-      "value": "-14.0",
+      "value": "-24.0",
       "cls": "s-dry",
       "status": "Strongly El Niño-coupled",
       "interp": "Deeply negative SOI confirms the atmosphere is locked into El Niño. ≤ −7 = El Niño-consistent.",
-      "gauge": 72.4,
+      "gauge": 88.4,
       "gcol": "var(--dry)",
       "src": "NOAA CPC SOI ×10 (BoM fallback)",
       "hist": [
-        6,
         4,
         0,
         11,
@@ -128,7 +127,8 @@
         12,
         -6,
         -9,
-        -14
+        -14,
+        -24
       ]
     },
     {
@@ -409,15 +409,14 @@
       "key": "wind",
       "h": "ENSO — Trade Winds",
       "name": "850 hPa zonal wind, W Pacific",
-      "value": "-1.3σ",
+      "value": "-2.0σ",
       "cls": "s-wet",
       "status": "Easterly anomaly · La Niña-coupled",
       "interp": "Weakened trade winds (westerly anomaly) over the western Pacific — the trigger and coupling signature of El Niño.",
-      "gauge": 24,
+      "gauge": 10,
       "gcol": "var(--wet)",
       "src": "NOAA CPC 850 hPa index",
       "hist": [
-        0.9,
         0.9,
         1,
         1.6,
@@ -428,22 +427,22 @@
         -1,
         -1.1,
         -0.3,
-        -1.3
+        -1.3,
+        -2
       ]
     },
     {
       "key": "olr",
       "h": "ENSO — Convection",
       "name": "OLR at the dateline (160°E–160°W)",
-      "value": "-1.1σ",
+      "value": "-1.2σ",
       "cls": "s-dry",
       "status": "Enhanced convection at dateline · El Niño-coupled",
       "interp": "Thunderstorm activity shifted east to the dateline — the atmosphere responding to El Niño, and the mechanism that dries the Maritime Continent.",
-      "gauge": 72,
+      "gauge": 74,
       "gcol": "var(--dry)",
       "src": "NOAA CPC OLR index",
       "hist": [
-        0.1,
         0.8,
         0.8,
         0.8,
@@ -454,7 +453,8 @@
         0.4,
         0.3,
         -0.1,
-        -1.1
+        -1.1,
+        -1.2
       ]
     }
   ],
