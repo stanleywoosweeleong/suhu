@@ -1,12 +1,12 @@
 {
-  "generated": "2026-08-04T08:21:46.220Z",
+  "generated": "2026-08-04T09:18:50.302Z",
   "source": "NASA FIRMS VIIRS — highest of NOAA-20 / S-NPP / NOAA-21",
   "day_range": 2,
   "frame": "2026-08-04",
   "regions": [
     {
       "name": "Sumatra",
-      "count": 316,
+      "count": 443,
       "stale": false
     },
     {
@@ -16,7 +16,7 @@
     },
     {
       "name": "Peninsular Malaysia",
-      "count": 43,
+      "count": 53,
       "stale": false
     },
     {
@@ -25,6 +25,6 @@
       "stale": false
     }
   ],
-  "total": 4093,
+  "total": 4230,
   "partial": false
 }
