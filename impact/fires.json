@@ -1,5 +1,5 @@
 {
-  "generated": "2026-08-08T13:25:22.349Z",
+  "generated": "2026-08-08T19:07:08.853Z",
   "source": "NASA FIRMS VIIRS — highest of NOAA-20 / S-NPP / NOAA-21",
   "day_range": 2,
   "frame": "2026-08-08",
@@ -11,7 +11,7 @@
     },
     {
       "name": "Kalimantan",
-      "count": 4239,
+      "count": 4890,
       "stale": false
     },
     {
@@ -21,10 +21,10 @@
     },
     {
       "name": "Sarawak / Sabah",
-      "count": 1790,
+      "count": 1871,
       "stale": false
     }
   ],
-  "total": 7100,
+  "total": 7832,
   "partial": false
 }
