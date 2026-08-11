@@ -1,5 +1,5 @@
 {
-  "generated": "2026-08-11T02:11:21.564Z",
+  "generated": "2026-08-11T07:18:21.143Z",
   "snapshotDate": "11 August 2026",
   "note": "Written by the cloud pipeline (fetch-data.js via GitHub Actions). Values are a real snapshot; the workflow overwrites this on each scheduled run.",
   "banner": {
@@ -135,15 +135,15 @@
       "key": "iod",
       "h": "Indian Ocean Dipole",
       "name": "DMI (Dipole Mode Index)",
-      "value": "+0.44°C",
+      "value": "+0.41°C",
       "cls": "s-dry",
       "status": "Positive IOD · drier for SE Asia",
       "interp": "A separate driver to our west. Positive = drier SE Asia; negative = wetter.",
-      "gauge": 72,
+      "gauge": 70.5,
       "gcol": "var(--dry)",
-      "src": "Australia BoM — weekly IOD (26 July 2026)",
+      "src": "Australia BoM — weekly IOD (9 August 2026)",
       "hist": [],
-      "asOf": "26 July 2026"
+      "asOf": "9 August 2026"
     },
     {
       "key": "mjo",
