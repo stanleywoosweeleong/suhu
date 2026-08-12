@@ -5,7 +5,8 @@
  * Node 18+ (built-in fetch, auto-gunzips). No dependencies. No Python.
  *
  * Updates all four drivers live:
- *   • Niño 3.4  — NOAA CPC detrended weekly ASCII
+ *   • Niño 3.4  — NOAA CPC WEEKLY OISSTv2.1 (wksst9120.for), 1991-2020 base.
+ *                 Fallback: CPC ERSSTv5 monthly Niño regions (same base).
  *   • SOI       — Australia BoM Troup SOI (monthly plain text)
  *   • DMI (IOD) — NOAA PSL HadISST Dipole Mode Index (monthly)
  *   • MJO (RMM) — Australia BoM real-time RMM series (daily)
@@ -209,34 +210,128 @@ function latestCpcStd(text) {
 
 // ---- source fetchers ------------------------------------------------------
 
-// Niño 3.4 — NOAA CPC detrended monthly ASCII: YR MON TOTAL CLIM ANOM.
-// Returns the latest anomaly AND the last 12 real months (for the trend chart),
-// so the chart is built entirely from live data — no placeholders.
+// ---- Niño-region parsers --------------------------------------------------
+
+// CPC week stamps look like "05AUG2026". Convert to a sortable timestamp.
+const WK_MON = { JAN:0,FEB:1,MAR:2,APR:3,MAY:4,JUN:5,JUL:6,AUG:7,SEP:8,OCT:9,NOV:10,DEC:11 };
+function weekTs(d) {
+  const m = /^(\d{1,2})([A-Za-z]{3})(\d{4})$/.exec(d);
+  if (!m) return 0;
+  const mon = WK_MON[m[2].toUpperCase()];
+  if (mon === undefined) return 0;
+  return Date.UTC(+m[3], mon, +m[1]);
+}
+
+// CPC WEEKLY file (wksst9120.for). Region order in the file is
+//   Nino1+2, Nino3, Nino3.4, Nino4  -- verified against the CPC header.
+// Each region is "SST SSTA", so with 8 numbers the anomalies sit at odd indices.
+// CPC sometimes glues a negative anomaly onto its SST ("23.4-0.4"), so we pull
+// every signed decimal individually instead of splitting on whitespace.
+function parseWeeklyNino(text) {
+  const rows = [];
+  for (const raw of text.replace(/<[^>]+>/g, ' ').split(NL)) {
+    const ln = raw.trim();
+    const m = /^(\d{1,2}[A-Za-z]{3}\d{4})/.exec(ln);
+    if (!m) continue;
+    const nums = (ln.slice(m[1].length).match(/-?\d+(?:\.\d+)?/g) || []).map(Number);
+    let n12, n3, n34, n4;
+    if (nums.length >= 8) {            // SST + anomaly pairs
+      n12 = nums[1]; n3 = nums[3]; n34 = nums[5]; n4 = nums[7];
+    } else if (nums.length >= 4) {     // anomaly-only variant
+      [n12, n3, n34, n4] = nums.slice(0, 4);
+    } else continue;
+    if (![n12, n3, n34, n4].every(v => Number.isFinite(v) && Math.abs(v) < 90)) continue;
+    rows.push({ date: m[1], ts: weekTs(m[1]), n12, n3, n34, n4 });
+  }
+  rows.sort((a, b) => a.ts - b.ts);    // never trust file order for "latest"
+  return rows;
+}
+
+// CPC ERSSTv5 monthly Niño regions (ersst5.nino.mth.91-20.ascii).
+// Columns: YR MON  NINO1+2 ANOM  NINO3 ANOM  NINO4 ANOM  NINO3.4 ANOM
+// NOTE the order here is 1+2, 3, 4, 3.4 -- it is NOT the same as the weekly file.
+function parseErsstNino(text) {
+  return text.trim().split(NL).map(l => l.trim().split(/\s+/))
+    .filter(r => r.length >= 10 && /^\d{4}$/.test(r[0]) && /^\d{1,2}$/.test(r[1]))
+    .map(r => ({
+      year: +r[0], mon: +r[1],
+      n12: parseFloat(r[3]), n3: parseFloat(r[5]),
+      n4:  parseFloat(r[7]), n34: parseFloat(r[9]),
+    }))
+    .filter(o => [o.n12, o.n3, o.n4, o.n34].every(Number.isFinite));
+}
+
+// ---- source fetchers ------------------------------------------------------
+
 const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-async function fetchNino34() {
-  const txt = await getText('https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/ensostuff/detrend.nino34.ascii.txt');
-  const rows = txt.trim().split(NL)
-    .map(l => l.trim().split(/\s+/))
-    .filter(r => r.length >= 5 && /^\d{4}$/.test(r[0])); // skip the header row
-  const parsed = rows
-    .map(r => ({ mon: parseInt(r[1], 10), anom: parseFloat(r[r.length - 1]) }))
-    .filter(x => x.mon >= 1 && x.mon <= 12 && Number.isFinite(x.anom));
-  if (!parsed.length) throw new Error('no Niño 3.4 rows parsed');
-  const recent = parsed.slice(-12); // last 12 real months
-  const months = recent.map(x => ({ label: MON[x.mon - 1], value: Math.round(x.anom * 10) / 10 }));
-  const anom = recent[recent.length - 1].anom;
-  const latest = months[months.length - 1].value; // same rounding the chart shows
-  // trend direction from the real data (latest month vs the previous one)
-  const prev = months.length >= 2 ? months[months.length - 2].value : latest;
-  // trend by EVENT MAGNITUDE so it's correct for both El Niño and La Niña
-  // (a La Niña "strengthens" as the anomaly goes more negative):
+
+// Shared card-building step so the weekly path and the monthly fallback can
+// never disagree about classification, trend wording or rounding.
+// `points` = [{label, value}, ...] oldest -> newest, already rounded to 1 dp.
+function buildNinoCard(points, extra) {
+  const latest = points[points.length - 1].value;
+  const prev   = points.length >= 2 ? points[points.length - 2].value : latest;
+  // Trend by EVENT MAGNITUDE so it reads correctly for El Niño and La Niña alike.
   const mag = Math.round((Math.abs(latest) - Math.abs(prev)) * 10) / 10;
   const trend = mag >= 0.1 ? 'strengthening' : (mag <= -0.1 ? 'easing' : 'holding steady');
-  const [intensity, cls, gcol, gauge] = classifyNino(anom);
-  // status = intensity + data-driven trend (so the wording can't contradict the chart)
-  const status = Math.abs(anom) >= 0.5 ? (intensity + ' · ' + trend) : intensity;
-  // card value uses the same rounded number as the chart's last point -> they always agree
-  return { anom, months, patch: { value: fmt(latest) + '°C', status, cls, gcol, gauge, hist: months.map(m => m.value) } };
+  const [intensity, cls, gcol, gauge] = classifyNino(latest);
+  const status = Math.abs(latest) >= 0.5 ? (intensity + ' · ' + trend) : intensity;
+  return {
+    anom: latest,
+    months: points,
+    patch: Object.assign({
+      value: fmt(latest) + '°C', status, cls, gcol, gauge,
+      hist: points.map(p => p.value),
+    }, extra),
+  };
+}
+
+// Niño 3.4 -- WEEKLY is the headline number, because that is what CPC, BoM and
+// the IRI quote as "the current Niño 3.4". Two earlier bugs lived here:
+//   (a) it read detrend.nino34.ascii.txt -- the DETRENDED series, which strips
+//       the background warming and therefore reads several tenths low;
+//   (b) that file is MONTHLY and lags, so the card sat ~2 months behind reality
+//       while still advertising itself as weekly.
+// The 12-point trend is now weekly too, so the card value and the chart's last
+// point are the same number by construction.
+async function fetchNino34Weekly() {
+  const txt = await getText('https://www.cpc.ncep.noaa.gov/data/indices/wksst9120.for');
+  const rows = parseWeeklyNino(txt);
+  if (!rows.length) throw new Error('no weekly Niño rows parsed');
+  const last = rows[rows.length - 1];
+  // Loud staleness check: this file updates every Monday. If the newest week is
+  // more than 3 weeks old the feed is broken, so fail over rather than show it.
+  const ageDays = Math.round((Date.now() - last.ts) / 86400000);
+  if (ageDays > 21) throw new Error('weekly file stale: newest week ' + last.date + ' is ' + ageDays + 'd old');
+  const points = rows.slice(-12).map(r => ({ label: r.date.slice(0, 5), value: Math.round(r.n34 * 10) / 10 }));
+  return buildNinoCard(points, {
+    asOf: last.date, basis: 'weekly',
+    src: 'NOAA CPC weekly OISSTv2.1 (wksst9120.for) · 1991-2020 base · week centred ' + last.date,
+  });
+}
+
+// Fallback only. Same 1991-2020 base, same (undetrended) definition as the
+// weekly feed -- just coarser and later. Flagged as basis:'monthly' so the UI
+// can say so out loud instead of passing a month off as this week.
+async function fetchNino34Monthly() {
+  const txt = await getText('https://www.cpc.ncep.noaa.gov/data/indices/ersst5.nino.mth.91-20.ascii');
+  const rows = parseErsstNino(txt);
+  if (!rows.length) throw new Error('no monthly Niño rows parsed');
+  const last = rows[rows.length - 1];
+  const points = rows.slice(-12).map(r => ({ label: MON[r.mon - 1], value: Math.round(r.n34 * 10) / 10 }));
+  return buildNinoCard(points, {
+    asOf: MON[last.mon - 1] + ' ' + last.year, basis: 'monthly',
+    src: 'FALLBACK — NOAA CPC ERSSTv5 monthly (ersst5.nino.mth.91-20.ascii) · ' + MON[last.mon - 1] + ' ' + last.year,
+  });
+}
+
+async function fetchNino34() {
+  try {
+    return await fetchNino34Weekly();
+  } catch (e) {
+    console.error('WARN weekly Niño 3.4 unavailable (' + e.message + ') — falling back to ERSSTv5 monthly');
+    return await fetchNino34Monthly();
+  }
 }
 
 // ONI / RONI — NOAA CPC seasonal indices. Files are "SEAS YR [TOTAL] ANOM";
@@ -387,15 +482,13 @@ async function fetchOLR() {
 // Columns: YR MON  NINO1+2 ANOM  NINO3 ANOM  NINO4 ANOM  NINO3.4 ANOM
 async function fetchFlavor() {
   const txt = await getText('https://www.cpc.ncep.noaa.gov/data/indices/ersst5.nino.mth.91-20.ascii');
-  const rows = txt.trim().split(NL).map(l => l.trim().split(/\s+/))
-    .filter(r => r.length >= 10 && /^\d{4}$/.test(r[0]) && /^\d{1,2}$/.test(r[1]));
+  const rows = parseErsstNino(txt);
   if (!rows.length) throw new Error('no Niño-region rows parsed');
   const r = rows[rows.length - 1];
-  const n12 = parseFloat(r[3]), n3 = parseFloat(r[5]), n4 = parseFloat(r[7]), n34 = parseFloat(r[9]);
-  if (![n12, n3, n4, n34].every(Number.isFinite)) throw new Error('bad Niño-region anomalies');
-  const [status, cls, gcol, gauge] = classifyFlavor(n12, n3, n4, n34);
-  const nreg = { n12: +n12.toFixed(2), n3: +n3.toFixed(2), n4: +n4.toFixed(2), n34: +n34.toFixed(2) };
-  return { patch: { value: 'Niño4 ' + fmt(n4, 1) + ' · N1+2 ' + fmt(n12, 1), status, cls, gcol, gauge, nreg } };
+  const [status, cls, gcol, gauge] = classifyFlavor(r.n12, r.n3, r.n4, r.n34);
+  const nreg = { n12: +r.n12.toFixed(2), n3: +r.n3.toFixed(2), n4: +r.n4.toFixed(2), n34: +r.n34.toFixed(2) };
+  return { patch: { value: 'Niño4 ' + fmt(r.n4, 1) + ' · N1+2 ' + fmt(r.n12, 1), status, cls, gcol, gauge, nreg,
+                    src: 'NOAA CPC ERSSTv5 monthly Niño regions · ' + MON[r.mon - 1] + ' ' + r.year } };
 }
 
 // ---- driver runner --------------------------------------------------------
@@ -411,6 +504,10 @@ async function runDriver(data, key, sourceName, fn, extra) {
     Object.assign(card, patch);
     if (extra) extra(rest, card, data);
     setSource(data, sourceName, true);
+    // A card's src line must describe the fetch that just happened. If a
+    // fetcher does not stamp one, the label in data.json is a static seed and
+    // will quietly go out of date -- say so rather than let it lie.
+    if (!patch.src) console.warn('NOTE ' + key + ': src not stamped by fetcher (static seed: "' + card.src + '")');
     console.log('OK  ' + key + ': ' + card.value + ' — ' + card.status);
   } catch (e) {
     setSource(data, sourceName, false);
@@ -507,12 +604,15 @@ async function main() {
   data.snapshotDate = now.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
 
   await runDriver(data, 'enso', 'Niño', fetchNino34, (rest, card, d) => {
-    // Rebuild the whole trend from real NOAA months (no placeholders, no dupes).
+    // Rebuild the whole trend from real NOAA data (no placeholders, no dupes).
     if (rest.months && rest.months.length) {
       const h = d.nino34history;
       h.labels = rest.months.map(m => m.label);
       h.values = rest.months.map(m => m.value);
-      h.labels[h.labels.length - 1] += '*'; // mark current (partial) month
+      h.basis  = card.basis || 'weekly';
+      // Weekly points are complete weeks, so no partial marker. Only the
+      // monthly fallback has an in-progress last point.
+      if (h.basis === 'monthly') h.labels[h.labels.length - 1] += '*';
     }
   });
   await runDriver(data, 'oni', 'ONI', fetchONI);
@@ -546,4 +646,4 @@ if (require.main === module) {
   main().catch(e => { console.error('fatal', e); process.exit(1); });
 }
 
-module.exports = { latestMonthly, latestCpcStd, classifyNino, classifySOI, classifyDMI, classifyMJO, classifyWWV, classifyWind, classifyOLR, classifyFlavor, fmt };
+module.exports = { latestMonthly, latestCpcStd, parseWeeklyNino, parseErsstNino, buildNinoCard, weekTs, classifyNino, classifySOI, classifyDMI, classifyMJO, classifyWWV, classifyWind, classifyOLR, classifyFlavor, fmt };

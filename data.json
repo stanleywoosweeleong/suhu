@@ -1,7 +1,7 @@
 {
   "generated": "2026-08-12T19:10:51.541Z",
   "snapshotDate": "12 August 2026",
-  "note": "Written by the cloud pipeline (fetch-data.js via GitHub Actions). Values are a real snapshot; the workflow overwrites this on each scheduled run.",
+  "note": "Seed only. Overwritten by fetch-data.js on each scheduled run. Values here are a past snapshot, so every source ships flagged 'stale' — the app shows a stale chip until the pipeline has actually run.",
   "banner": {
     "tone": "warm",
     "tag": "National Climate-Driver Status · Southwest Monsoon",
@@ -34,10 +34,10 @@
       "value": "+1.5°C",
       "cls": "s-hot",
       "status": "Strong El Niño · strengthening",
-      "interp": "El Niño in the strong range. For Malaysia: hotter, drier bias.",
+      "interp": "Weekly Niño 3.4 SST anomaly — the headline ENSO number, same figure CPC/BoM/IRI quote.",
       "gauge": 88,
       "gcol": "var(--hot)",
-      "src": "NOAA CPC · weekly (mid-Jun) · fallback BoM",
+      "src": "NOAA CPC weekly OISSTv2.1 (wksst9120.for) · 1991-2020 base",
       "hist": [
         -0.1,
         -0.3,
@@ -51,7 +51,8 @@
         0.4,
         1,
         1.5
-      ]
+      ],
+      "basis": "weekly"
     },
     {
       "key": "oni",
@@ -368,7 +369,7 @@
       "value": "Niño4 +1.2 · N1+2 +2.8",
       "cls": "s-dry",
       "status": "Eastern-Pacific El Niño",
-      "interp": "Warmth concentrated in the central Pacific (Niño 4) — a Modoki pattern that pushes drought toward the Maritime Continent, worse for Malaysia.",
+      "interp": "Where the warm water sits across the Niño regions: an Eastern-Pacific type is milder for us; a Central-Pacific (Modoki) type pushes drought toward the Maritime Continent.",
       "gauge": 62,
       "gcol": "var(--dry)",
       "nreg": {
@@ -519,57 +520,57 @@
       "Niño 3.4 / ONI",
       "NOAA CPC",
       "NOAA PSL · BoM",
-      "live",
-      "just now"
+      "stale",
+      "seed — pipeline has not run"
     ],
     [
       "ENSO flavor (EP/CP)",
       "NOAA CPC ERSSTv5",
       "OISST Niño regions",
-      "live",
-      "just now"
+      "stale",
+      "seed — pipeline has not run"
     ],
     [
       "Heat content (WWV)",
       "NOAA PMEL / GODAS",
       "T300",
-      "live",
-      "just now"
+      "stale",
+      "seed — pipeline has not run"
     ],
     [
       "SOI",
       "Australia BoM",
       "NOAA CPC",
-      "live",
-      "just now"
+      "stale",
+      "seed — pipeline has not run"
     ],
     [
       "Trade winds (850 hPa)",
       "NOAA CPC",
       "CDAS reanalysis",
-      "live",
-      "just now"
+      "stale",
+      "seed — pipeline has not run"
     ],
     [
       "OLR (dateline)",
       "NOAA CPC",
       "NOAA PSL",
-      "live",
-      "just now"
+      "stale",
+      "seed — pipeline has not run"
     ],
     [
       "DMI (IOD)",
       "JAMSTEC SINTEX-F",
       "JMA TCC · NOAA PSL",
-      "live",
-      "just now"
+      "stale",
+      "seed — pipeline has not run"
     ],
     [
       "MJO (RMM)",
       "Australia BoM",
       "NOAA CPC",
-      "live",
-      "just now"
+      "stale",
+      "seed — pipeline has not run"
     ]
   ],
   "rules": [

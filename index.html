@@ -205,7 +205,7 @@
     <div class="gsrc" style="margin-top:8px" data-i18n="sst_note"></div>
   </div>
   <div class="panel" style="margin-top:14px">
-    <h4 data-i18n="panel_chart">Niño 3.4 海温距平 — 近期趋势</h4>
+    <h4 data-i18n="panel_chart">Niño 3.4 海温距平 — 最近 12 周</h4>
     <canvas id="nino34chart" height="150"></canvas>
     <div class="gsrc" data-i18n="chart_note"></div>
   </div>
@@ -318,8 +318,8 @@ const T = {
     panel_sst:'海表温度距平 · 印度洋–太平洋',
     wind_arrow:'显示信风 / 暖水推移箭头',
     sat_note:'以海洋大陆（马来西亚）为中心的示意图：向东伸展的暖舌＝厄尔尼诺，白框为 Niño 3.4 测量区。暖舌的强弱与位置（偏东＝东太型，偏中＝中太型）由现有的尼诺分区海温实时绘制，非卫星实况。海岸线：Natural Earth（110m）；配色参考 NASA SVS。',
-    panel_chart:'Niño 3.4 海温距平 — 近期趋势',
-    chart_note:'°C 距平。正值且上升 = 厄尔尼诺增强。来源：NOAA CPC / BoM。',
+    panel_chart:'Niño 3.4 海温距平 — 最近 12 周',
+    chart_note:'°C 距平 · 最近 12 周。正值且上升 = 厄尔尼诺增强。来源：NOAA CPC 每周 OISST（1991–2020 基准）。',
     st_impact:'本地影响 — ', loc_label:'地点', geo_btn:'📍 使用我的定位',
     impact_note:'空气质量与高温：Open-Meteo（模式数据，按地点实时更新）。火点：NASA FIRMS（VIIRS）。马来西亚官方指数：<a href="https://eqms.doe.gov.my" target="_blank">DOE MyEQMS · APIMS ↗</a>。',
     guide_title:'指南 — 如何读懂 SUHU',
@@ -338,7 +338,7 @@ const T = {
     g_d_wind:'<span class="gt">信风（850 百帕纬向风）</span><p>低层信风的强弱。西风异常（信风减弱）是厄尔尼诺的触发与耦合信号；东风异常（信风增强）偏拉尼娜。</p>',
     g_d_olr:'<span class="gt">日界线对流（OLR）</span><p>雷暴对流的位置。负值＝对流东移至日界线（厄尔尼诺耦合），正是使海洋大陆变干的机制；正值＝对流受抑制于此，留在我们上空。</p>',
     g_d_walker:'<span class="gt">沃克环流（SOI＋信风＋对流）</span><p>上面三张卡——SOI（气压跷跷板）、信风与日界线对流——量度的其实是同一件事：沿赤道太平洋的巨大东西向环流。厄尔尼诺时它减弱（信风松弛、上升支东移离开我们），拉尼娜时增强。三者同时指向同一方向，即表示大气与海洋已耦合。</p>',
-    g_chart_h:'近期趋势图', g_chart_p:'来自 NOAA 的 Niño 3.4 最近 12 个月。当前（不完整）月份以星号标注。正值 = 厄尔尼诺，负值 = 拉尼娜——纵轴会随之翻转。',
+    g_chart_h:'近期趋势图', g_chart_p:'来自 NOAA 的 Niño 3.4 最近 12 周（每周更新，1991–2020 基准，与 CPC／BoM／IRI 引用的「当前 Niño 3.4」同一个数字）。卡片上的数值就是图上最后一点。若每周数据源中断，会自动回退到月值，并在卡片上标明。正值 = 厄尔尼诺，负值 = 拉尼娜——纵轴会随之翻转。',
     g_regions_h:'区域展望', g_regions_p:'驱动因子对半岛（西 / 东）、沙巴与砂拉越的实际影响。每个地区的风险（低 / 中 / 高）来自 ENSO（ONI）、其型态（中太型 Modoki 会加重本区干旱）、印度洋偶极子（IOD）与 MJO 的综合“压力指数”，并按季风季节调整。每张卡片会列出背后的驱动因子。',
     g_sat_h:'海表温度距平图', g_sat_p:'以海洋大陆为中心的印度洋–太平洋示意图：向东伸展的暖舌＝厄尔尼诺（冷舌＝拉尼娜），白框为 Niño 3.4 测量区。由现有的尼诺分区海温（1+2/3/4/3.4）实时绘制，海岸线内嵌可离线显示——这是示意图，不是卫星实况。',
     g_impact_h:'本地影响 — 你今天的体感',
@@ -364,8 +364,8 @@ const T = {
     panel_sst:'SST anomaly · Indo-Pacific',
     wind_arrow:'Show wind / warm-water arrow',
     sat_note:'Schematic centred on the Maritime Continent (Malaysia): the warm tongue reaching east is El Niño; the white box is Niño 3.4. Its strength and position (east = EP type, central = CP/Modoki) are drawn live from the Niño-region SSTs the app already fetches — not a satellite image. Coastlines: Natural Earth (110m); palette after NASA SVS.',
-    panel_chart:'Niño 3.4 SST anomaly — recent trend',
-    chart_note:'°C anomaly. Positive & rising = El Niño strengthening. Source: NOAA CPC / BoM.',
+    panel_chart:'Niño 3.4 SST anomaly — last 12 weeks',
+    chart_note:'°C anomaly, last 12 weeks. Positive & rising = El Niño strengthening. Source: NOAA CPC weekly OISST (1991–2020 base).',
     st_impact:'Local impact — ', loc_label:'Location', geo_btn:'📍 Use my location',
     impact_note:'Air quality & heat: Open-Meteo (modeled, updates live per location). Fire hotspots: NASA FIRMS (VIIRS). Malaysia\'s official index: <a href="https://eqms.doe.gov.my" target="_blank">DOE MyEQMS · APIMS ↗</a>.',
     guide_title:'Guide — how to read SUHU',
@@ -384,7 +384,7 @@ const T = {
     g_d_wind:'<span class="gt">Trade winds (850 hPa zonal wind)</span><p>The strength of the low-level trades. A westerly anomaly (weakened trades) is the trigger and coupling signature of El Niño; an easterly anomaly (strengthened trades) leans La Niña.</p>',
     g_d_olr:'<span class="gt">Dateline convection (OLR)</span><p>Where the thunderstorms sit. Negative = convection shifted east to the dateline (El Niño coupling) — the mechanism that dries the Maritime Continent; positive = suppressed there, staying over us.</p>',
     g_d_walker:'<span class="gt">The Walker Circulation (SOI + winds + OLR)</span><p>The three cards above — SOI (the pressure seesaw), the trade winds, and dateline OLR — are all measuring one thing: the giant east–west loop along the equatorial Pacific. It weakens during El Niño (slack trades, the rising branch shifts east away from us) and strengthens during La Niña. When all three point the same way, the atmosphere and ocean are coupled.</p>',
-    g_chart_h:'Recent-trend chart', g_chart_p:'The last 12 months of Niño 3.4, straight from NOAA. The current (partial) month is marked with an asterisk. Positive = El Niño, negative = La Niña — the axis flips to match.',
+    g_chart_h:'Recent-trend chart', g_chart_p:'The last 12 weeks of Niño 3.4, straight from NOAA (weekly, 1991–2020 base — the same number CPC, BoM and the IRI quote as the current Niño 3.4). The card value is the last point on this chart. If the weekly feed goes down the pipeline falls back to monthly and labels the card accordingly. Positive = El Niño, negative = La Niña — the axis flips to match.',
     g_regions_h:'Regional outlook', g_regions_p:'What the drivers mean on the ground for the Peninsula (west / east), Sabah and Sarawak. Each region\'s risk (Low / Moderate / High) comes from a combined "stress score" of ENSO (ONI), its flavor (a Central-Pacific / Modoki pattern deepens drought here), the Indian Ocean Dipole (IOD) and the MJO, adjusted for the monsoon season. Every card lists the drivers behind it.',
     g_sat_h:'SST anomaly map', g_sat_p:'An Indo-Pacific schematic centred on the Maritime Continent: the warm tongue reaching east is El Niño (a cool tongue is La Niña); the white box is Niño 3.4. Drawn live from the Niño-region SSTs (1+2/3/4/3.4) already in the app, with coastlines baked in for offline use — a schematic, not a satellite image.',
     g_impact_h:'Local impact — what you feel today',
@@ -403,7 +403,7 @@ const T = {
 
 // Driver card labels (h / name / interp) per driver key
 const DRV = {
-  enso:{h:['ENSO — 海洋','ENSO — Ocean'], name:['Niño 3.4 海温距平','Niño 3.4 SST anomaly'], interp:['太平洋中部海温——厄尔尼诺/拉尼娜的头条数字。','Sea temperature in the central Pacific — the headline ENSO number.']},
+  enso:{h:['ENSO — 海洋','ENSO — Ocean'], name:['Niño 3.4 海温距平（每周）','Niño 3.4 SST anomaly (weekly)'], interp:['太平洋中部海温——厄尔尼诺/拉尼娜的头条数字。','Sea temperature in the central Pacific — the headline ENSO number.']},
   oni:{h:['ENSO — 指数','ENSO — Index'], name:['ONI（3个月平均）','ONI (3-month running)'], interp:['官方3个月平均值，用于正式判定厄尔尼诺/拉尼娜。','Official 3-month average; used to formally declare El Niño / La Niña.']},
   roni:{h:['ENSO — 相对指数','ENSO — Relative'], name:['RONI（相对海洋尼诺指数）','RONI (Relative ONI)'], interp:['与 ONI 同一指数，但减去热带整体增温背景——在变暖气候下读数比 ONI 低，更能反映纯厄尔尼诺信号。','Same index as ONI but with the tropical-mean warming removed — reads lower than ONI in a warming climate, isolating the pure ENSO signal.']},
   soi:{h:['ENSO — 大气','ENSO — Atmosphere'], name:['SOI（南方涛动 · Troup）','SOI (monthly, Troup)'], interp:['塔希提与达尔文之间的气压跷跷板，确认 ENSO 与大气耦合。','Tahiti–Darwin pressure seesaw; confirms ENSO is coupled to the atmosphere.']},
@@ -546,7 +546,23 @@ function renderSources(D){
       `<td style="color:var(--muted)">${trUpdated(s[4])}</td></tr>`).join('');
 }
 const MONMAP={Jan:'1月',Feb:'2月',Mar:'3月',Apr:'4月',May:'5月',Jun:'6月',Jul:'7月',Aug:'8月',Sep:'9月',Oct:'10月',Nov:'11月',Dec:'12月'};
-function chartLabel(l){ if(LANG==='en')return l; const star=l.endsWith('*'); const base=star?l.slice(0,-1):l; return (MONMAP[base]||base)+(star?'*':''); }
+function chartLabel(l){
+  const star=l.endsWith('*'); const base=star?l.slice(0,-1):l;
+  const wk=/^(\d{1,2})([A-Za-z]{3})$/.exec(base);   // weekly stamp like "05AUG"
+  if(wk) return LANG==='en' ? (+wk[1])+' '+wk[2][0]+wk[2].slice(1).toLowerCase()
+                            : (MONMAP[wk[2][0]+wk[2].slice(1).toLowerCase()]||wk[2])+(+wk[1])+'日';
+  if(LANG==='en')return l;
+  return (MONMAP[base]||base)+(star?'*':'');
+}
+// Says out loud which feed a card's date belongs to. The Niño 3.4 card is
+// weekly NOAA data; if the weekly feed fails the pipeline drops to a monthly
+// fallback, and that must be visible rather than silently passed off as "now".
+function asOfLabel(d){
+  if(d.key==='enso') return d.basis==='monthly'
+    ? L('⚠️ 回退：NOAA 月值 · ','⚠️ fallback: NOAA monthly · ')
+    : L('最新 · NOAA 每周 · ','latest · NOAA weekly · ');
+  return L('最新 · BoM 每周 · ','latest · BoM weekly · ');
+}
 function trUpdated(s){ if(LANG==='en')return s; return String(s).replace('just now','刚刚').replace(' h ago',' 小时前').replace(' d ago',' 天前').replace(' min ago',' 分钟前').replace(' ago',' 前'); }
 
 // Plain-language MJO reading — turns "Ph 6–7 · ~1.3" + status into "is it raining on us now?"
@@ -1001,7 +1017,7 @@ function renderAll(D){
     return `<div class="card"><h3>${info.h[idx]}</h3>
       <div class="name">${info.name[idx]}</div>
       <div class="${valCls}">${d.value}${driverStale(D,d.key)?staleChip():''}</div><div class="status ${d.cls}">${trStatus(d.status)}</div>
-      ${sparkRow(d)}${d.asOf?`<div class="gsrc" style="margin-top:2px">${L('最新 · BoM 每周 · ','latest · BoM weekly · ')}${d.asOf}</div>`:''}
+      ${sparkRow(d)}${d.asOf?`<div class="gsrc" style="margin-top:2px">${asOfLabel(d)}${d.asOf}</div>`:''}
       <div class="gauge"><div class="fill" style="width:${d.gauge}%;background:${d.gcol}"></div></div>
       <div class="interp">${info.interp[idx]}${d.key==='iod'?iodOutlookText(D):''}</div></div>`;
   };
