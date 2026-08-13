@@ -378,12 +378,14 @@ async function fetchSeasonal(url) {
 async function fetchONI() {
   const { anom, hist } = await fetchSeasonal('https://www.cpc.ncep.noaa.gov/data/indices/oni.ascii.txt');
   const [status, cls, gcol, gauge] = classifyNino(anom);
-  return { patch: { value: fmt(anom, 2) + '°C', status, cls, gcol, gauge, hist } };
+  return { patch: { value: fmt(anom, 2) + '°C', status, cls, gcol, gauge, hist,
+                    src: 'NOAA CPC ONI (oni.ascii.txt) · 3-month running mean' } };
 }
 async function fetchRONI() {
   const { anom, hist } = await fetchSeasonal('https://www.cpc.ncep.noaa.gov/data/indices/RONI.ascii.txt');
   const [status, cls, gcol, gauge] = classifyNino(anom);
-  return { patch: { value: fmt(anom, 2) + '°C', status, cls, gcol, gauge, hist } };
+  return { patch: { value: fmt(anom, 2) + '°C', status, cls, gcol, gauge, hist,
+                    src: 'NOAA CPC RONI (RONI.ascii.txt) · relative to tropical mean' } };
 }
 
 // SOI — BoM Troup SOI (±35 scale). BoM's HTML page intermittently returns an
@@ -465,22 +467,80 @@ async function fetchDMI() {
   return { patch: { value: fmt(best.value, 2) + '°C', status, cls, gcol, gauge, src, hist: lastN(monthlySeries(txtUsed, v => v <= -90 || v >= 90), 12) } };
 }
 
-// MJO — Australia BoM real-time RMM: year month day RMM1 RMM2 phase amplitude.
-// We also keep the last ~40 valid days (RMM1,RMM2,amp) as a "track" for the phase
-// wheel's trail — the same feed already carries the full daily history.
-async function fetchMJO() {
-  const txt = await getText('https://www.bom.gov.au/climate/mjo/graphics/rmm.74toRealtime.txt');
-  const rows = txt.split(NL)
-    .map(l => l.trim().split(/\s+/))
-    .filter(r => r.length >= 7 && /^\d{4}$/.test(r[0]));
+// MJO ------------------------------------------------------------------------
+// PRIMARY is now NOAA PSL's ROMI, not BoM's RMM. Reason, found the hard way:
+// BoM's rmm.74toRealtime.txt still serves, still parses, and still ends with a
+// plausible-looking row — but its last VALID row is 24 Feb 2024. Everything
+// after that is missing-flagged, so "take the last valid row" quietly returned a
+// phase from early 2024 for well over a year, with no gate to catch it.
+//
+// ROMI is OLR-based, updates daily, and Kiladis et al. (2014) define it to be
+// directly comparable to RMM: ROMI PC2 is analogous to RMM1, and -ROMI PC1 to
+// RMM2. Applying that rotation gives a phase and amplitude the existing wheel
+// and classifyMJO() can use unchanged. It is also the same feed the ENSO
+// Monitor uses, so the two apps now agree instead of one of them being frozen.
+// BoM stays as a fallback in case it comes back — behind the same age gate.
+const ROMI_URL    = 'https://psl.noaa.gov/mjo/mjoindex/romi.cpcolr.1x.txt';
+const BOM_RMM_URL = 'https://www.bom.gov.au/climate/mjo/graphics/rmm.74toRealtime.txt';
+
+// Standard WH04 RMM phase from (RMM1, RMM2): vector angle split into 8 sectors.
+function rmmPhaseOf(rmm1, rmm2) {
+  let deg = Math.atan2(rmm2, rmm1) * 180 / Math.PI;
+  if (deg < 0) deg += 360;
+  if (deg < 45)  return 5;
+  if (deg < 90)  return 6;
+  if (deg < 135) return 7;
+  if (deg < 180) return 8;
+  if (deg < 225) return 1;
+  if (deg < 270) return 2;
+  if (deg < 315) return 3;
+  return 4;
+}
+
+function mjoCard(last, track, src) {
+  const [status, cls, gcol, gauge] = classifyMJO(last.phase, last.amp);
+  return { patch: { value: 'Ph ' + last.phase + ' · ' + last.amp.toFixed(1), status, cls, gcol, gauge,
+                    phase: last.phase, amp: last.amp, track, src,
+                    asOf: new Date(last.ts).toISOString().slice(0, 10) } };
+}
+
+// NOAA PSL ROMI: year month day hour PC1 PC2 amplitude.
+async function fetchMjoRomi() {
+  const txt = await getText(ROMI_URL);
   const valid = [];
-  for (const r of rows) {
+  for (const line of txt.split(NL)) {
+    const p = line.trim().split(/\s+/);
+    if (p.length < 7 || !/^\d{4}$/.test(p[0])) continue;
+    const ts = Date.UTC(+p[0], +p[1] - 1, +p[2]);          // p[3] is hour, ignored
+    const pc1 = parseFloat(p[4]), pc2 = parseFloat(p[5]), amp = parseFloat(p[6]);
+    if (!Number.isFinite(amp) || Math.abs(pc1) > 90 || Math.abs(pc2) > 90) continue;
+    if (!Number.isFinite(ts)) continue;
+    const rmm1 = pc2, rmm2 = -pc1;                          // ROMI -> RMM convention
+    valid.push({ ts, rmm1: +rmm1.toFixed(3), rmm2: +rmm2.toFixed(3),
+                 amp: +amp.toFixed(2), phase: rmmPhaseOf(rmm1, rmm2) });
+  }
+  if (!valid.length) throw new Error('no valid ROMI row parsed');
+  valid.sort((a, b) => a.ts - b.ts);
+  const last = valid[valid.length - 1];
+  const age = ageDays(last.ts);
+  if (age > MAX_AGE_DAYS.mjo) {
+    throw new Error('ROMI feed stale: newest day ' + new Date(last.ts).toISOString().slice(0, 10) + ' is ' + age + 'd old');
+  }
+  return mjoCard(last, valid.slice(-40).map(v => ({ rmm1: v.rmm1, rmm2: v.rmm2, amp: v.amp })),
+                 'NOAA PSL ROMI (OLR-based, RMM-equivalent per Kiladis 2014) · ' + new Date(last.ts).toISOString().slice(0, 10));
+}
+
+// Australia BoM real-time RMM: year month day RMM1 RMM2 phase amplitude.
+// Kept as a fallback. 1e36 / 999 are BoM's missing flags.
+async function fetchMjoBom() {
+  const txt = await getText(BOM_RMM_URL);
+  const valid = [];
+  for (const line of txt.split(NL)) {
+    const r = line.trim().split(/\s+/);
+    if (r.length < 7 || !/^\d{4}$/.test(r[0])) continue;
+    const ts = Date.UTC(+r[0], +r[1] - 1, +r[2]);
     const rmm1 = parseFloat(r[3]), rmm2 = parseFloat(r[4]);
     const p = parseInt(r[5], 10), a = parseFloat(r[6]);
-    // Columns 0-2 are year/month/day. We keep them now: MJO is DAILY, so a
-    // frozen feed is the one failure this card cannot survive silently.
-    const ts = Date.UTC(+r[0], +r[1] - 1, +r[2]);
-    // 1e36 / 999 are BoM missing flags
     if (Number.isFinite(a) && a < 90 && Number.isFinite(p) && Number.isFinite(ts) &&
         Math.abs(rmm1) < 90 && Math.abs(rmm2) < 90) {
       valid.push({ ts, rmm1: +rmm1.toFixed(3), rmm2: +rmm2.toFixed(3), amp: +a.toFixed(2), phase: p });
@@ -489,20 +549,23 @@ async function fetchMJO() {
   if (!valid.length) throw new Error('no valid RMM row parsed');
   valid.sort((a, b) => a.ts - b.ts);
   const last = valid[valid.length - 1];
-  const mAgeD = ageDays(last.ts);
-  if (mAgeD > MAX_AGE_DAYS.mjo) {
-    throw new Error('RMM feed stale: newest day ' + new Date(last.ts).toISOString().slice(0, 10) + ' is ' + mAgeD + 'd old');
+  const age = ageDays(last.ts);
+  if (age > MAX_AGE_DAYS.mjo) {
+    throw new Error('BoM RMM feed stale: newest valid day ' + new Date(last.ts).toISOString().slice(0, 10) + ' is ' + age + 'd old');
   }
-  const track = valid.slice(-40).map(v => ({ rmm1: v.rmm1, rmm2: v.rmm2, amp: v.amp }));
-  const [status, cls, gcol, gauge] = classifyMJO(last.phase, last.amp);
-  return { patch: { value: 'Ph ' + last.phase + ' · ' + last.amp.toFixed(1), status, cls, gcol, gauge,
-                    phase: last.phase, amp: last.amp, track } };
+  return mjoCard(last, valid.slice(-40).map(v => ({ rmm1: v.rmm1, rmm2: v.rmm2, amp: v.amp })),
+                 'Australia BoM RMM · ' + new Date(last.ts).toISOString().slice(0, 10));
 }
 
-// WWV (subsurface heat content) — PMEL GODAS, monthly.
-// Rows are "YYYYMM  WWVmean  WWVanom", values in scientific notation (m^3), e.g.
-//   202606 0.2691901E+16 0.3004249E+15   ->  anomaly = 3.004e14 m^3 = +3.0 (×10^14).
-// Last column is the anomaly; we scale to the conventional 10^14 m^3 unit (~±3).
+async function fetchMJO() {
+  try {
+    return await fetchMjoRomi();
+  } catch (e) {
+    console.warn('WARN ROMI MJO unavailable (' + e.message + ') — trying BoM RMM');
+    return await fetchMjoBom();
+  }
+}
+
 async function fetchWWV() {
   const txt = await getText('https://www.pmel.noaa.gov/tao/wwv/data/wwv.dat');
   const rows = txt.split(NL).map(l => l.trim().split(/\s+/)).filter(r => /^\d{6}$/.test(r[0]));
@@ -510,7 +573,8 @@ async function fetchWWV() {
   if (!series.length) throw new Error('no WWV row parsed');
   const val = series[series.length - 1];
   const [status, cls, gcol, gauge] = classifyWWV(val);
-  return { patch: { value: fmt(val, 1), status, cls, gcol, gauge, hist: lastN(series, 12) } };
+  return { patch: { value: fmt(val, 1), status, cls, gcol, gauge, hist: lastN(series, 12),
+                    src: 'NOAA PMEL TAO — warm water volume (wwv.dat) · ×10^14 m³' } };
 }
 
 // 850-hPa West-Pacific trade winds — CPC wpac850 (standardized anomaly).
@@ -519,7 +583,8 @@ async function fetchWind() {
   if (!series.length) throw new Error('no wind value parsed');
   const val = series[series.length - 1];
   const [status, cls, gcol, gauge] = classifyWind(val);
-  return { patch: { value: fmt(val, 1) + 'σ', status, cls, gcol, gauge, hist: lastN(series, 12) } };
+  return { patch: { value: fmt(val, 1) + 'σ', status, cls, gcol, gauge, hist: lastN(series, 12),
+                    src: 'NOAA CPC 850 hPa zonal wind, W Pacific (wpac850) · standardised' } };
 }
 
 // Dateline OLR (convection) — CPC olr (standardized anomaly).
@@ -528,7 +593,8 @@ async function fetchOLR() {
   if (!series.length) throw new Error('no OLR value parsed');
   const val = series[series.length - 1];
   const [status, cls, gcol, gauge] = classifyOLR(val);
-  return { patch: { value: fmt(val, 1) + 'σ', status, cls, gcol, gauge, hist: lastN(series, 12) } };
+  return { patch: { value: fmt(val, 1) + 'σ', status, cls, gcol, gauge, hist: lastN(series, 12),
+                    src: 'NOAA CPC OLR at the dateline (olr) · standardised' } };
 }
 
 // ENSO flavor (EP vs CP) — CPC ERSSTv5 Niño regions, monthly.
