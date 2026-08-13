@@ -1,7 +1,7 @@
 {
-  "generated": "2026-08-13T08:14:53.210Z",
-  "snapshotDate": "13 August 2026",
-  "note": "Seed only. Overwritten by fetch-data.js on each scheduled run. Values here are a past snapshot, so every source ships flagged 'stale' — the app shows a stale chip until the pipeline has actually run.",
+  "generated": "2026-08-12T19:10:51.541Z",
+  "snapshotDate": "12 August 2026",
+  "note": "Seed only. Overwritten by fetch-data.js on each scheduled run. Values here are a past snapshot, so every source ships flagged 'stale' — the app shows a stale chip until the pipeline has actually run. Card labels (name/heading/interpretation) live in DRV in index.html and the rules table is computed live by ruleRows(); neither is stored here, so neither can go stale.",
   "banner": {
     "tone": "warm",
     "tag": "National Climate-Driver Status · Southwest Monsoon",
@@ -29,43 +29,36 @@
   "drivers": [
     {
       "key": "enso",
-      "h": "ENSO — Ocean",
-      "name": "Niño 3.4 SST anomaly",
-      "value": "+2.6°C",
+      "value": "+1.5°C",
       "cls": "s-hot",
-      "status": "Very strong El Niño (\"super\") · strengthening",
-      "interp": "Weekly Niño 3.4 SST anomaly — the headline ENSO number, same figure CPC/BoM/IRI quote.",
-      "gauge": 95,
+      "status": "Strong El Niño · strengthening",
+      "gauge": 88,
       "gcol": "var(--hot)",
-      "src": "NOAA CPC weekly OISSTv2.1 (wksst9120.for) · 1991-2020 base · week centred 05AUG2026",
+      "src": "NOAA CPC weekly OISSTv2.1 (wksst9120.for) · 1991-2020 base",
       "hist": [
-        0.9,
+        -0.1,
+        -0.3,
+        -0.4,
+        -0.4,
+        -0.6,
+        -0.6,
+        -0.4,
+        -0.1,
+        0.1,
+        0.4,
         1,
-        1.3,
-        1.5,
-        1.7,
-        1.8,
-        1.7,
-        2,
-        2.1,
-        2.2,
-        2.3,
-        2.6
+        1.5
       ],
-      "basis": "weekly",
-      "asOf": "05AUG2026"
+      "basis": "weekly"
     },
     {
       "key": "oni",
-      "h": "ENSO — Index",
-      "name": "ONI (3-month running)",
       "value": "+1.39°C",
       "cls": "s-hot",
       "status": "Moderate El Niño",
-      "interp": "Official 3-month Niño 3.4 index. ≥ +0.5 = El Niño, ≤ −0.5 = La Niña.",
       "gauge": 80,
       "gcol": "var(--hot)",
-      "src": "NOAA CPC ONI (oni.ascii.txt) · 3-month running mean",
+      "src": "NOAA CPC ONI",
       "hist": [
         -0.11,
         -0.26,
@@ -83,15 +76,12 @@
     },
     {
       "key": "roni",
-      "h": "ENSO — Relative",
-      "name": "RONI",
       "value": "+0.98°C",
       "cls": "s-dry",
       "status": "Weak El Niño",
-      "interp": "Relative ONI — the same index minus tropical-mean warming.",
       "gauge": 65,
       "gcol": "var(--dry)",
-      "src": "NOAA CPC RONI (RONI.ascii.txt) · relative to tropical mean",
+      "src": "NOAA CPC RONI",
       "hist": [
         -0.41,
         -0.59,
@@ -109,12 +99,9 @@
     },
     {
       "key": "soi",
-      "h": "ENSO — Atmosphere",
-      "name": "SOI (monthly, Troup)",
       "value": "-24.0",
       "cls": "s-dry",
       "status": "Strongly El Niño-coupled",
-      "interp": "Deeply negative SOI confirms the atmosphere is locked into El Niño. ≤ −7 = El Niño-consistent.",
       "gauge": 88.4,
       "gcol": "var(--dry)",
       "src": "NOAA CPC SOI ×10 (BoM fallback)",
@@ -135,12 +122,9 @@
     },
     {
       "key": "iod",
-      "h": "Indian Ocean Dipole",
-      "name": "DMI (Dipole Mode Index)",
       "value": "+0.41°C",
       "cls": "s-dry",
       "status": "Positive IOD · drier for SE Asia",
-      "interp": "A separate driver to our west. Positive = drier SE Asia; negative = wetter.",
       "gauge": 70.5,
       "gcol": "var(--dry)",
       "src": "Australia BoM — weekly IOD (9 August 2026)",
@@ -149,229 +133,222 @@
     },
     {
       "key": "mjo",
-      "h": "MJO",
-      "name": "RMM phase & amplitude",
-      "value": "Ph 3 · 0.6",
+      "value": "Ph 7 · 0.1",
       "cls": "s-neu",
       "status": "Weak · little MJO influence",
-      "interp": "MJO stalled in the western Pacific under El Niño westerlies — not delivering a wet pulse to Malaysia right now.",
-      "gauge": 24.750000000000004,
+      "gauge": 5.8500000000000005,
       "gcol": "var(--neutral)",
-      "phase": 3,
-      "amp": 0.55,
+      "phase": 7,
+      "amp": 0.13,
       "track": [
         {
-          "rmm1": 0.535,
-          "rmm2": 0.326,
-          "amp": 0.63
+          "rmm1": 2.65,
+          "rmm2": -0.302,
+          "amp": 2.67
         },
         {
-          "rmm1": 0.425,
-          "rmm2": 0.419,
-          "amp": 0.6
+          "rmm1": 2.729,
+          "rmm2": -0.003,
+          "amp": 2.73
         },
         {
-          "rmm1": 0.283,
-          "rmm2": 0.547,
-          "amp": 0.62
+          "rmm1": 2.981,
+          "rmm2": 0.26,
+          "amp": 2.99
         },
         {
-          "rmm1": 0.095,
-          "rmm2": 0.669,
-          "amp": 0.68
+          "rmm1": 2.824,
+          "rmm2": 0.538,
+          "amp": 2.88
         },
         {
-          "rmm1": -0.068,
-          "rmm2": 0.731,
-          "amp": 0.73
+          "rmm1": 2.633,
+          "rmm2": 1.059,
+          "amp": 2.84
         },
         {
-          "rmm1": -0.259,
-          "rmm2": 0.774,
-          "amp": 0.82
+          "rmm1": 2.359,
+          "rmm2": 1.538,
+          "amp": 2.82
         },
         {
-          "rmm1": -0.455,
-          "rmm2": 0.855,
-          "amp": 0.97
+          "rmm1": 2.137,
+          "rmm2": 1.667,
+          "amp": 2.71
         },
         {
-          "rmm1": -0.563,
-          "rmm2": 0.931,
-          "amp": 1.09
+          "rmm1": 1.853,
+          "rmm2": 1.804,
+          "amp": 2.59
         },
         {
-          "rmm1": -0.635,
-          "rmm2": 1.027,
-          "amp": 1.21
+          "rmm1": 1.271,
+          "rmm2": 1.981,
+          "amp": 2.35
         },
         {
-          "rmm1": -0.754,
+          "rmm1": 0.758,
+          "rmm2": 2.266,
+          "amp": 2.39
+        },
+        {
+          "rmm1": 0.478,
+          "rmm2": 2.376,
+          "amp": 2.42
+        },
+        {
+          "rmm1": 0.276,
+          "rmm2": 2.506,
+          "amp": 2.52
+        },
+        {
+          "rmm1": -0.1,
+          "rmm2": 2.391,
+          "amp": 2.39
+        },
+        {
+          "rmm1": -0.286,
+          "rmm2": 2.152,
+          "amp": 2.17
+        },
+        {
+          "rmm1": -0.384,
+          "rmm2": 2.197,
+          "amp": 2.23
+        },
+        {
+          "rmm1": -0.315,
+          "rmm2": 2.091,
+          "amp": 2.11
+        },
+        {
+          "rmm1": -0.247,
+          "rmm2": 2.034,
+          "amp": 2.05
+        },
+        {
+          "rmm1": -0.611,
+          "rmm2": 1.867,
+          "amp": 1.96
+        },
+        {
+          "rmm1": -0.848,
+          "rmm2": 1.761,
+          "amp": 1.95
+        },
+        {
+          "rmm1": -0.797,
+          "rmm2": 1.935,
+          "amp": 2.09
+        },
+        {
+          "rmm1": -0.513,
+          "rmm2": 2.016,
+          "amp": 2.08
+        },
+        {
+          "rmm1": -0.038,
+          "rmm2": 2.27,
+          "amp": 2.27
+        },
+        {
+          "rmm1": 0.138,
+          "rmm2": 2.216,
+          "amp": 2.22
+        },
+        {
+          "rmm1": 0.076,
+          "rmm2": 1.759,
+          "amp": 1.76
+        },
+        {
+          "rmm1": -0.709,
+          "rmm2": 1.513,
+          "amp": 1.67
+        },
+        {
+          "rmm1": -0.979,
+          "rmm2": 1.695,
+          "amp": 1.96
+        },
+        {
+          "rmm1": -0.882,
+          "rmm2": 1.673,
+          "amp": 1.89
+        },
+        {
+          "rmm1": -1.06,
+          "rmm2": 1.527,
+          "amp": 1.86
+        },
+        {
+          "rmm1": -0.957,
+          "rmm2": 1.556,
+          "amp": 1.83
+        },
+        {
+          "rmm1": -0.823,
+          "rmm2": 1.812,
+          "amp": 1.99
+        },
+        {
+          "rmm1": -0.692,
+          "rmm2": 1.531,
+          "amp": 1.68
+        },
+        {
+          "rmm1": -0.692,
           "rmm2": 1.075,
-          "amp": 1.31
-        },
-        {
-          "rmm1": -0.757,
-          "rmm2": 1.055,
-          "amp": 1.3
-        },
-        {
-          "rmm1": -0.757,
-          "rmm2": 1.039,
           "amp": 1.28
         },
         {
-          "rmm1": -0.794,
-          "rmm2": 0.92,
-          "amp": 1.22
+          "rmm1": -0.564,
+          "rmm2": 0.893,
+          "amp": 1.06
         },
         {
-          "rmm1": -0.875,
-          "rmm2": 0.791,
-          "amp": 1.18
-        },
-        {
-          "rmm1": -0.874,
-          "rmm2": 0.618,
-          "amp": 1.07
-        },
-        {
-          "rmm1": -0.846,
-          "rmm2": 0.44,
-          "amp": 0.95
-        },
-        {
-          "rmm1": -0.804,
-          "rmm2": 0.23,
-          "amp": 0.84
-        },
-        {
-          "rmm1": -0.769,
-          "rmm2": 0.067,
-          "amp": 0.77
-        },
-        {
-          "rmm1": -0.651,
-          "rmm2": 0.007,
-          "amp": 0.65
-        },
-        {
-          "rmm1": -0.546,
-          "rmm2": 0.033,
-          "amp": 0.55
-        },
-        {
-          "rmm1": -0.45,
-          "rmm2": 0.049,
-          "amp": 0.45
-        },
-        {
-          "rmm1": -0.336,
-          "rmm2": 0.101,
-          "amp": 0.35
-        },
-        {
-          "rmm1": -0.189,
-          "rmm2": 0.142,
-          "amp": 0.24
-        },
-        {
-          "rmm1": -0.063,
-          "rmm2": 0.213,
-          "amp": 0.22
-        },
-        {
-          "rmm1": 0.046,
-          "rmm2": 0.285,
-          "amp": 0.29
-        },
-        {
-          "rmm1": 0.082,
-          "rmm2": 0.327,
-          "amp": 0.34
-        },
-        {
-          "rmm1": 0.075,
-          "rmm2": 0.266,
-          "amp": 0.28
-        },
-        {
-          "rmm1": 0.004,
-          "rmm2": 0.117,
-          "amp": 0.12
-        },
-        {
-          "rmm1": -0.076,
-          "rmm2": -0.06,
-          "amp": 0.1
-        },
-        {
-          "rmm1": -0.169,
-          "rmm2": -0.285,
-          "amp": 0.33
-        },
-        {
-          "rmm1": -0.205,
-          "rmm2": -0.496,
-          "amp": 0.54
-        },
-        {
-          "rmm1": -0.233,
-          "rmm2": -0.669,
-          "amp": 0.71
-        },
-        {
-          "rmm1": -0.237,
-          "rmm2": -0.769,
-          "amp": 0.8
-        },
-        {
-          "rmm1": -0.238,
-          "rmm2": -0.881,
-          "amp": 0.91
-        },
-        {
-          "rmm1": -0.214,
-          "rmm2": -0.916,
-          "amp": 0.94
-        },
-        {
-          "rmm1": -0.214,
-          "rmm2": -0.882,
-          "amp": 0.91
-        },
-        {
-          "rmm1": -0.199,
-          "rmm2": -0.895,
-          "amp": 0.92
-        },
-        {
-          "rmm1": -0.15,
-          "rmm2": -0.853,
+          "rmm1": -0.513,
+          "rmm2": 0.702,
           "amp": 0.87
         },
         {
-          "rmm1": -0.027,
-          "rmm2": -0.724,
-          "amp": 0.72
+          "rmm1": -0.614,
+          "rmm2": 0.524,
+          "amp": 0.81
         },
         {
-          "rmm1": 0.085,
-          "rmm2": -0.544,
-          "amp": 0.55
+          "rmm1": -0.306,
+          "rmm2": 0.305,
+          "amp": 0.43
+        },
+        {
+          "rmm1": 0.103,
+          "rmm2": 0.072,
+          "amp": 0.13
+        },
+        {
+          "rmm1": 0.236,
+          "rmm2": 0.249,
+          "amp": 0.34
+        },
+        {
+          "rmm1": 0.202,
+          "rmm2": 0.325,
+          "amp": 0.38
+        },
+        {
+          "rmm1": -0.003,
+          "rmm2": 0.128,
+          "amp": 0.13
         }
       ],
-      "src": "NOAA PSL ROMI (OLR-based, RMM-equivalent per Kiladis 2014) · 2026-08-08",
-      "asOf": "2026-08-08"
+      "src": "Australia BoM RMM · fallback NOAA CPC"
     },
     {
       "key": "flavor",
-      "h": "ENSO — Flavor",
-      "name": "Niño region pattern (EP vs CP)",
       "value": "Niño4 +1.2 · N1+2 +2.8",
       "cls": "s-dry",
       "status": "Eastern-Pacific El Niño",
-      "interp": "Where the warm water sits across the Niño regions: an Eastern-Pacific type is milder for us; a Central-Pacific (Modoki) type pushes drought toward the Maritime Continent.",
       "gauge": 62,
       "gcol": "var(--dry)",
       "nreg": {
@@ -380,19 +357,16 @@
         "n4": 1.22,
         "n34": 1.44
       },
-      "src": "NOAA CPC ERSSTv5 monthly Niño regions · Jun 2026"
+      "src": "NOAA CPC ERSSTv5 Niño regions"
     },
     {
       "key": "hc",
-      "h": "ENSO — Subsurface",
-      "name": "Warm Water Volume (heat content)",
       "value": "+3.0",
       "cls": "s-dry",
       "status": "Strongly recharged · El Niño-favourable",
-      "interp": "Upper-ocean heat piled up in the equatorial Pacific — a leading indicator that runs weeks to months ahead of the surface. Recharged = El Niño-favourable.",
       "gauge": 100,
       "gcol": "var(--dry)",
-      "src": "NOAA PMEL TAO — warm water volume (wwv.dat) · ×10^14 m³",
+      "src": "NOAA PMEL / GODAS (WWV)",
       "hist": [
         -0.46,
         -0.49,
@@ -410,15 +384,12 @@
     },
     {
       "key": "wind",
-      "h": "ENSO — Trade Winds",
-      "name": "850 hPa zonal wind, W Pacific",
       "value": "-2.0σ",
       "cls": "s-wet",
       "status": "Easterly anomaly · La Niña-coupled",
-      "interp": "Weakened trade winds (westerly anomaly) over the western Pacific — the trigger and coupling signature of El Niño.",
       "gauge": 10,
       "gcol": "var(--wet)",
-      "src": "NOAA CPC 850 hPa zonal wind, W Pacific (wpac850) · standardised",
+      "src": "NOAA CPC 850 hPa index",
       "hist": [
         0.9,
         1,
@@ -436,15 +407,12 @@
     },
     {
       "key": "olr",
-      "h": "ENSO — Convection",
-      "name": "OLR at the dateline (160°E–160°W)",
       "value": "-1.2σ",
       "cls": "s-dry",
       "status": "Enhanced convection at dateline · El Niño-coupled",
-      "interp": "Thunderstorm activity shifted east to the dateline — the atmosphere responding to El Niño, and the mechanism that dries the Maritime Continent.",
       "gauge": 74,
       "gcol": "var(--dry)",
-      "src": "NOAA CPC OLR at the dateline (olr) · standardised",
+      "src": "NOAA CPC OLR index",
       "hist": [
         0.8,
         0.8,
@@ -489,118 +457,90 @@
   ],
   "nino34history": {
     "labels": [
-      "20MAY",
-      "27MAY",
-      "03JUN",
-      "10JUN",
-      "17JUN",
-      "24JUN",
-      "01JUL",
-      "08JUL",
-      "15JUL",
-      "22JUL",
-      "29JUL",
-      "05AUG"
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun*"
     ],
     "values": [
-      0.9,
+      -0.1,
+      -0.3,
+      -0.4,
+      -0.4,
+      -0.6,
+      -0.6,
+      -0.4,
+      -0.1,
+      0.1,
+      0.4,
       1,
-      1.3,
-      1.5,
-      1.7,
-      1.8,
-      1.7,
-      2,
-      2.1,
-      2.2,
-      2.3,
-      2.6
-    ],
-    "basis": "weekly"
+      1.5
+    ]
   },
   "sources": [
     [
       "Niño 3.4 / ONI",
       "NOAA CPC",
       "NOAA PSL · BoM",
-      "live",
-      "just now"
+      "stale",
+      "seed — pipeline has not run"
     ],
     [
       "ENSO flavor (EP/CP)",
       "NOAA CPC ERSSTv5",
       "OISST Niño regions",
-      "live",
-      "just now"
+      "stale",
+      "seed — pipeline has not run"
     ],
     [
       "Heat content (WWV)",
       "NOAA PMEL / GODAS",
       "T300",
-      "live",
-      "just now"
+      "stale",
+      "seed — pipeline has not run"
     ],
     [
       "SOI",
       "Australia BoM",
       "NOAA CPC",
-      "live",
-      "just now"
+      "stale",
+      "seed — pipeline has not run"
     ],
     [
       "Trade winds (850 hPa)",
       "NOAA CPC",
       "CDAS reanalysis",
-      "live",
-      "just now"
+      "stale",
+      "seed — pipeline has not run"
     ],
     [
       "OLR (dateline)",
       "NOAA CPC",
       "NOAA PSL",
-      "live",
-      "just now"
+      "stale",
+      "seed — pipeline has not run"
     ],
     [
       "DMI (IOD)",
       "JAMSTEC SINTEX-F",
       "JMA TCC · NOAA PSL",
-      "live",
-      "just now"
+      "stale",
+      "seed — pipeline has not run"
     ],
     [
       "MJO (RMM)",
       "NOAA PSL ROMI",
       "Australia BoM RMM",
-      "live",
-      "just now"
-    ]
-  ],
-  "rules": [
-    [
-      "El Niño (ONI ≥ +0.5) + SW monsoon",
-      "→ HIGH drought & haze risk",
-      "ACTIVE"
-    ],
-    [
-      "El Niño + positive IOD (DMI ≥ +0.4)",
-      "→ Escalate dry risk one level",
-      "ARMED (IOD neutral)"
-    ],
-    [
-      "La Niña (ONI ≤ −0.5) + NE monsoon",
-      "→ HIGH flood risk, east coast/Borneo",
-      "inactive"
-    ],
-    [
-      "MJO active phase 4–5",
-      "→ Short-term wet pulse overrides seasonal dry",
-      "inactive (Ph 6–7)"
-    ],
-    [
-      "Any source stale > 48 h",
-      "→ Fall back + flag on source panel",
-      "no flags"
+      "stale",
+      "seed — pipeline has not run"
     ]
   ]
 }

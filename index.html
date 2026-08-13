@@ -1169,17 +1169,50 @@ async function loadImpact(lat,lon,city){
       '<div class="advice">'+hb.a+' '+(maxUV>=6?uvBand(maxUV).a:ub.a)+'</div>';
   }catch(e){ document.getElementById('heatCard').innerHTML='<h3>'+L('高温与紫外线','Heat & UV')+'</h3><div class="advice" style="border:0;padding:0">'+unav+'</div>'; }
 }
+// VIIRS passes daily, so fires.json should never be more than a couple of days
+// behind. Past this the workflow has stopped and the counts describe history.
+const FIRE_MAX_AGE_H = 48;
+
 async function loadFires(){
   const title=L('火点 · 烟霾来源','Fire hotspots · haze source');
   try{
-    const f=await (await fetch('impact/fires.json?t='+Date.now(),{cache:'no-store'})).json(); const r=hazeRisk(f.total);
-    const rows=(f.regions||[]).map(x=>{const nm=LANG==='zh'?(FIRE_ZH[x.name]||x.name):x.name; return '<span>'+nm+' <b>'+(x.count==null?'—':x.count)+'</b></span>';}).join('');
-    const note=(f.total==null)?L('火点数据尚未配置——请添加 NASA FIRMS 密钥（见 README）。',(f.note||'Fire data not configured yet — add a NASA FIRMS key (see README).'))
-                              :L('NASA FIRMS VIIRS · 近'+(f.day_range||1)+'日 · 苏门答腊/加里曼丹为上风向来源。','NASA FIRMS VIIRS · last '+(f.day_range||1)+'d · Sumatra/Kalimantan are the upwind sources.');
+    const f=await (await fetch('impact/fires.json?t='+Date.now(),{cache:'no-store'})).json();
+    // fetch-fires.js already marks per-region `stale`, sets `partial`, writes a
+    // `note` explaining what fell back, and stamps `generated`. None of it was
+    // read here: a kept-last-good count rendered exactly like a fresh one, and
+    // was summed into the total that drives the haze badge. Use those flags.
+    const ageH=f.generated?((Date.now()-Date.parse(f.generated))/3.6e6):null;
+    const fileStale=(ageH!=null&&isFinite(ageH))?(ageH>FIRE_MAX_AGE_H):false;
+    const anyRegionStale=(f.regions||[]).some(x=>x&&x.stale);
+    const trusted = !fileStale && !anyRegionStale && !f.partial;
+    // The badge is a risk call, so it only stands on counts we can vouch for.
+    // Otherwise show the numbers (still useful) without the verdict.
+    const r=trusted?hazeRisk(f.total):null;
+    const rows=(f.regions||[]).map(x=>{
+      const nm=LANG==='zh'?(FIRE_ZH[x.name]||x.name):x.name;
+      const mark=x.stale?'<span class="stalechip" title="'+L('该区上次抓取失败，沿用上一次的数值','this region failed to refresh — showing the last good count')+'">⚠</span>':'';
+      return '<span>'+nm+' <b>'+(x.count==null?'—':x.count)+'</b>'+mark+'</span>';
+    }).join('');
+    const ageTxt=(ageH==null||!isFinite(ageH))?'':(ageH<1?L('刚刚更新','updated just now')
+      :L('数据更新于 '+Math.round(ageH)+' 小时前','updated '+Math.round(ageH)+'h ago'));
+    let note;
+    if(f.total==null){
+      note=L('火点数据尚未配置——请添加 NASA FIRMS 密钥（见 README）。',(f.note||'Fire data not configured yet — add a NASA FIRMS key (see README).'));
+    } else if(fileStale){
+      note='⚠ '+L('火点数据已停更（'+Math.round(ageH)+' 小时前），下列数字属于过去，不代表现在——暂不给出烟霾风险判断。',
+                  'Fire data has stopped updating ('+Math.round(ageH)+'h ago). The counts below describe the past, not now — no haze-risk verdict is shown.');
+    } else if(anyRegionStale||f.partial){
+      note='⚠ '+L('部分地区本次未能刷新（标 ⚠ 者沿用上一次数值），总数不完整——暂不给出烟霾风险判断。',
+                  'Some regions did not refresh this run (marked ⚠ keep their last good count), so the total is incomplete — no haze-risk verdict is shown.')
+           +(f.note?'<br><span style="opacity:.75">'+f.note+'</span>':'');
+    } else {
+      note=L('NASA FIRMS VIIRS · 近'+(f.day_range||1)+'日 · 苏门答腊/加里曼丹为上风向来源。','NASA FIRMS VIIRS · last '+(f.day_range||1)+'d · Sumatra/Kalimantan are the upwind sources.')
+           +(ageTxt?' · '+ageTxt:'');
+    }
     document.getElementById('fireCard').innerHTML=
       '<h3>'+title+'</h3>'+
-      '<div class="big">'+(f.total==null?'—':f.total)+'<span style="font-size:13px;color:var(--muted)"> '+L('个火点','hotspots')+'</span></div>'+
-      '<span class="status '+r.c+'">'+L('烟霾风险：','Haze risk: ')+r.l+'</span>'+
+      '<div class="big"'+(trusted?'':' style="opacity:.6"')+'>'+(f.total==null?'—':f.total)+'<span style="font-size:13px;color:var(--muted)"> '+L('个火点','hotspots')+'</span>'+(trusted?'':staleChip())+'</div>'+
+      (r?'<span class="status '+r.c+'">'+L('烟霾风险：','Haze risk: ')+r.l+'</span>':'')+
       '<div class="subrow">'+rows+'</div>'+
       '<div class="advice">'+note+'</div>';
   }catch(e){ document.getElementById('fireCard').innerHTML='<h3>'+title+'</h3><div class="advice" style="border:0;padding:0">'+L('火点数据暂不可用。','Fire data not available yet.')+'</div>'; }
