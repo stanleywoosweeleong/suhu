@@ -1,5 +1,5 @@
 {
-  "generated": "2026-08-13T02:30:38.601Z",
+  "generated": "2026-08-13T07:44:03.317Z",
   "snapshotDate": "13 August 2026",
   "note": "Seed only. Overwritten by fetch-data.js on each scheduled run. Values here are a past snapshot, so every source ships flagged 'stale' — the app shows a stale chip until the pipeline has actually run.",
   "banner": {
