@@ -222,6 +222,35 @@ function weekTs(d) {
   return Date.UTC(+m[3], mon, +m[1]);
 }
 
+// Parse a BoM/CPC prose date ("9 August 2026", or "17 September" with the year
+// omitted) into a timestamp. Year-less dates that would land in the future are
+// rolled back a year, so an old date can never read as fresh.
+const PROSE_MON = { january:0,february:1,march:2,april:3,may:4,june:5,july:6,
+                    august:7,september:8,october:9,november:10,december:11 };
+function proseDateTs(str) {
+  if (!str) return 0;
+  const m = /(\d{1,2})\s+([A-Za-z]+)(?:\s+(\d{4}))?/.exec(String(str));
+  if (!m) return 0;
+  const mon = PROSE_MON[m[2].toLowerCase()];
+  if (mon === undefined) return 0;
+  const now = new Date();
+  const year = m[3] ? +m[3] : now.getUTCFullYear();
+  let ts = Date.UTC(year, mon, +m[1]);
+  if (!m[3] && ts > now.getTime()) ts = Date.UTC(year - 1, mon, +m[1]);
+  return ts;
+}
+function ageDays(ts) { return ts > 0 ? Math.round((Date.now() - ts) / 86400000) : Infinity; }
+
+// Maximum age before a feed stops being "current". A fetch that SUCCEEDS but
+// returns data older than this is treated as a failure: runDriver keeps the
+// previous value and flags the source, so the card shows a ⚠ stale chip instead
+// of quietly presenting an old number as today's.
+const MAX_AGE_DAYS = {
+  iodWeekly:  21,   // BoM publishes weekly
+  iodMonthly: 70,   // JAMSTEC/PSL monthly fallback
+  mjo:        10,   // BoM RMM is daily — an old phase is worse than none
+};
+
 // CPC WEEKLY file (wksst9120.for). Region order in the file is
 //   Nino1+2, Nino3, Nino3.4, Nino4  -- verified against the CPC header.
 // Each region is "SST SSTA", so with 8 numbers the anomalies sit at odd indices.
@@ -392,17 +421,28 @@ const DMI_SOURCES = [
 async function fetchDMI() {
   // PRIMARY: BoM WEEKLY IOD — the regionally-authoritative, most-current reading, and
   // the value the "+0.4 positive IOD" drought-escalation rule keys on. BoM publishes no
-  // clean machine-readable IOD feed, so it is scraped from bom.gov.au/climate/iod/ by the
+  // clean machine-readable IOD feed, so it is scraped from bom.gov.au/climate/enso/ by the
   // user's own Cloudflare Worker, which returns {ok,value,asOf}. If the Worker or the
   // scrape is unavailable, we fall back to the monthly JAMSTEC -> NOAA PSL chain below.
+  //
+  // AGE GATE: a successful scrape is not the same as a current value. BoM can
+  // freeze the page, and the drought-escalation rule (DMI >= +0.4) keys on this
+  // number — so an unchecked stale IOD would keep escalating dry advice on its
+  // own. Past MAX_AGE_DAYS.iodWeekly we abandon the BoM branch and drop to the
+  // monthly chain rather than trust it.
   try {
     const o = JSON.parse(await getText('https://enso-proxy.standphoto.workers.dev/?feed=iod'));
-    if (o && o.ok === true && typeof o.value === 'number' && Math.abs(o.value) < 5) {
+    const iodAge = o && o.asOf ? ageDays(proseDateTs(o.asOf)) : Infinity;
+    if (o && o.ok === true && o.asOf && iodAge > MAX_AGE_DAYS.iodWeekly) {
+      console.warn('WARN BoM weekly IOD is ' + iodAge + 'd old (asOf ' + o.asOf + ') — ignoring, trying monthly chain');
+    } else if (o && o.ok === true && !o.asOf) {
+      console.warn('WARN BoM weekly IOD carries no date — cannot age-check it, trying monthly chain');
+    } else if (o && o.ok === true && typeof o.value === 'number' && Math.abs(o.value) < 5) {
       const [status, cls, gcol, gauge] = classifyDMI(o.value);
       return { patch: {
         value: fmt(o.value, 2) + '°C', status, cls, gcol, gauge,
         src: 'Australia BoM — weekly IOD' + (o.asOf ? ' (' + o.asOf + ')' : ''),
-        asOf: o.asOf || null, hist: []   // BoM is a single weekly value — no monthly series
+        asOf: o.asOf, hist: []   // BoM is a single weekly value — no monthly series
       } };
     }
   } catch (e) { /* Worker/BoM scrape unavailable — fall through to the monthly chain */ }
@@ -415,6 +455,11 @@ async function fetchDMI() {
     } catch (e) { /* source down or unparsable — try the next one */ }
   }
   if (!best) throw new Error('all DMI sources failed');
+  // Same gate on the fallback: these are monthly files and do go quiet.
+  const mAge = ageDays(Date.UTC(best.year, best.month - 1, 15));
+  if (mAge > MAX_AGE_DAYS.iodMonthly) {
+    throw new Error('DMI chain stale: newest month ' + best.year + '-' + best.month + ' is ' + mAge + 'd old');
+  }
   const [status, cls, gcol, gauge] = classifyDMI(best.value);
   const src = 'DMI chain: JAMSTEC -> NOAA PSL (used ' + used + ')';
   return { patch: { value: fmt(best.value, 2) + '°C', status, cls, gcol, gauge, src, hist: lastN(monthlySeries(txtUsed, v => v <= -90 || v >= 90), 12) } };
@@ -424,7 +469,7 @@ async function fetchDMI() {
 // We also keep the last ~40 valid days (RMM1,RMM2,amp) as a "track" for the phase
 // wheel's trail — the same feed already carries the full daily history.
 async function fetchMJO() {
-  const txt = await getText('http://www.bom.gov.au/climate/mjo/graphics/rmm.74toRealtime.txt');
+  const txt = await getText('https://www.bom.gov.au/climate/mjo/graphics/rmm.74toRealtime.txt');
   const rows = txt.split(NL)
     .map(l => l.trim().split(/\s+/))
     .filter(r => r.length >= 7 && /^\d{4}$/.test(r[0]));
@@ -432,14 +477,22 @@ async function fetchMJO() {
   for (const r of rows) {
     const rmm1 = parseFloat(r[3]), rmm2 = parseFloat(r[4]);
     const p = parseInt(r[5], 10), a = parseFloat(r[6]);
+    // Columns 0-2 are year/month/day. We keep them now: MJO is DAILY, so a
+    // frozen feed is the one failure this card cannot survive silently.
+    const ts = Date.UTC(+r[0], +r[1] - 1, +r[2]);
     // 1e36 / 999 are BoM missing flags
-    if (Number.isFinite(a) && a < 90 && Number.isFinite(p) &&
+    if (Number.isFinite(a) && a < 90 && Number.isFinite(p) && Number.isFinite(ts) &&
         Math.abs(rmm1) < 90 && Math.abs(rmm2) < 90) {
-      valid.push({ rmm1: +rmm1.toFixed(3), rmm2: +rmm2.toFixed(3), amp: +a.toFixed(2), phase: p });
+      valid.push({ ts, rmm1: +rmm1.toFixed(3), rmm2: +rmm2.toFixed(3), amp: +a.toFixed(2), phase: p });
     }
   }
   if (!valid.length) throw new Error('no valid RMM row parsed');
+  valid.sort((a, b) => a.ts - b.ts);
   const last = valid[valid.length - 1];
+  const mAgeD = ageDays(last.ts);
+  if (mAgeD > MAX_AGE_DAYS.mjo) {
+    throw new Error('RMM feed stale: newest day ' + new Date(last.ts).toISOString().slice(0, 10) + ' is ' + mAgeD + 'd old');
+  }
   const track = valid.slice(-40).map(v => ({ rmm1: v.rmm1, rmm2: v.rmm2, amp: v.amp }));
   const [status, cls, gcol, gauge] = classifyMJO(last.phase, last.amp);
   return { patch: { value: 'Ph ' + last.phase + ' · ' + last.amp.toFixed(1), status, cls, gcol, gauge,
@@ -632,9 +685,18 @@ async function main() {
     const pv = h.values.length >= 2 ? h.values[h.values.length - 2] : a;
     const mg = Math.round((Math.abs(a) - Math.abs(pv)) * 10) / 10;
     const tr = mg >= 0.1 ? 'strengthening' : (mg <= -0.1 ? 'easing' : 'holding steady');
+    // The IOD escalation rule (DMI >= +0.4) must not fire off a flagged feed.
+    // If the DMI source did not refresh this run, feed the narrative a neutral
+    // 0 so the banner drops the IOD clause instead of compounding dry risk on
+    // a number we already know we could not confirm.
+    // setSource() matches source rows by prefix, so look the row up the same way.
+    const dmiRow = (data.sources || []).find(r => Array.isArray(r) && String(r[0]).startsWith('DMI'));
+    const dmiStale = dmiRow ? dmiRow[3] === 'stale' : false;
     const dmiCard = data.drivers.find(d => d.key === 'iod');
-    const dmi = dmiCard ? parseFloat(String(dmiCard.value).replace('−', '-')) : 0;
-    applyNarrative(data, a, Number.isFinite(dmi) ? dmi : 0, now.getUTCMonth() + 1, tr);
+    const dmiRaw = dmiCard ? parseFloat(String(dmiCard.value).replace('−', '-')) : 0;
+    const dmi = (dmiStale || !Number.isFinite(dmiRaw)) ? 0 : dmiRaw;
+    if (dmiStale) console.warn('NOTE DMI flagged stale — IOD escalation suppressed in narrative');
+    applyNarrative(data, a, dmi, now.getUTCMonth() + 1, tr);
   } catch (e) { console.error('narrative compute failed:', e.message); }
 
   fs.writeFileSync(OUT, JSON.stringify(data, null, 2));

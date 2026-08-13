@@ -1,6 +1,6 @@
 {
-  "generated": "2026-08-13T07:44:03.317Z",
-  "snapshotDate": "13 August 2026",
+  "generated": "2026-08-12T19:10:51.541Z",
+  "snapshotDate": "12 August 2026",
   "note": "Seed only. Overwritten by fetch-data.js on each scheduled run. Values here are a past snapshot, so every source ships flagged 'stale' — the app shows a stale chip until the pipeline has actually run.",
   "banner": {
     "tone": "warm",
@@ -31,29 +31,28 @@
       "key": "enso",
       "h": "ENSO — Ocean",
       "name": "Niño 3.4 SST anomaly",
-      "value": "+2.6°C",
+      "value": "+1.5°C",
       "cls": "s-hot",
-      "status": "Very strong El Niño (\"super\") · strengthening",
+      "status": "Strong El Niño · strengthening",
       "interp": "Weekly Niño 3.4 SST anomaly — the headline ENSO number, same figure CPC/BoM/IRI quote.",
-      "gauge": 95,
+      "gauge": 88,
       "gcol": "var(--hot)",
-      "src": "NOAA CPC weekly OISSTv2.1 (wksst9120.for) · 1991-2020 base · week centred 05AUG2026",
+      "src": "NOAA CPC weekly OISSTv2.1 (wksst9120.for) · 1991-2020 base",
       "hist": [
-        0.9,
+        -0.1,
+        -0.3,
+        -0.4,
+        -0.4,
+        -0.6,
+        -0.6,
+        -0.4,
+        -0.1,
+        0.1,
+        0.4,
         1,
-        1.3,
-        1.5,
-        1.7,
-        1.8,
-        1.7,
-        2,
-        2.1,
-        2.2,
-        2.3,
-        2.6
+        1.5
       ],
-      "basis": "weekly",
-      "asOf": "05AUG2026"
+      "basis": "weekly"
     },
     {
       "key": "oni",
@@ -379,7 +378,7 @@
         "n4": 1.22,
         "n34": 1.44
       },
-      "src": "NOAA CPC ERSSTv5 monthly Niño regions · Jun 2026"
+      "src": "NOAA CPC ERSSTv5 Niño regions"
     },
     {
       "key": "hc",
@@ -488,91 +487,90 @@
   ],
   "nino34history": {
     "labels": [
-      "20MAY",
-      "27MAY",
-      "03JUN",
-      "10JUN",
-      "17JUN",
-      "24JUN",
-      "01JUL",
-      "08JUL",
-      "15JUL",
-      "22JUL",
-      "29JUL",
-      "05AUG"
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun*"
     ],
     "values": [
-      0.9,
+      -0.1,
+      -0.3,
+      -0.4,
+      -0.4,
+      -0.6,
+      -0.6,
+      -0.4,
+      -0.1,
+      0.1,
+      0.4,
       1,
-      1.3,
-      1.5,
-      1.7,
-      1.8,
-      1.7,
-      2,
-      2.1,
-      2.2,
-      2.3,
-      2.6
-    ],
-    "basis": "weekly"
+      1.5
+    ]
   },
   "sources": [
     [
       "Niño 3.4 / ONI",
       "NOAA CPC",
       "NOAA PSL · BoM",
-      "live",
-      "just now"
+      "stale",
+      "seed — pipeline has not run"
     ],
     [
       "ENSO flavor (EP/CP)",
       "NOAA CPC ERSSTv5",
       "OISST Niño regions",
-      "live",
-      "just now"
+      "stale",
+      "seed — pipeline has not run"
     ],
     [
       "Heat content (WWV)",
       "NOAA PMEL / GODAS",
       "T300",
-      "live",
-      "just now"
+      "stale",
+      "seed — pipeline has not run"
     ],
     [
       "SOI",
       "Australia BoM",
       "NOAA CPC",
-      "live",
-      "just now"
+      "stale",
+      "seed — pipeline has not run"
     ],
     [
       "Trade winds (850 hPa)",
       "NOAA CPC",
       "CDAS reanalysis",
-      "live",
-      "just now"
+      "stale",
+      "seed — pipeline has not run"
     ],
     [
       "OLR (dateline)",
       "NOAA CPC",
       "NOAA PSL",
-      "live",
-      "just now"
+      "stale",
+      "seed — pipeline has not run"
     ],
     [
       "DMI (IOD)",
       "JAMSTEC SINTEX-F",
       "JMA TCC · NOAA PSL",
-      "live",
-      "just now"
+      "stale",
+      "seed — pipeline has not run"
     ],
     [
       "MJO (RMM)",
       "Australia BoM",
       "NOAA CPC",
-      "live",
-      "just now"
+      "stale",
+      "seed — pipeline has not run"
     ]
   ],
   "rules": [
