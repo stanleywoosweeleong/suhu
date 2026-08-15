@@ -44,6 +44,17 @@ function latestMonthly(text, isMissing) {
   const lines = text.replace(/<[^>]+>/g, ' ').split(NL);
   let best = null; // { year, month, value }
   for (const line of lines) {
+    // PSL's newer files are CSV: "YYYY-MM-01,   value". The whitespace-split
+    // path below cannot read those, so handle the row shape first.
+    const csv = line.trim().match(/^(\d{4})-(\d{2})-\d{2}\s*,\s*(-?\d+(?:\.\d+)?)/);
+    if (csv) {
+      const v = parseFloat(csv[3]);
+      if (Number.isFinite(v) && !isMissing(v)) {
+        const y = +csv[1], mo = +csv[2];
+        if (!best || y > best.year || (y === best.year && mo > best.month)) best = { year: y, month: mo, value: v };
+      }
+      continue;
+    }
     const toks = line.trim().split(/\s+/).map(Number);
     if (toks.length < 2) continue;
     const year = toks[0];
@@ -66,6 +77,12 @@ const lastN = (arr, n) => (arr || []).slice(-n).map(v => Math.round(v * 100) / 1
 function monthlySeries(text, isMissing) {
   const out = [];
   for (const line of text.replace(/<[^>]+>/g, ' ').split(NL)) {
+    const csv = line.trim().match(/^(\d{4})-(\d{2})-\d{2}\s*,\s*(-?\d+(?:\.\d+)?)/);
+    if (csv) {
+      const v = parseFloat(csv[3]);
+      if (Number.isFinite(v) && !isMissing(v)) out.push({ year: +csv[1], m: +csv[2], v });
+      continue;
+    }
     const toks = line.trim().split(/\s+/).map(Number);
     if (toks.length < 2) continue;
     const year = toks[0];
@@ -247,7 +264,16 @@ function ageDays(ts) { return ts > 0 ? Math.round((Date.now() - ts) / 86400000) 
 // of quietly presenting an old number as today's.
 const MAX_AGE_DAYS = {
   iodWeekly:  21,   // BoM publishes weekly
-  iodMonthly: 70,   // JAMSTEC/PSL monthly fallback
+  // PSL's monthly DMI is HadISST-derived and normally runs TWO TO THREE months
+  // behind: on 15 Aug 2026 its newest real month was 2026-05, i.e. 92 days old.
+  // The old 70-day gate therefore rejected the feed during normal operation,
+  // not just when it died. Split into two thresholds:
+  //   iodMonthly       -- past this the source is presumed DEAD; throw.
+  //   iodMonthlyAdvice -- past this the value is still shown (labelled with its
+  //                       month) but is not allowed to drive the drought
+  //                       escalation in the narrative banner.
+  iodMonthly: 110,
+  iodMonthlyAdvice: 75,
   mjo:        10,   // BoM RMM is daily — an old phase is worse than none
 };
 
@@ -416,9 +442,25 @@ async function fetchSOI() {
 // next source automatically. Both indices are HadISST-based, so values match.
 // To force JAMSTEC's new portal, point the first url at its VirtualEarth
 // CSV/JSON export once you have that endpoint.
+// Monthly DMI fallback chain, tried in order. Verified 15 Aug 2026:
+//
+//   JAMSTEC dmi.monthly.txt is REMOVED from this list. It still answers HTTP
+//   200, but the body is now only a notice pointing at "APL VirtualEarth" with
+//   no data in it at all. latestMonthly() returned null and the chain fell
+//   through correctly, so nothing broke -- but the source had been silently
+//   contributing nothing, which is exactly the failure shape we keep hunting.
+//   If it is ever restored, put it back ABOVE the PSL entries.
+//
+//   PSL is retiring the /gcos_wgsp/Timeseries/ paths ("being taken down", per
+//   their own pages). The live location is /data/timeseries/month/data/, so
+//   that goes first and the old path stays as a transition fallback.
+//
+//   The .csv and .data files carry the same series in different shapes;
+//   latestMonthly() reads both.
 const DMI_SOURCES = [
-  { name: 'JAMSTEC', url: 'https://www.jamstec.go.jp/aplinfo/sintexf/DATA/dmi.monthly.txt' },
-  { name: 'NOAA PSL', url: 'https://psl.noaa.gov/gcos_wgsp/Timeseries/Data/dmi.had.long.data' }
+  { name: 'NOAA PSL (monthly)',    url: 'https://psl.noaa.gov/data/timeseries/month/data/dmi.had.long.csv' },
+  { name: 'NOAA PSL (monthly alt)',url: 'https://psl.noaa.gov/data/timeseries/month/data/dmi.had.long.data' },
+  { name: 'NOAA PSL (gcos, retiring)', url: 'https://psl.noaa.gov/gcos_wgsp/Timeseries/Data/dmi.had.long.data' }
 ];
 async function fetchDMI() {
   // PRIMARY: BoM WEEKLY IOD — the regionally-authoritative, most-current reading, and
@@ -444,7 +486,8 @@ async function fetchDMI() {
       return { patch: {
         value: fmt(o.value, 2) + '°C', status, cls, gcol, gauge,
         src: 'Australia BoM — weekly IOD' + (o.asOf ? ' (' + o.asOf + ')' : ''),
-        asOf: o.asOf, hist: []   // BoM is a single weekly value — no monthly series
+        asOf: o.asOf, adviceOk: true,   // already gated at iodWeekly above
+        hist: []   // BoM is a single weekly value — no monthly series
       } };
     }
   } catch (e) { /* Worker/BoM scrape unavailable — fall through to the monthly chain */ }
@@ -457,14 +500,25 @@ async function fetchDMI() {
     } catch (e) { /* source down or unparsable — try the next one */ }
   }
   if (!best) throw new Error('all DMI sources failed');
-  // Same gate on the fallback: these are monthly files and do go quiet.
+  // Same gate on the fallback, but calibrated to what a monthly source actually
+  // does. Past iodMonthly we presume it has died and throw; between
+  // iodMonthlyAdvice and iodMonthly the value is real but too far back to drive
+  // farm advice, so it is shown with its month and flagged adviceOk:false.
+  const ym = best.year + '-' + String(best.month).padStart(2, '0');
   const mAge = ageDays(Date.UTC(best.year, best.month - 1, 15));
   if (mAge > MAX_AGE_DAYS.iodMonthly) {
-    throw new Error('DMI chain stale: newest month ' + best.year + '-' + best.month + ' is ' + mAge + 'd old');
+    throw new Error('DMI chain stale: newest month ' + ym + ' is ' + mAge + 'd old (limit ' + MAX_AGE_DAYS.iodMonthly + 'd)');
+  }
+  const adviceOk = mAge <= MAX_AGE_DAYS.iodMonthlyAdvice;
+  if (!adviceOk) {
+    console.warn('WARN monthly DMI ' + ym + ' is ' + mAge + 'd old — shown for reference, IOD escalation suppressed');
   }
   const [status, cls, gcol, gauge] = classifyDMI(best.value);
-  const src = 'DMI chain: JAMSTEC -> NOAA PSL (used ' + used + ')';
-  return { patch: { value: fmt(best.value, 2) + '°C', status, cls, gcol, gauge, src, hist: lastN(monthlySeries(txtUsed, v => v <= -90 || v >= 90), 12) } };
+  // Stamp the MONTH into the src line. A monthly figure presented without one
+  // reads as "now", which is the whole mistake this chain exists to avoid.
+  const src = 'Monthly DMI ' + ym + ' — ' + used + (adviceOk ? '' : ' (older than usual)');
+  return { patch: { value: fmt(best.value, 2) + '°C', status, cls, gcol, gauge, src, adviceOk,
+                    hist: lastN(monthlySeries(txtUsed, v => v <= -90 || v >= 90), 12) } };
 }
 
 // MJO ------------------------------------------------------------------------
@@ -760,8 +814,14 @@ async function main() {
     const dmiStale = dmiRow ? dmiRow[3] === 'stale' : false;
     const dmiCard = data.drivers.find(d => d.key === 'iod');
     const dmiRaw = dmiCard ? parseFloat(String(dmiCard.value).replace('−', '-')) : 0;
-    const dmi = (dmiStale || !Number.isFinite(dmiRaw)) ? 0 : dmiRaw;
+    // Two ways the IOD clause must be dropped: the source did not refresh at
+    // all (stale), or it refreshed but returned a monthly value too far back to
+    // speak for right now (adviceOk === false). Either way feed the narrative a
+    // neutral 0 rather than let an unconfirmable number compound dry risk.
+    const dmiOld = dmiCard ? dmiCard.adviceOk === false : false;
+    const dmi = (dmiStale || dmiOld || !Number.isFinite(dmiRaw)) ? 0 : dmiRaw;
     if (dmiStale) console.warn('NOTE DMI flagged stale — IOD escalation suppressed in narrative');
+    if (dmiOld) console.warn('NOTE DMI value is an old monthly reading — IOD escalation suppressed in narrative');
     applyNarrative(data, a, dmi, now.getUTCMonth() + 1, tr);
   } catch (e) { console.error('narrative compute failed:', e.message); }
 
