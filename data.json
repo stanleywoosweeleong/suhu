@@ -1,12 +1,12 @@
 {
-  "generated": "2026-08-16T01:46:47.321Z",
+  "generated": "2026-08-16T06:51:03.869Z",
   "snapshotDate": "16 August 2026",
   "note": "Seed only. Overwritten by fetch-data.js on each scheduled run. Values here are a past snapshot, so every source ships flagged 'stale' — the app shows a stale chip until the pipeline has actually run. Card labels (name/heading/interpretation) live in DRV in index.html and the rules table is computed live by ruleRows(); neither is stored here, so neither can go stale.",
   "banner": {
     "tone": "warm",
     "tag": "National Climate-Driver Status · Southwest Monsoon",
     "title": "El Niño — Strengthening",
-    "desc": "El Niño is strengthening during Malaysia's drier season. Expect a warm, dry bias with elevated drought and transboundary-haze risk, compounded by a positive Indian Ocean Dipole.",
+    "desc": "El Niño is strengthening during Malaysia's drier season. Expect a warm, dry bias with elevated drought and transboundary-haze risk.",
     "pills": [
       [
         "hot",
@@ -19,10 +19,6 @@
       [
         "watch",
         "🔥 Haze watch"
-      ],
-      [
-        "dry",
-        "Positive IOD"
       ]
     ]
   },
@@ -123,15 +119,28 @@
     },
     {
       "key": "iod",
-      "value": "+0.41°C",
-      "cls": "s-dry",
-      "status": "Positive IOD · drier for SE Asia",
-      "gauge": 70.5,
-      "gcol": "var(--dry)",
-      "src": "Australia BoM — weekly IOD (9 August 2026)",
-      "hist": [],
+      "value": "+0.15°C",
+      "cls": "s-neu",
+      "status": "Neutral",
+      "gauge": 57.3,
+      "gcol": "var(--neutral)",
+      "src": "Monthly DMI 2026-05 — NOAA PSL (monthly) (older than usual)",
+      "hist": [
+        -0.01,
+        -0.07,
+        -0.42,
+        -0.47,
+        -0.45,
+        -0.26,
+        -0.02,
+        0.12,
+        0.53,
+        0.28,
+        0.28,
+        0.15
+      ],
       "asOf": "9 August 2026",
-      "adviceOk": true
+      "adviceOk": false
     },
     {
       "key": "mjo",
