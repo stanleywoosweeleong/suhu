@@ -263,7 +263,7 @@ function ageDays(ts) { return ts > 0 ? Math.round((Date.now() - ts) / 86400000) 
 // previous value and flags the source, so the card shows a ⚠ stale chip instead
 // of quietly presenting an old number as today's.
 const MAX_AGE_DAYS = {
-  iodWeekly:  21,   // BoM publishes weekly
+  iodWeekly:  21,   // our computed weekly DMI (was: BoM's weekly scrape)
   // PSL's monthly DMI is HadISST-derived and normally runs TWO TO THREE months
   // behind: on 15 Aug 2026 its newest real month was 2026-05, i.e. 92 days old.
   // The old 70-day gate therefore rejected the feed during normal operation,
@@ -462,35 +462,91 @@ const DMI_SOURCES = [
   { name: 'NOAA PSL (monthly alt)',url: 'https://psl.noaa.gov/data/timeseries/month/data/dmi.had.long.data' },
   { name: 'NOAA PSL (gcos, retiring)', url: 'https://psl.noaa.gov/gcos_wgsp/Timeseries/Data/dmi.had.long.data' }
 ];
-async function fetchDMI() {
-  // PRIMARY: BoM WEEKLY IOD — the regionally-authoritative, most-current reading, and
-  // the value the "+0.4 positive IOD" drought-escalation rule keys on. BoM publishes no
-  // clean machine-readable IOD feed, so it is scraped from bom.gov.au/climate/enso/ by the
-  // user's own Cloudflare Worker, which returns {ok,value,asOf}. If the Worker or the
-  // scrape is unavailable, we fall back to the monthly JAMSTEC -> NOAA PSL chain below.
-  //
-  // AGE GATE: a successful scrape is not the same as a current value. BoM can
-  // freeze the page, and the drought-escalation rule (DMI >= +0.4) keys on this
-  // number — so an unchecked stale IOD would keep escalating dry advice on its
-  // own. Past MAX_AGE_DAYS.iodWeekly we abandon the BoM branch and drop to the
-  // monthly chain rather than trust it.
-  try {
-    const o = JSON.parse(await getText('https://enso-proxy.standphoto.workers.dev/?feed=iod'));
-    const iodAge = o && o.asOf ? ageDays(proseDateTs(o.asOf)) : Infinity;
-    if (o && o.ok === true && o.asOf && iodAge > MAX_AGE_DAYS.iodWeekly) {
-      console.warn('WARN BoM weekly IOD is ' + iodAge + 'd old (asOf ' + o.asOf + ') — ignoring, trying monthly chain');
-    } else if (o && o.ok === true && !o.asOf) {
-      console.warn('WARN BoM weekly IOD carries no date — cannot age-check it, trying monthly chain');
-    } else if (o && o.ok === true && typeof o.value === 'number' && Math.abs(o.value) < 5) {
-      const [status, cls, gcol, gauge] = classifyDMI(o.value);
-      return { patch: {
-        value: fmt(o.value, 2) + '°C', status, cls, gcol, gauge,
-        src: 'Australia BoM — weekly IOD' + (o.asOf ? ' (' + o.asOf + ')' : ''),
-        asOf: o.asOf, adviceOk: true,   // already gated at iodWeekly above
-        hist: []   // BoM is a single weekly value — no monthly series
-      } };
+// Compute the Dipole Mode Index ourselves from NOAA OISST, at the same 0.25 deg
+// analysis the rest of the ocean data comes from:
+//
+//   DMI = mean SST anomaly 50-70E, 10S-10N   (west box)
+//       - mean SST anomaly 90-110E, 10S-0    (south-east box)      Saji & Yamagata 1999
+//
+// This replaces the BoM weekly scrape, which is gone for good. BoM blocks
+// datacentre address ranges outright: 403 to the Cloudflare Worker AND 403 to
+// this GitHub runner, with every combination of User-Agent and navigation
+// headers we tried. It is not a wording change we can chase -- there is no
+// request from CI that they will answer.
+//
+// The computed value is weekly and current, where the PSL monthly fallback
+// below runs two to three months behind. It will differ slightly from BoM's
+// published figure (different analysis, different baseline), so the card says
+// it is computed and the sign and the +/-0.4 crossings are what to read.
+const OISST_HOSTS = [
+  'https://coastwatch.pfeg.noaa.gov/erddap/griddap/',
+  'https://upwell.pfeg.noaa.gov/erddap/griddap/',
+];
+const OISST_SETS = ['ncdcOisst21NrtAgg', 'ncdcOisst21Agg'];
+const DMI_WEST = { latS: -10, latN: 10, lonW: 50,  lonE: 70  };
+const DMI_EAST = { latS: -10, latN:  0, lonW: 90,  lonE: 110 };
+
+function dmiBoxMean(rows, box) {
+  let sum = 0, n = 0;
+  for (const r of rows) {
+    if (r.lat < box.latS || r.lat > box.latN) continue;
+    if (r.lon < box.lonW || r.lon > box.lonE) continue;
+    sum += r.v; n++;
+  }
+  return n ? { mean: sum / n, cells: n } : null;
+}
+
+async function computeDMI() {
+  // One request spans both boxes. ERDDAP rate-limits, so keep it to one.
+  const q = 'anom[(last)][(0.0)][(-10):8:(10)][(50):8:(110)]';
+  for (const set of OISST_SETS) {
+    for (const host of OISST_HOSTS) {
+      try {
+        const csv = await getText(host + set + '.csv0?' + encodeURIComponent(q));
+        const rows = [];
+        let date = null;
+        for (const line of csv.split(/\r?\n/)) {
+          const c = line.split(',');
+          if (c.length < 5) continue;
+          if (!date) date = c[0].slice(0, 10);
+          const lat = +c[2], lon = +c[3], v = parseFloat(c[4]);
+          // -9.99 is the dataset fill value: land, not a cold anomaly.
+          if (!Number.isFinite(lat) || !Number.isFinite(lon) || !Number.isFinite(v) || v <= -9.98) continue;
+          rows.push({ lat, lon, v });
+        }
+        const w = dmiBoxMean(rows, DMI_WEST), e = dmiBoxMean(rows, DMI_EAST);
+        // Too few ocean cells means the query came back wrong, not that the
+        // Indian Ocean is small. Refuse rather than average over a handful.
+        if (!w || !e || w.cells < 20 || e.cells < 20) continue;
+        return { value: w.mean - e.mean, west: w.mean, east: e.mean,
+                 cells: w.cells + e.cells, date,
+                 source: set.indexOf('Nrt') > -1 ? 'nrt' : 'final',
+                 host: host.indexOf('upwell') > -1 ? 'upwell' : 'coastwatch' };
+      } catch (e) { /* try the next dataset/host */ }
     }
-  } catch (e) { /* Worker/BoM scrape unavailable — fall through to the monthly chain */ }
+  }
+  return null;
+}
+
+async function fetchDMI() {
+  // PRIMARY: our own weekly DMI from OISST. See computeDMI above for why the
+  // BoM scrape was removed rather than repaired.
+  try {
+    const d = await computeDMI();
+    if (d) {
+      const age = ageDays(Date.parse(d.date + 'T12:00:00Z'));
+      if (age <= MAX_AGE_DAYS.iodWeekly) {
+        const [status, cls, gcol, gauge] = classifyDMI(d.value);
+        return { patch: {
+          value: fmt(d.value, 2) + '\u00b0C', status, cls, gcol, gauge,
+          src: 'DMI computed from NOAA OISST \u2014 ' + d.date + ' (' + d.source + '/' + d.host + ')',
+          asOf: d.date, adviceOk: true, computed: true,
+          hist: []
+        } };
+      }
+      console.warn('WARN computed DMI ' + d.date + ' is ' + age + 'd old \u2014 trying the monthly chain');
+    }
+  } catch (e) { /* fall through to the monthly chain */ }
   let best, used, txtUsed;
   for (const s of DMI_SOURCES) {
     try {
