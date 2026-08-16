@@ -1,1 +1,551 @@
-{"generated":"2026-08-15T06:49:09.844Z","snapshotDate":"15 August 2026","note":"Seed only. Overwritten by fetch-data.js on each scheduled run. Values here are a past snapshot, so every source ships flagged 'stale' — the app shows a stale chip until the pipeline has actually run. Card labels (name/heading/interpretation) live in DRV in index.html and the rules table is computed live by ruleRows(); neither is stored here, so neither can go stale.","banner":{"tone":"warm","tag":"National Climate-Driver Status · Southwest Monsoon","title":"El Niño — Strengthening","desc":"El Niño is strengthening during Malaysia's drier season. Expect a warm, dry bias with elevated drought and transboundary-haze risk, compounded by a positive Indian Ocean Dipole.","pills":[["hot","Warm bias"],["dry","Drought risk"],["watch","🔥 Haze watch"],["dry","Positive IOD"]]},"drivers":[{"key":"enso","value":"+2.6°C","cls":"s-hot","status":"Very strong El Niño (\"super\") · strengthening","gauge":95,"gcol":"var(--hot)","src":"NOAA CPC weekly OISSTv2.1 (wksst9120.for) · 1991-2020 base · week centred 05AUG2026","hist":[0.9,1,1.3,1.5,1.7,1.8,1.7,2,2.1,2.2,2.3,2.6],"basis":"weekly","asOf":"05AUG2026"},{"key":"oni","value":"+1.39°C","cls":"s-hot","status":"Moderate El Niño","gauge":80,"gcol":"var(--hot)","src":"NOAA CPC ONI (oni.ascii.txt) · 3-month running mean","hist":[-0.11,-0.26,-0.43,-0.57,-0.61,-0.6,-0.39,-0.21,0.11,0.46,0.95,1.39]},{"key":"roni","value":"+0.98°C","cls":"s-dry","status":"Weak El Niño","gauge":65,"gcol":"var(--dry)","src":"NOAA CPC RONI (RONI.ascii.txt) · relative to tropical mean","hist":[-0.41,-0.59,-0.78,-0.93,-0.98,-1.04,-0.91,-0.76,-0.44,-0.04,0.49,0.98]},{"key":"soi","value":"-24.0","cls":"s-dry","status":"Strongly El Niño-coupled","gauge":88.4,"gcol":"var(--dry)","src":"NOAA CPC SOI ×10 (BoM fallback)","hist":[4,0,11,11,0,11,14,12,-6,-9,-14,-24]},{"key":"iod","value":"+0.41°C","cls":"s-dry","status":"Positive IOD · drier for SE Asia","gauge":70.5,"gcol":"var(--dry)","src":"Australia BoM — weekly IOD (9 August 2026)","hist":[],"asOf":"9 August 2026"},{"key":"mjo","value":"Ph 4 · 0.2","cls":"s-neu","status":"Weak · little MJO influence","gauge":7.65,"gcol":"var(--neutral)","phase":4,"amp":0.17,"track":[{"rmm1":0.283,"rmm2":0.547,"amp":0.62},{"rmm1":0.095,"rmm2":0.669,"amp":0.68},{"rmm1":-0.068,"rmm2":0.731,"amp":0.73},{"rmm1":-0.259,"rmm2":0.774,"amp":0.82},{"rmm1":-0.455,"rmm2":0.855,"amp":0.97},{"rmm1":-0.563,"rmm2":0.931,"amp":1.09},{"rmm1":-0.635,"rmm2":1.027,"amp":1.21},{"rmm1":-0.754,"rmm2":1.075,"amp":1.31},{"rmm1":-0.757,"rmm2":1.055,"amp":1.3},{"rmm1":-0.757,"rmm2":1.039,"amp":1.28},{"rmm1":-0.794,"rmm2":0.92,"amp":1.22},{"rmm1":-0.875,"rmm2":0.791,"amp":1.18},{"rmm1":-0.874,"rmm2":0.618,"amp":1.07},{"rmm1":-0.846,"rmm2":0.44,"amp":0.95},{"rmm1":-0.804,"rmm2":0.23,"amp":0.84},{"rmm1":-0.769,"rmm2":0.067,"amp":0.77},{"rmm1":-0.651,"rmm2":0.007,"amp":0.65},{"rmm1":-0.546,"rmm2":0.033,"amp":0.55},{"rmm1":-0.45,"rmm2":0.049,"amp":0.45},{"rmm1":-0.336,"rmm2":0.101,"amp":0.35},{"rmm1":-0.189,"rmm2":0.142,"amp":0.24},{"rmm1":-0.063,"rmm2":0.213,"amp":0.22},{"rmm1":0.046,"rmm2":0.285,"amp":0.29},{"rmm1":0.082,"rmm2":0.327,"amp":0.34},{"rmm1":0.075,"rmm2":0.266,"amp":0.28},{"rmm1":0.004,"rmm2":0.117,"amp":0.12},{"rmm1":-0.076,"rmm2":-0.06,"amp":0.1},{"rmm1":-0.169,"rmm2":-0.285,"amp":0.33},{"rmm1":-0.205,"rmm2":-0.496,"amp":0.54},{"rmm1":-0.233,"rmm2":-0.669,"amp":0.71},{"rmm1":-0.237,"rmm2":-0.769,"amp":0.8},{"rmm1":-0.238,"rmm2":-0.881,"amp":0.91},{"rmm1":-0.214,"rmm2":-0.916,"amp":0.94},{"rmm1":-0.214,"rmm2":-0.882,"amp":0.91},{"rmm1":-0.153,"rmm2":-0.786,"amp":0.8},{"rmm1":-0.092,"rmm2":-0.621,"amp":0.63},{"rmm1":0.007,"rmm2":-0.496,"amp":0.5},{"rmm1":0.092,"rmm2":-0.335,"amp":0.35},{"rmm1":0.159,"rmm2":-0.195,"amp":0.25},{"rmm1":0.157,"rmm2":-0.072,"amp":0.17}],"src":"NOAA PSL ROMI (OLR-based, RMM-equivalent per Kiladis 2014) · 2026-08-10","asOf":"2026-08-10"},{"key":"flavor","value":"Niño4 +1.2 · N1+2 +2.8","cls":"s-dry","status":"Eastern-Pacific El Niño","gauge":62,"gcol":"var(--dry)","nreg":{"n12":2.82,"n3":1.71,"n4":1.22,"n34":1.44},"src":"NOAA CPC ERSSTv5 monthly Niño regions · Jun 2026"},{"key":"hc","value":"+3.0","cls":"s-dry","status":"Strongly recharged · El Niño-favourable","gauge":100,"gcol":"var(--dry)","src":"NOAA PMEL TAO — warm water volume (wwv.dat) · ×10^14 m³","hist":[-0.46,-0.49,-0.26,-0.12,-0.16,0.2,1.02,1.49,1.87,2.84,2.7,3]},{"key":"wind","value":"-2.0σ","cls":"s-wet","status":"Easterly anomaly · La Niña-coupled","gauge":10,"gcol":"var(--wet)","src":"NOAA CPC 850 hPa zonal wind, W Pacific (wpac850) · standardised","hist":[0.9,1,1.6,0.7,1.2,-0.8,0.6,-1,-1.1,-0.3,-1.3,-2]},{"key":"olr","value":"-1.2σ","cls":"s-dry","status":"Enhanced convection at dateline · El Niño-coupled","gauge":74,"gcol":"var(--dry)","src":"NOAA CPC OLR at the dateline (olr) · standardised","hist":[0.8,0.8,0.8,0.5,1.1,0.5,1.2,0.4,0.3,-0.1,-1.1,-1.2]}],"regions":[{"rn":"Peninsula — West Coast","risk":"r-high","label":"High risk","p":"Driest & most haze-prone zone now. Heat + reduced rainfall; watch Klang Valley/Melaka air quality."},{"rn":"Peninsula — East Coast","risk":"r-mod","label":"Moderate","p":"Near-normal to drier; main flood season is Nov–Mar."},{"rn":"Sabah","risk":"r-mod","label":"Moderate","p":"Drier bias; agricultural water stress and localised fire risk possible."},{"rn":"Sarawak","risk":"r-high","label":"High risk","p":"Peatland fire & haze risk elevated under prolonged dry conditions; monitor hotspots."}],"nino34history":{"labels":["20MAY","27MAY","03JUN","10JUN","17JUN","24JUN","01JUL","08JUL","15JUL","22JUL","29JUL","05AUG"],"values":[0.9,1,1.3,1.5,1.7,1.8,1.7,2,2.1,2.2,2.3,2.6],"basis":"weekly"},"sources":[["Niño 3.4 / ONI","NOAA CPC","NOAA PSL · BoM","live","just now"],["ENSO flavor (EP/CP)","NOAA CPC ERSSTv5","OISST Niño regions","live","just now"],["Heat content (WWV)","NOAA PMEL / GODAS","T300","live","just now"],["SOI","Australia BoM","NOAA CPC","live","just now"],["Trade winds (850 hPa)","NOAA CPC","CDAS reanalysis","live","just now"],["OLR (dateline)","NOAA CPC","NOAA PSL","live","just now"],["DMI (IOD)","NOAA OISST (computed)","NOAA PSL monthly","stale","—"],["MJO (RMM)","NOAA PSL ROMI","Australia BoM RMM","live","just now"]]}
+{
+  "generated": "2026-08-16T21:40:12.715Z",
+  "snapshotDate": "16 August 2026",
+  "note": "Seed only. Overwritten by fetch-data.js on each scheduled run. Values here are a past snapshot, so every source ships flagged 'stale' — the app shows a stale chip until the pipeline has actually run. Card labels (name/heading/interpretation) live in DRV in index.html and the rules table is computed live by ruleRows(); neither is stored here, so neither can go stale.",
+  "banner": {
+    "tone": "warm",
+    "tag": "National Climate-Driver Status · Southwest Monsoon",
+    "title": "El Niño — Strengthening",
+    "desc": "El Niño is strengthening during Malaysia's drier season. Expect a warm, dry bias with elevated drought and transboundary-haze risk, compounded by a positive Indian Ocean Dipole.",
+    "pills": [
+      [
+        "hot",
+        "Warm bias"
+      ],
+      [
+        "dry",
+        "Drought risk"
+      ],
+      [
+        "watch",
+        "🔥 Haze watch"
+      ],
+      [
+        "dry",
+        "Positive IOD"
+      ]
+    ]
+  },
+  "drivers": [
+    {
+      "key": "enso",
+      "value": "+2.6°C",
+      "cls": "s-hot",
+      "status": "Very strong El Niño (\"super\") · strengthening",
+      "gauge": 95,
+      "gcol": "var(--hot)",
+      "src": "NOAA CPC weekly OISSTv2.1 (wksst9120.for) · 1991-2020 base · week centred 05AUG2026",
+      "hist": [
+        0.9,
+        1,
+        1.3,
+        1.5,
+        1.7,
+        1.8,
+        1.7,
+        2,
+        2.1,
+        2.2,
+        2.3,
+        2.6
+      ],
+      "basis": "weekly",
+      "asOf": "05AUG2026"
+    },
+    {
+      "key": "oni",
+      "value": "+1.39°C",
+      "cls": "s-hot",
+      "status": "Moderate El Niño",
+      "gauge": 80,
+      "gcol": "var(--hot)",
+      "src": "NOAA CPC ONI (oni.ascii.txt) · 3-month running mean",
+      "hist": [
+        -0.11,
+        -0.26,
+        -0.43,
+        -0.57,
+        -0.61,
+        -0.6,
+        -0.39,
+        -0.21,
+        0.11,
+        0.46,
+        0.95,
+        1.39
+      ]
+    },
+    {
+      "key": "roni",
+      "value": "+0.98°C",
+      "cls": "s-dry",
+      "status": "Weak El Niño",
+      "gauge": 65,
+      "gcol": "var(--dry)",
+      "src": "NOAA CPC RONI (RONI.ascii.txt) · relative to tropical mean",
+      "hist": [
+        -0.41,
+        -0.59,
+        -0.78,
+        -0.93,
+        -0.98,
+        -1.04,
+        -0.91,
+        -0.76,
+        -0.44,
+        -0.04,
+        0.49,
+        0.98
+      ]
+    },
+    {
+      "key": "soi",
+      "value": "-24.0",
+      "cls": "s-dry",
+      "status": "Strongly El Niño-coupled",
+      "gauge": 88.4,
+      "gcol": "var(--dry)",
+      "src": "NOAA CPC SOI ×10 (BoM fallback)",
+      "hist": [
+        4,
+        0,
+        11,
+        11,
+        0,
+        11,
+        14,
+        12,
+        -6,
+        -9,
+        -14,
+        -24
+      ]
+    },
+    {
+      "key": "iod",
+      "value": "+0.44°C",
+      "cls": "s-dry",
+      "status": "Positive IOD · drier for SE Asia",
+      "gauge": 72.19202127659572,
+      "gcol": "var(--dry)",
+      "src": "DMI computed from NOAA OISST — 2026-08-15 (nrt/coastwatch)",
+      "hist": [],
+      "asOf": "2026-08-15",
+      "adviceOk": true,
+      "computed": true
+    },
+    {
+      "key": "mjo",
+      "value": "Ph 4 · 0.0",
+      "cls": "s-neu",
+      "status": "Weak · little MJO influence",
+      "gauge": 1.8,
+      "gcol": "var(--neutral)",
+      "phase": 4,
+      "amp": 0.04,
+      "track": [
+        {
+          "rmm1": -0.068,
+          "rmm2": 0.731,
+          "amp": 0.73
+        },
+        {
+          "rmm1": -0.259,
+          "rmm2": 0.774,
+          "amp": 0.82
+        },
+        {
+          "rmm1": -0.455,
+          "rmm2": 0.855,
+          "amp": 0.97
+        },
+        {
+          "rmm1": -0.563,
+          "rmm2": 0.931,
+          "amp": 1.09
+        },
+        {
+          "rmm1": -0.635,
+          "rmm2": 1.027,
+          "amp": 1.21
+        },
+        {
+          "rmm1": -0.754,
+          "rmm2": 1.075,
+          "amp": 1.31
+        },
+        {
+          "rmm1": -0.757,
+          "rmm2": 1.055,
+          "amp": 1.3
+        },
+        {
+          "rmm1": -0.757,
+          "rmm2": 1.039,
+          "amp": 1.28
+        },
+        {
+          "rmm1": -0.794,
+          "rmm2": 0.92,
+          "amp": 1.22
+        },
+        {
+          "rmm1": -0.875,
+          "rmm2": 0.791,
+          "amp": 1.18
+        },
+        {
+          "rmm1": -0.874,
+          "rmm2": 0.618,
+          "amp": 1.07
+        },
+        {
+          "rmm1": -0.846,
+          "rmm2": 0.44,
+          "amp": 0.95
+        },
+        {
+          "rmm1": -0.804,
+          "rmm2": 0.23,
+          "amp": 0.84
+        },
+        {
+          "rmm1": -0.769,
+          "rmm2": 0.067,
+          "amp": 0.77
+        },
+        {
+          "rmm1": -0.651,
+          "rmm2": 0.007,
+          "amp": 0.65
+        },
+        {
+          "rmm1": -0.546,
+          "rmm2": 0.033,
+          "amp": 0.55
+        },
+        {
+          "rmm1": -0.45,
+          "rmm2": 0.049,
+          "amp": 0.45
+        },
+        {
+          "rmm1": -0.336,
+          "rmm2": 0.101,
+          "amp": 0.35
+        },
+        {
+          "rmm1": -0.189,
+          "rmm2": 0.142,
+          "amp": 0.24
+        },
+        {
+          "rmm1": -0.063,
+          "rmm2": 0.213,
+          "amp": 0.22
+        },
+        {
+          "rmm1": 0.046,
+          "rmm2": 0.285,
+          "amp": 0.29
+        },
+        {
+          "rmm1": 0.082,
+          "rmm2": 0.327,
+          "amp": 0.34
+        },
+        {
+          "rmm1": 0.075,
+          "rmm2": 0.266,
+          "amp": 0.28
+        },
+        {
+          "rmm1": 0.004,
+          "rmm2": 0.117,
+          "amp": 0.12
+        },
+        {
+          "rmm1": -0.076,
+          "rmm2": -0.06,
+          "amp": 0.1
+        },
+        {
+          "rmm1": -0.169,
+          "rmm2": -0.285,
+          "amp": 0.33
+        },
+        {
+          "rmm1": -0.205,
+          "rmm2": -0.496,
+          "amp": 0.54
+        },
+        {
+          "rmm1": -0.233,
+          "rmm2": -0.669,
+          "amp": 0.71
+        },
+        {
+          "rmm1": -0.237,
+          "rmm2": -0.769,
+          "amp": 0.8
+        },
+        {
+          "rmm1": -0.238,
+          "rmm2": -0.881,
+          "amp": 0.91
+        },
+        {
+          "rmm1": -0.214,
+          "rmm2": -0.916,
+          "amp": 0.94
+        },
+        {
+          "rmm1": -0.214,
+          "rmm2": -0.882,
+          "amp": 0.91
+        },
+        {
+          "rmm1": -0.153,
+          "rmm2": -0.786,
+          "amp": 0.8
+        },
+        {
+          "rmm1": -0.092,
+          "rmm2": -0.621,
+          "amp": 0.63
+        },
+        {
+          "rmm1": 0,
+          "rmm2": -0.46,
+          "amp": 0.46
+        },
+        {
+          "rmm1": 0.067,
+          "rmm2": -0.315,
+          "amp": 0.32
+        },
+        {
+          "rmm1": 0.113,
+          "rmm2": -0.208,
+          "amp": 0.24
+        },
+        {
+          "rmm1": 0.104,
+          "rmm2": -0.122,
+          "amp": 0.16
+        },
+        {
+          "rmm1": 0.091,
+          "rmm2": -0.036,
+          "amp": 0.1
+        },
+        {
+          "rmm1": 0.038,
+          "rmm2": -0.003,
+          "amp": 0.04
+        }
+      ],
+      "src": "NOAA PSL ROMI (OLR-based, RMM-equivalent per Kiladis 2014) · 2026-08-12",
+      "asOf": "2026-08-12"
+    },
+    {
+      "key": "flavor",
+      "value": "Niño4 +1.2 · N1+2 +2.8",
+      "cls": "s-dry",
+      "status": "Eastern-Pacific El Niño",
+      "gauge": 62,
+      "gcol": "var(--dry)",
+      "nreg": {
+        "n12": 2.82,
+        "n3": 1.71,
+        "n4": 1.22,
+        "n34": 1.44
+      },
+      "src": "NOAA CPC ERSSTv5 monthly Niño regions · Jun 2026"
+    },
+    {
+      "key": "hc",
+      "value": "+3.0",
+      "cls": "s-dry",
+      "status": "Strongly recharged · El Niño-favourable",
+      "gauge": 100,
+      "gcol": "var(--dry)",
+      "src": "NOAA PMEL TAO — warm water volume (wwv.dat) · ×10^14 m³",
+      "hist": [
+        -0.46,
+        -0.49,
+        -0.26,
+        -0.12,
+        -0.16,
+        0.2,
+        1.02,
+        1.49,
+        1.87,
+        2.84,
+        2.7,
+        3
+      ]
+    },
+    {
+      "key": "wind",
+      "value": "-2.0σ",
+      "cls": "s-wet",
+      "status": "Easterly anomaly · La Niña-coupled",
+      "gauge": 10,
+      "gcol": "var(--wet)",
+      "src": "NOAA CPC 850 hPa zonal wind, W Pacific (wpac850) · standardised",
+      "hist": [
+        0.9,
+        1,
+        1.6,
+        0.7,
+        1.2,
+        -0.8,
+        0.6,
+        -1,
+        -1.1,
+        -0.3,
+        -1.3,
+        -2
+      ]
+    },
+    {
+      "key": "olr",
+      "value": "-1.2σ",
+      "cls": "s-dry",
+      "status": "Enhanced convection at dateline · El Niño-coupled",
+      "gauge": 74,
+      "gcol": "var(--dry)",
+      "src": "NOAA CPC OLR at the dateline (olr) · standardised",
+      "hist": [
+        0.8,
+        0.8,
+        0.8,
+        0.5,
+        1.1,
+        0.5,
+        1.2,
+        0.4,
+        0.3,
+        -0.1,
+        -1.1,
+        -1.2
+      ]
+    }
+  ],
+  "regions": [
+    {
+      "rn": "Peninsula — West Coast",
+      "risk": "r-high",
+      "label": "High risk",
+      "p": "Driest & most haze-prone zone now. Heat + reduced rainfall; watch Klang Valley/Melaka air quality."
+    },
+    {
+      "rn": "Peninsula — East Coast",
+      "risk": "r-mod",
+      "label": "Moderate",
+      "p": "Near-normal to drier; main flood season is Nov–Mar."
+    },
+    {
+      "rn": "Sabah",
+      "risk": "r-mod",
+      "label": "Moderate",
+      "p": "Drier bias; agricultural water stress and localised fire risk possible."
+    },
+    {
+      "rn": "Sarawak",
+      "risk": "r-high",
+      "label": "High risk",
+      "p": "Peatland fire & haze risk elevated under prolonged dry conditions; monitor hotspots."
+    }
+  ],
+  "nino34history": {
+    "labels": [
+      "20MAY",
+      "27MAY",
+      "03JUN",
+      "10JUN",
+      "17JUN",
+      "24JUN",
+      "01JUL",
+      "08JUL",
+      "15JUL",
+      "22JUL",
+      "29JUL",
+      "05AUG"
+    ],
+    "values": [
+      0.9,
+      1,
+      1.3,
+      1.5,
+      1.7,
+      1.8,
+      1.7,
+      2,
+      2.1,
+      2.2,
+      2.3,
+      2.6
+    ],
+    "basis": "weekly"
+  },
+  "sources": [
+    [
+      "Niño 3.4 / ONI",
+      "NOAA CPC",
+      "NOAA PSL · BoM",
+      "live",
+      "just now"
+    ],
+    [
+      "ENSO flavor (EP/CP)",
+      "NOAA CPC ERSSTv5",
+      "OISST Niño regions",
+      "live",
+      "just now"
+    ],
+    [
+      "Heat content (WWV)",
+      "NOAA PMEL / GODAS",
+      "T300",
+      "live",
+      "just now"
+    ],
+    [
+      "SOI",
+      "Australia BoM",
+      "NOAA CPC",
+      "live",
+      "just now"
+    ],
+    [
+      "Trade winds (850 hPa)",
+      "NOAA CPC",
+      "CDAS reanalysis",
+      "live",
+      "just now"
+    ],
+    [
+      "OLR (dateline)",
+      "NOAA CPC",
+      "NOAA PSL",
+      "live",
+      "just now"
+    ],
+    [
+      "DMI (IOD)",
+      "NOAA OISST (computed)",
+      "NOAA PSL monthly",
+      "live",
+      "just now"
+    ],
+    [
+      "MJO (RMM)",
+      "NOAA PSL ROMI",
+      "Australia BoM RMM",
+      "live",
+      "just now"
+    ]
+  ]
+}
