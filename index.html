@@ -349,9 +349,9 @@ const T = {
     g_engine_h:'解读引擎如何运作', g_engine_p:'SUHU 将 ENSO 信号（ONI）、其型态（东太 vs 中太）、印度洋偶极子（IOD）与 MJO 结合季风日历，为每个地区计算一个综合压力指数（正 = 偏干/火险，负 = 偏湿/洪涝），再据此着色。其应用的主要规则如下：',
     g_health_h:'数据来源与冗余', g_health_p:'每个指标都有主来源和至少一个备用来源，因此没有任何单一机构（包括 NOAA）会成为单点故障。实时状态：',
     g_noaa_h:'与 NOAA 有何不同',
-    g_noaa_body:'<ul><li><b>多驱动，而非仅 ENSO</b>——ENSO + IOD + MJO + 季风，即真正主导马来西亚降雨的驱动因子。</li><li><b>面向海洋大陆</b>——相较东太平洋指数，更重视面向本区域的 BoM 与 JAMSTEC / JMA。</li><li><b>本地化解读</b>——把「太平洋的状态」转化为按地区与季节的干旱 / 烟霾或洪水风险。</li><li><b>多来源、容错</b>——多个来源自动回退，单一机构中断不会致盲。</li></ul><p>简言之：NOAA 回答「太平洋在做什么？」——SUHU 回答「这一季对马来西亚意味着什么？」</p>',
+    g_noaa_body:'<ul><li><b>多驱动，而非仅 ENSO</b>——ENSO + IOD + MJO + 季风，即真正主导马来西亚降雨的驱动因子。</li><li><b>面向海洋大陆</b>——相较东太平洋指数，更重视面向本区域的驱动因子（IOD 由 NOAA OISST 直接计算）。</li><li><b>本地化解读</b>——把「太平洋的状态」转化为按地区与季节的干旱 / 烟霾或洪水风险。</li><li><b>多来源、容错</b>——多个来源自动回退，单一机构中断不会致盲。</li></ul><p>简言之：NOAA 回答「太平洋在做什么？」——SUHU 回答「这一季对马来西亚意味着什么？」</p>',
     g_attr_h:'数据与署名',
-    g_attr_p:'ENSO / Niño 3.4 / ONI / RONI — NOAA CPC · ENSO 类型（Niño 1+2/3/4）— NOAA CPC ERSSTv5 · 次表层热含量（暖水体积 WWV）— NOAA PMEL / GODAS · SOI — 澳大利亚 BoM（Troup）· 信风（850 百帕）与日界线 OLR — NOAA CPC · IOD / DMI — JAMSTEC SINTEX-F、NOAA PSL · MJO — NOAA PSL ROMI（回退：澳大利亚 BoM RMM）· 空气质量与高温 — Open-Meteo · 火点 — NASA FIRMS。使用时须署名；不代表上述机构的认可。'
+    g_attr_p:'ENSO / Niño 3.4 / ONI / RONI — NOAA CPC · ENSO 类型（Niño 1+2/3/4）— NOAA CPC ERSSTv5 · 次表层热含量（暖水体积 WWV）— NOAA PMEL / GODAS · SOI — 澳大利亚 BoM（Troup）· 信风（850 百帕）与日界线 OLR — NOAA CPC · IOD / DMI — 由 NOAA OISST 计算（回退：NOAA PSL 月度） · MJO — NOAA PSL ROMI（回退：澳大利亚 BoM RMM）· 空气质量与高温 — Open-Meteo · 火点 — NASA FIRMS。使用时须署名；不代表上述机构的认可。'
   },
   en:{
     sub:'Malaysia & the Maritime Continent', guide_btn:'ⓘ Guide', install_btn:'⬇ Install',
@@ -395,9 +395,9 @@ const T = {
     g_engine_h:'How the interpretation engine works', g_engine_p:'SUHU blends the ENSO signal (ONI), its flavor (EP vs CP), the Indian Ocean Dipole (IOD) and the MJO with the monsoon calendar into a single stress score per region (positive = drier / fire, negative = wetter / flood), then colour-codes the risk. These are the main rules it applies:',
     g_health_h:'Source health & redundancy', g_health_p:'Every indicator has a primary source and at least one fallback, so no single agency (NOAA included) is a point of failure. Live status:',
     g_noaa_h:'How this differs from NOAA',
-    g_noaa_body:'<ul><li><b>Multi-driver, not ENSO-only</b> — ENSO + IOD + MJO + monsoon, the drivers that govern Malaysian rain.</li><li><b>Tuned to the Maritime Continent</b> — weights BoM and JAMSTEC / JMA over the eastern-Pacific indices.</li><li><b>Interprets locally</b> — turns "state of the Pacific" into drought / haze vs flood risk, by region and season.</li><li><b>Multi-source & fault-tolerant</b> — several sources with automatic fallback, so no single agency going down blinds the tool.</li></ul><p>In short: NOAA answers "what is the Pacific doing?" — SUHU answers "what does it mean for Malaysia this season?"</p>',
+    g_noaa_body:'<ul><li><b>Multi-driver, not ENSO-only</b> — ENSO + IOD + MJO + monsoon, the drivers that govern Malaysian rain.</li><li><b>Tuned to the Maritime Continent</b> — weights Maritime-Continent drivers over the eastern-Pacific indices (the IOD is computed directly from NOAA OISST).</li><li><b>Interprets locally</b> — turns "state of the Pacific" into drought / haze vs flood risk, by region and season.</li><li><b>Multi-source & fault-tolerant</b> — several sources with automatic fallback, so no single agency going down blinds the tool.</li></ul><p>In short: NOAA answers "what is the Pacific doing?" — SUHU answers "what does it mean for Malaysia this season?"</p>',
     g_attr_h:'Data & attribution',
-    g_attr_p:'ENSO / Niño 3.4 / ONI / RONI — NOAA CPC · ENSO flavor (Niño 1+2/3/4) — NOAA CPC ERSSTv5 · Subsurface heat content (WWV) — NOAA PMEL / GODAS · SOI — Australia BoM (Troup) · Trade winds (850 hPa) & dateline OLR — NOAA CPC · IOD / DMI — JAMSTEC SINTEX-F, NOAA PSL · MJO — NOAA PSL ROMI (fallback: Australia BoM RMM) · Air quality & heat — Open-Meteo · Fire — NASA FIRMS. Used with attribution; no endorsement by these agencies is implied.'
+    g_attr_p:'ENSO / Niño 3.4 / ONI / RONI — NOAA CPC · ENSO flavor (Niño 1+2/3/4) — NOAA CPC ERSSTv5 · Subsurface heat content (WWV) — NOAA PMEL / GODAS · SOI — Australia BoM (Troup) · Trade winds (850 hPa) & dateline OLR — NOAA CPC · IOD / DMI — computed from NOAA OISST (fallback: NOAA PSL monthly) · MJO — NOAA PSL ROMI (fallback: Australia BoM RMM) · Air quality & heat — Open-Meteo · Fire — NASA FIRMS. Used with attribution; no endorsement by these agencies is implied.'
   }
 };
 
@@ -561,7 +561,16 @@ function asOfLabel(d){
   if(d.key==='enso') return d.basis==='monthly'
     ? L('⚠️ 回退：NOAA 月值 · ','⚠️ fallback: NOAA monthly · ')
     : L('最新 · NOAA 每周 · ','latest · NOAA weekly · ');
-  return L('最新 · BoM 每周 · ','latest · BoM weekly · ');
+  // The IOD card names its own basis. This used to fall through to a hardcoded
+  // "BoM weekly" for EVERY non-ENSO card -- so the label claimed a source that,
+  // after the BoM scrape was retired, nothing was fetching at all.
+  if(d.key==='iod') return d.computed
+    ? L('最新 · OISST 计算 · ','latest · computed from OISST · ')
+    : d.monthly
+      ? L('⚠️ 回退：月度 DMI · ','⚠️ fallback: monthly DMI · ')
+      : L('最新 · ','latest · ');
+  // Anything else: state the date without asserting a source we have not checked.
+  return L('最新 · ','latest · ');
 }
 function trUpdated(s){ if(LANG==='en')return s; return String(s).replace('just now','刚刚').replace(' h ago',' 小时前').replace(' d ago',' 天前').replace(' min ago',' 分钟前').replace(' ago',' 前'); }
 
@@ -987,7 +996,9 @@ function renderAll(D){
   const arrow=inp.trend==='up'?'↑':inp.trend==='down'?'↓':'→';
   const bn=document.getElementById('banner');
   bn.className='banner tone-'+vd.tone;
-  bn.innerHTML=`<span class="tag">${b.tag}</span>
+  // Same rule as the cards: an absent banner field shows a dash, not "undefined".
+  const bv=(x)=>(x===undefined||x===null||x==='')?'\u2014':x;
+  bn.innerHTML=`<span class="tag">${bv(b.tag)}</span>
     <div class="btop"><span class="bdot" style="background:${DOTCOL[vd.icon]||'#94a3b8'}"></span>
       <h2>${vd.title}</h2>
       ${Math.abs(oni)>=0.3?`<span class="btrend">${arrow} ${tw}</span>`:''}</div>
@@ -999,26 +1010,36 @@ function renderAll(D){
       <div class="vshort" style="margin-top:0">${shortTermNote(D)}</div>
     </div>`;
 
+  // A field that is ABSENT must LOOK absent.
+  //
+  // Interpolating a missing field printed the literal string "undefined" into
+  // the card, which reads as a bug in the app rather than a gap in the data.
+  // The gauge was worse: `width:undefined%` collapses the bar to zero, so a
+  // missing measurement rendered as a confident zero. Absent beats seeded only
+  // if absent is visibly absent.
+  const fv=(x,dash='\u2014')=>(x===undefined||x===null||x==='')?dash:x;
+  const fnum=(x,def=0)=>Number.isFinite(+x)?+x:def;
+
   // Build one card. Grouped below into the three ENSO pillars + neighbours.
   const cardHtml=(d)=>{
     const info=DRV[d.key]||{h:[d.h,d.h],name:[d.name,d.name],interp:[d.interp,d.interp]};
     const idx=LANG==='zh'?0:1;
     if(d.key==='mjo'){
       const m=mjoReading(D);
-      const tech=(LANG==='zh'?String(d.value).replace('Ph ','相位'):d.value);
+      const tech=(LANG==='zh'?String(fv(d.value)).replace('Ph ','相位'):fv(d.value));
       const stCls=m.effect==='dry'?'s-dry':m.effect==='wet'?'s-wet':'s-neu';
       return `<div class="card"><h3>${info.h[idx]}</h3>
         <div class="name">${L('短期降雨脉冲','Short-term rain pulse')} · ${tech}</div>
         <div class="val val-sm">${m.plain}${driverStale(D,'mjo')?staleChip():''}</div><div class="status ${stCls}">${m.tag}</div>
-        <div class="gauge"><div class="fill" style="width:${d.gauge}%;background:${d.gcol}"></div></div>
+        <div class="gauge"><div class="fill" style="width:${fnum(d.gauge)}%;background:${fv(d.gcol,'var(--muted)')}"></div></div>
         <div class="interp">${m.detail}</div></div>`;
     }
     const valCls=(d.key==='flavor')?'val val-sm':'val';   // flavor value is text, not a number
     return `<div class="card"><h3>${info.h[idx]}</h3>
       <div class="name">${info.name[idx]}</div>
-      <div class="${valCls}">${d.value}${driverStale(D,d.key)?staleChip():''}</div><div class="status ${d.cls}">${trStatus(d.status)}</div>
+      <div class="${valCls}">${fv(d.value)}${driverStale(D,d.key)?staleChip():''}</div><div class="status ${fv(d.cls,'s-neu')}">${trStatus(fv(d.status,''))}</div>
       ${sparkRow(d)}${d.asOf?`<div class="gsrc" style="margin-top:2px">${asOfLabel(d)}${d.asOf}</div>`:''}
-      <div class="gauge"><div class="fill" style="width:${d.gauge}%;background:${d.gcol}"></div></div>
+      <div class="gauge"><div class="fill" style="width:${fnum(d.gauge)}%;background:${fv(d.gcol,'var(--muted)')}"></div></div>
       <div class="interp">${info.interp[idx]}${d.key==='iod'?iodOutlookText(D):''}</div></div>`;
   };
   // Sensible pillar order: surface ocean -> subsurface (leading) -> atmosphere
@@ -1045,8 +1066,8 @@ function renderAll(D){
         'Blue dot = now, hollow ring = ~40 days ago, and the line between is the path it took (then → now). <b>Distance from the centre = strength:</b> a weak MJO huddles inside the dashed “amp 1” ring and barely matters; an active one pushes out toward the rim. It circles the tropics every 30–60 days — counter-clockwise means moving east — and when it reaches the right-hand “Maritime Continent” sectors (phases 4–5, our region here), we get wetter.')+'</div>'; }
 
   document.getElementById('regions').innerHTML=nar.regions.map(r=>`
-    <div class="region"><div class="rn">${r.rn}</div>
-    <span class="risk ${r.risk}">${r.label}</span><p>${r.p}</p></div>`).join('');
+    <div class="region"><div class="rn">${fv(r.rn)}</div>
+    <span class="risk ${fv(r.risk,'r-mid')}">${fv(r.label)}</span><p>${fv(r.p)}</p></div>`).join('');
 
   renderSources(D);
 

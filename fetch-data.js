@@ -436,7 +436,8 @@ async function fetchSOI() {
   return { patch: { value: fmt(troup), status, cls, gcol, gauge, src: 'NOAA CPC SOI ×10 (BoM fallback)', hist: lastN(cpcStdSeries(cpcTxt).map(v => v * 10), 12) } };
 }
 
-// DMI (IOD) — source chain: JAMSTEC SINTEX-F primary, NOAA PSL fallback.
+// DMI (IOD) — computed from NOAA OISST (see computeDMI); NOAA PSL monthly is
+// the fallback chain below. JAMSTEC and the BoM scrape are both gone.
 // JAMSTEC's static dmi.monthly.txt now redirects to APL VirtualEarth; when a
 // source carries no numeric grid the parser returns null and we move to the
 // next source automatically. Both indices are HadISST-based, so values match.
@@ -542,7 +543,7 @@ async function fetchDMI() {
           src: 'DMI computed from NOAA OISST \u2014 ' + d.date + ' (' + d.source + '/' + d.host + ')',
           asOf: d.date, adviceOk: true, computed: true,
           hist: []
-        } };
+        }, srcNames: ['NOAA OISST (computed)', 'NOAA PSL monthly'] };
       }
       console.warn('WARN computed DMI ' + d.date + ' is ' + age + 'd old \u2014 trying the monthly chain');
     }
@@ -574,7 +575,8 @@ async function fetchDMI() {
   // reads as "now", which is the whole mistake this chain exists to avoid.
   const src = 'Monthly DMI ' + ym + ' — ' + used + (adviceOk ? '' : ' (older than usual)');
   return { patch: { value: fmt(best.value, 2) + '°C', status, cls, gcol, gauge, src, adviceOk,
-                    hist: lastN(monthlySeries(txtUsed, v => v <= -90 || v >= 90), 12) } };
+                    hist: lastN(monthlySeries(txtUsed, v => v <= -90 || v >= 90), 12) },
+           srcNames: ['NOAA PSL monthly', used] };
 }
 
 // MJO ------------------------------------------------------------------------
@@ -721,9 +723,20 @@ async function fetchFlavor() {
 }
 
 // ---- driver runner --------------------------------------------------------
-function setSource(data, name, ok) {
+// Updates a row of the source-health table. `names` optionally rewrites the
+// PRIMARY and FALLBACK columns.
+//
+// Those two columns used to be static seeds in data.json that nothing ever
+// overwrote, so the DMI row went on advertising "JAMSTEC SINTEX-F / JMA TCC"
+// as live long after JAMSTEC was dropped -- a label claiming a source the
+// pipeline had stopped using. Whatever actually answered now writes its own
+// name here.
+function setSource(data, name, ok, names) {
   const row = data.sources.find(s => s[0].startsWith(name));
-  if (row) { row[3] = ok ? 'live' : 'stale'; if (ok) row[4] = 'just now'; }
+  if (!row) return;
+  row[3] = ok ? 'live' : 'stale';
+  if (ok) row[4] = 'just now';
+  if (names) { if (names[0]) row[1] = names[0]; if (names[1] !== undefined) row[2] = names[1]; }
 }
 
 async function runDriver(data, key, sourceName, fn, extra) {
@@ -732,7 +745,9 @@ async function runDriver(data, key, sourceName, fn, extra) {
     const { patch, ...rest } = await fn();
     Object.assign(card, patch);
     if (extra) extra(rest, card, data);
-    setSource(data, sourceName, true);
+    // rest.srcNames, when a fetcher supplies it, rewrites the primary/fallback
+    // columns so the table names the source that actually answered.
+    setSource(data, sourceName, true, rest.srcNames);
     // A card's src line must describe the fetch that just happened. If a
     // fetcher does not stamp one, the label in data.json is a static seed and
     // will quietly go out of date -- say so rather than let it lie.
