@@ -25,6 +25,9 @@ const { execFile } = require('child_process');
 const OUT = path.join(__dirname, 'impact', 'fires.json');
 // Strip any whitespace/newlines a pasted secret may carry.
 const KEY = (process.env.FIRMS_MAP_KEY || '').replace(/\s+/g, '');
+// If the previous run saw at least this many hotspots in total, a sudden
+// all-region zero is treated as a feed fault rather than a real reading.
+const COLLAPSE_MIN = 50;
 // Query ALL current VIIRS sensors and take the HIGHEST count per region (below).
 // The old logic tried S-NPP first and returned on the first *success* — but a
 // valid CSV with zero rows IS a success, so whenever the aging S-NPP NRT feed
@@ -77,7 +80,12 @@ async function countFromSource(src, box) {
   const { status, txt } = await fetchText(url);
   if (status && status !== 200) throw new Error('HTTP ' + status + ': ' + txt.slice(0, 80).replace(/\s+/g, ' '));
   const lines = txt.trim().split(/\r?\n/).filter((l) => l.length);
-  if (!lines.length) return 0;
+  // An EMPTY body is a failed request, not a fire-free region. FIRMS always
+  // returns the CSV header even when it finds nothing, so "no header" means we
+  // did not get an answer -- and returning 0 here published that as an
+  // authoritative zero, with stale:false, so the last-good fallback below never
+  // fired. Another HTTP 200 that contains nothing.
+  if (!lines.length) throw new Error('empty body (no CSV header) — not a zero-fire result');
   if (!/latitude/i.test(lines[0])) throw new Error('FIRMS: ' + lines[0].slice(0, 90).replace(/\s+/g, ' '));
   return Math.max(0, lines.length - 1);
 }
@@ -116,10 +124,11 @@ async function countFires(box) {
 
   // Load the previous fires.json so a region that fails this run can keep its
   // last-good count (flagged stale) instead of blanking out.
-  let prev = {};
+  let prev = {}, prevTotal = null;
   try {
     const p = JSON.parse(fs.readFileSync(OUT, 'utf8'));
     (p.regions || []).forEach((r) => { if (typeof r.count === 'number') prev[r.name] = r.count; });
+    if (typeof p.total === 'number') prevTotal = p.total;
   } catch (_) { /* first run — no previous file */ }
 
   const regions = [];
@@ -141,6 +150,24 @@ async function countFires(box) {
         console.error('ERR ' + rg.name + ': ' + e.message);
       }
     }
+  }
+
+  // Implausibility guard. Four independent regions across Sumatra, Kalimantan,
+  // the Peninsula and Borneo do not all go from hundreds of hotspots to exactly
+  // zero overnight -- especially not in August under a strong El Nino. A total
+  // collapse means the feed answered oddly, not that the fires went out, so the
+  // last-good counts are kept and flagged rather than published as a real zero.
+  const collapsed = freshAny && total === 0 && prevTotal !== null && prevTotal >= COLLAPSE_MIN;
+  if (collapsed) {
+    console.error('SUSPECT every region returned 0 while the last run totalled '
+      + prevTotal + ' — keeping last-good counts and flagging partial');
+    regions.forEach((r) => {
+      if (r.name in prev) { r.count = prev[r.name]; r.stale = true; }
+      else { r.count = null; r.stale = true; }
+    });
+    total = regions.reduce((a, r) => a + (typeof r.count === 'number' ? r.count : 0), 0);
+    staleAny = true;
+    firstErr = firstErr || ('all regions returned 0 against a previous total of ' + prevTotal);
   }
 
   const out = {
