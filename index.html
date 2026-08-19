@@ -321,7 +321,7 @@ const T = {
     panel_chart:'Niño 3.4 海温距平 — 最近 12 周',
     chart_note:'°C 距平 · 最近 12 周。正值且上升 = 厄尔尼诺增强。来源：NOAA CPC 每周 OISST（1991–2020 基准）。',
     st_impact:'本地影响 — ', loc_label:'地点', geo_btn:'📍 使用我的定位',
-    impact_note:'空气质量与高温：Open-Meteo（模式数据，按地点实时更新）。火点：NASA FIRMS（VIIRS）。马来西亚官方指数：<a href="https://eqms.doe.gov.my" target="_blank">DOE MyEQMS · APIMS ↗</a>。',
+    impact_note:'空气质量与高温：Open-Meteo（模式数据，按地点实时更新）。火点：NASA FIRMS（VIIRS + MODIS，共 5 颗卫星）。马来西亚官方指数：<a href="https://eqms.doe.gov.my" target="_blank">DOE MyEQMS · APIMS ↗</a>。',
     guide_title:'指南 — 如何读懂 SUHU',
     g_intro:'<strong>SUHU 是一个解读层，而非独立预报。</strong>它汇集全球的 ENSO / IOD / MJO 监测（包括 NOAA），并将其转化为对马来西亚降雨、干旱与烟霾的意义。底层科学仍以 NOAA、BoM、JAMSTEC 与 JMA 为权威。',
     g_share_h:'打开 / 分享此应用',
@@ -367,7 +367,7 @@ const T = {
     panel_chart:'Niño 3.4 SST anomaly — last 12 weeks',
     chart_note:'°C anomaly, last 12 weeks. Positive & rising = El Niño strengthening. Source: NOAA CPC weekly OISST (1991–2020 base).',
     st_impact:'Local impact — ', loc_label:'Location', geo_btn:'📍 Use my location',
-    impact_note:'Air quality & heat: Open-Meteo (modeled, updates live per location). Fire hotspots: NASA FIRMS (VIIRS). Malaysia\'s official index: <a href="https://eqms.doe.gov.my" target="_blank">DOE MyEQMS · APIMS ↗</a>.',
+    impact_note:'Air quality & heat: Open-Meteo (modeled, updates live per location). Fire hotspots: NASA FIRMS (VIIRS + MODIS, 5 satellites). Malaysia\'s official index: <a href="https://eqms.doe.gov.my" target="_blank">DOE MyEQMS · APIMS ↗</a>.',
     guide_title:'Guide — how to read SUHU',
     g_intro:'<strong>SUHU is an interpretation layer, not an independent forecast.</strong> It aggregates the world\'s ENSO / IOD / MJO monitoring — including NOAA\'s — and translates it into what those drivers mean for rainfall, drought and haze in Malaysia. NOAA, BoM, JAMSTEC and JMA remain the underlying authorities.',
     g_share_h:'Open / share this app',
@@ -1190,7 +1190,7 @@ async function loadImpact(lat,lon,city){
       '<div class="advice">'+hb.a+' '+(maxUV>=6?uvBand(maxUV).a:ub.a)+'</div>';
   }catch(e){ document.getElementById('heatCard').innerHTML='<h3>'+L('高温与紫外线','Heat & UV')+'</h3><div class="advice" style="border:0;padding:0">'+unav+'</div>'; }
 }
-// VIIRS passes daily, so fires.json should never be more than a couple of days
+// VIIRS and MODIS passes daily, so fires.json should never be more than a couple of days
 // behind. Past this the workflow has stopped and the counts describe history.
 const FIRE_MAX_AGE_H = 48;
 
@@ -1202,8 +1202,21 @@ async function loadFires(){
     // `note` explaining what fell back, and stamps `generated`. None of it was
     // read here: a kept-last-good count rendered exactly like a fresh one, and
     // was summed into the total that drives the haze badge. Use those flags.
-    const ageH=f.generated?((Date.now()-Date.parse(f.generated))/3.6e6):null;
+    // Age the card off the DATA, not off the run.
+    //
+    // `generated` is written every run, including runs where every region
+    // failed, so it kept saying "updated 4 hours ago" over counts that had not
+    // refreshed for days -- and fileStale could never fire while the workflow
+    // was still running. Each region now carries the timestamp of the fetch
+    // that produced its number; the total is only as fresh as its stalest part.
+    const stamps=(f.regions||[]).map(x=>x&&x.asOf?Date.parse(x.asOf):NaN).filter(t=>isFinite(t));
+    const dataMs=(stamps.length===(f.regions||[]).length&&stamps.length)?Math.min.apply(null,stamps)
+                 :(f.oldestAsOf?Date.parse(f.oldestAsOf):(f.generated?Date.parse(f.generated):NaN));
+    const ageH=isFinite(dataMs)?((Date.now()-dataMs)/3.6e6):null;
     const fileStale=(ageH!=null&&isFinite(ageH))?(ageH>FIRE_MAX_AGE_H):false;
+    const ageWord=(h)=>h<1?L('不到 1 小时','under 1h')
+                    :h<48?L(Math.round(h)+' 小时','~'+Math.round(h)+'h')
+                    :L(Math.round(h/24)+' 天',Math.round(h/24)+' days');
     const anyRegionStale=(f.regions||[]).some(x=>x&&x.stale);
     const trusted = !fileStale && !anyRegionStale && !f.partial;
     // The badge is a risk call, so it only stands on counts we can vouch for.
@@ -1211,23 +1224,31 @@ async function loadFires(){
     const r=trusted?hazeRisk(f.total):null;
     const rows=(f.regions||[]).map(x=>{
       const nm=LANG==='zh'?(FIRE_ZH[x.name]||x.name):x.name;
-      const mark=x.stale?'<span class="stalechip" title="'+L('该区上次抓取失败，沿用上一次的数值','this region failed to refresh — showing the last good count')+'">⚠</span>':'';
+      const rAge=(x.stale&&x.asOf)?((Date.now()-Date.parse(x.asOf))/3.6e6):null;
+      const rTip=L('该区本次抓取失败，沿用上一次的数值','this region failed to refresh — showing the last good count')
+        +((rAge!=null&&isFinite(rAge))?L('（该数值来自 '+ageWord(rAge)+'前）',' (that value is '+ageWord(rAge)+' old)'):'');
+      const mark=x.stale?'<span class="stalechip" title="'+rTip+'">⚠</span>':'';
       return '<span>'+nm+' <b>'+(x.count==null?'—':x.count)+'</b>'+mark+'</span>';
     }).join('');
     const ageTxt=(ageH==null||!isFinite(ageH))?'':(ageH<1?L('刚刚更新','updated just now')
-      :L('数据更新于 '+Math.round(ageH)+' 小时前','updated '+Math.round(ageH)+'h ago'));
+      :L('数据更新于 '+ageWord(ageH)+'前','updated '+ageWord(ageH)+' ago'));
     let note;
     if(f.total==null){
       note=L('火点数据尚未配置——请添加 NASA FIRMS 密钥（见 README）。',(f.note||'Fire data not configured yet — add a NASA FIRMS key (see README).'));
     } else if(fileStale){
-      note='⚠ '+L('火点数据已停更（'+Math.round(ageH)+' 小时前），下列数字属于过去，不代表现在——暂不给出烟霾风险判断。',
-                  'Fire data has stopped updating ('+Math.round(ageH)+'h ago). The counts below describe the past, not now — no haze-risk verdict is shown.');
+      note='⚠ '+L('火点数据已停更（最新数值来自 '+ageWord(ageH)+'前），下列数字属于过去，不代表现在——暂不给出烟霾风险判断。',
+                  'Fire data has stopped updating (the newest number is '+ageWord(ageH)+' old). The counts below describe the past, not now — no haze-risk verdict is shown.');
     } else if(anyRegionStale||f.partial){
+      // No raw f.reason here: it is an internal English string and this UI is
+      // bilingual. What the user needs is HOW OLD the kept numbers are.
       note='⚠ '+L('部分地区本次未能刷新（标 ⚠ 者沿用上一次数值），总数不完整——暂不给出烟霾风险判断。',
                   'Some regions did not refresh this run (marked ⚠ keep their last good count), so the total is incomplete — no haze-risk verdict is shown.')
-           +(f.note?'<br><span style="opacity:.75">'+f.note+'</span>':'');
+           +((ageH!=null&&isFinite(ageH))
+              ? '<br>'+L('其中最旧的数值来自 '+ageWord(ageH)+'前。',
+                         'The oldest of these numbers is '+ageWord(ageH)+' old.')
+              : '');
     } else {
-      note=L('NASA FIRMS VIIRS · 近'+(f.day_range||1)+'日 · 苏门答腊/加里曼丹为上风向来源。','NASA FIRMS VIIRS · last '+(f.day_range||1)+'d · Sumatra/Kalimantan are the upwind sources.')
+      note=L('NASA FIRMS VIIRS+MODIS · 近'+(f.day_range||1)+'日 · 苏门答腊/加里曼丹为上风向来源。','NASA FIRMS VIIRS+MODIS · last '+(f.day_range||1)+'d · Sumatra/Kalimantan are the upwind sources.')
            +(ageTxt?' · '+ageTxt:'');
     }
     document.getElementById('fireCard').innerHTML=
