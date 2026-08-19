@@ -1,5 +1,5 @@
 // SUHU service worker — offline app shell + fresh-data strategy
-const VERSION = 'suhu-v66';
+const VERSION = 'suhu-v67';
 const APP_SHELL = [
   './',
   './index.html',
@@ -33,7 +33,11 @@ self.addEventListener('activate', (e) => {
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
 
-  const isData = url.pathname.endsWith('data.json') || url.pathname.endsWith('meta.json') || url.pathname.endsWith('fires.json');
+  // fires-history.json must be listed explicitly: it ends in .json but NOT in
+  // 'fires.json', so the suffix test above would have missed it and served it
+  // cache-first — freezing the trend line while the count beside it updated.
+  const isData = url.pathname.endsWith('data.json') || url.pathname.endsWith('meta.json')
+    || url.pathname.endsWith('fires.json') || url.pathname.endsWith('fires-history.json');
   const isDoc  = e.request.mode === 'navigate' || url.pathname.endsWith('/') || url.pathname.endsWith('index.html');
 
   if (isData || isDoc) {

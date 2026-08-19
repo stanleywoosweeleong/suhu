@@ -22,7 +22,11 @@ const fs = require('fs');
 const path = require('path');
 const { execFile } = require('child_process');
 
-const OUT = path.join(__dirname, 'impact', 'fires.json');
+const OUT  = path.join(__dirname, 'impact', 'fires.json');
+const HIST = path.join(__dirname, 'impact', 'fires-history.json');
+// ~60 days at four runs a day: enough to watch a season build without the file
+// growing without bound.
+const HIST_MAX = 240;
 // Strip any whitespace/newlines a pasted secret may carry.
 const KEY = (process.env.FIRMS_MAP_KEY || '').replace(/\s+/g, '');
 // If the previous run saw at least this many hotspots in total, a sudden
@@ -279,6 +283,42 @@ async function countAllRegions() {
   console.log('fires.json written — total: ' + out.total
     + (out.oldestAsOf ? ' | oldest region data: ' + out.oldestAsOf : '')
     + (out.reason ? ' | ' + out.reason : ''));
+
+  // ---- rolling history ---------------------------------------------------
+  //
+  // Two rules, both about not fooling ourselves when reading it back:
+  //
+  // 1. Every entry carries `fresh`. A run that replayed last-good counts is
+  //    still recorded, but marked — so a flat stretch reads as "we got no new
+  //    data" rather than "the fires stopped changing".
+  //
+  // 2. An entry whose asOf AND total both match the previous one is NOT
+  //    appended. FIRMS serves a rolling 2-day window, so two runs minutes
+  //    apart return the identical snapshot; appending both would invent a data
+  //    point carrying no new information and flatten any rate calculation.
+  let hist = [];
+  try { hist = JSON.parse(fs.readFileSync(HIST, 'utf8')); if (!Array.isArray(hist)) hist = []; }
+  catch (_) { /* first run — no history yet */ }
+
+  const entry = {
+    t: out.generated,
+    asOf: out.oldestAsOf || null,
+    total: out.total,
+    fresh: !!freshAny && !staleAny,
+    regions: {},
+  };
+  regions.forEach((r) => { entry.regions[r.name] = r.count; });
+
+  const last = hist[hist.length - 1];
+  if (last && last.asOf === entry.asOf && last.total === entry.total) {
+    console.log('history: identical snapshot (asOf ' + entry.asOf + ') — not appended');
+  } else {
+    hist.push(entry);
+    if (hist.length > HIST_MAX) hist = hist.slice(-HIST_MAX);
+    fs.writeFileSync(HIST, JSON.stringify(hist));
+    console.log('history: ' + hist.length + ' entries ('
+      + hist.filter((h) => h.fresh).length + ' fresh) -> ' + path.basename(HIST));
+  }
 })().catch((e) => {
   // Never fail the job over a data hiccup — log and exit clean so the workflow stays green.
   console.error('non-fatal:', e && e.message);

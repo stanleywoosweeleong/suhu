@@ -878,6 +878,34 @@ function ensoVerdict(oni, roni){
 // Compact per-card history: a tiny sparkline + a "prev value · trend arrow" badge.
 // Shows the recent CHANGE without spending screen space on a full chart per card.
 const SPARK_DP={oni:2,roni:2,iod:2,enso:1,soi:0,wind:1,olr:1,hc:1};
+// Hotspot trend from the committed history.
+//
+// Only FRESH entries are plotted. A run that replayed last-good counts is in
+// the file but must not become a data point, or a stretch where FIRMS was
+// failing would draw as a flat line and read as "the fires stopped changing".
+//
+// The delta is labelled per-run, not per-day: FIRMS serves a rolling 2-DAY
+// window, so consecutive readings share most of their data and the change
+// between them is a slow-moving cumulative figure, not a count of new fires.
+function fireTrend(hist){
+  if(!Array.isArray(hist)) return '';
+  const fresh=hist.filter(h=>h&&h.fresh&&typeof h.total==='number');
+  if(fresh.length<2) return '';
+  const vals=fresh.slice(-24).map(h=>h.total);
+  const cur=vals[vals.length-1], prev=vals[vals.length-2];
+  const d=cur-prev;
+  const col=d>0?'#f59e0b':d<0?'#38bdf8':'#94a3b8';
+  const arrow=d>0?'↑':d<0?'↓':'→';
+  const span=(Date.parse(fresh[fresh.length-1].t)-Date.parse(fresh[0].t))/864e5;
+  const spanTxt=isFinite(span)&&span>=1
+    ? L('近 '+Math.round(span)+' 天','last '+Math.round(span)+'d')
+    : L('近几次','recent runs');
+  return '<div class="spark" style="margin-top:6px">'+sparkline(vals,col)+
+    '<span>'+spanTxt+' · '+arrow+(d===0?L(' 持平',' no change'):' '+(d>0?'+':'')+d)+
+    '<span style="opacity:.6"> ('+L('相邻两次之差；2 日滚动窗口','change between runs; 2-day rolling window')+')</span>'+
+    '</span></div>';
+}
+
 function sparkline(vals,color){
   if(!vals||vals.length<2) return '';
   const w=76,h=22,pad=3;
@@ -1209,6 +1237,14 @@ async function loadFires(){
     // refreshed for days -- and fileStale could never fire while the workflow
     // was still running. Each region now carries the timestamp of the fetch
     // that produced its number; the total is only as fresh as its stalest part.
+    // History is optional: the card works without it, and the file does not
+    // exist until the builder has run once.
+    let fhist=[];
+    try{
+      const hr=await fetch('impact/fires-history.json?t='+Date.now(),{cache:'no-store'});
+      if(hr.ok){ const j=await hr.json(); if(Array.isArray(j)) fhist=j; }
+    }catch(_){ }
+
     const stamps=(f.regions||[]).map(x=>x&&x.asOf?Date.parse(x.asOf):NaN).filter(t=>isFinite(t));
     const dataMs=(stamps.length===(f.regions||[]).length&&stamps.length)?Math.min.apply(null,stamps)
                  :(f.oldestAsOf?Date.parse(f.oldestAsOf):(f.generated?Date.parse(f.generated):NaN));
@@ -1255,6 +1291,7 @@ async function loadFires(){
       '<h3>'+title+'</h3>'+
       '<div class="big"'+(trusted?'':' style="opacity:.6"')+'>'+(f.total==null?'—':f.total)+'<span style="font-size:13px;color:var(--muted)"> '+L('个火点','hotspots')+'</span>'+(trusted?'':staleChip())+'</div>'+
       (r?'<span class="status '+r.c+'">'+L('烟霾风险：','Haze risk: ')+r.l+'</span>':'')+
+      fireTrend(fhist)+
       '<div class="subrow">'+rows+'</div>'+
       '<div class="advice">'+note+'</div>';
   }catch(e){ document.getElementById('fireCard').innerHTML='<h3>'+title+'</h3><div class="advice" style="border:0;padding:0">'+L('火点数据暂不可用。','Fire data not available yet.')+'</div>'; }
