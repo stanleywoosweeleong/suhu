@@ -1,6 +1,6 @@
 {
-  "generated": "2026-09-01T20:54:46.516Z",
-  "snapshotDate": "1 September 2026",
+  "generated": "2026-09-02T04:05:17.420Z",
+  "snapshotDate": "2 September 2026",
   "note": "Seed only. Overwritten by fetch-data.js on each scheduled run. Values here are a past snapshot, so every source ships flagged 'stale' — the app shows a stale chip until the pipeline has actually run. Card labels (name/heading/interpretation) live in DRV in index.html and the rules table is computed live by ruleRows(); neither is stored here, so neither can go stale.",
   "banner": {
     "tone": "warm",
@@ -119,28 +119,15 @@
     },
     {
       "key": "iod",
-      "value": "+0.15°C",
+      "value": "+0.23°C",
       "cls": "s-neu",
       "status": "Neutral",
-      "gauge": 57.3,
+      "gauge": 61.5321276595745,
       "gcol": "var(--neutral)",
-      "src": "Monthly DMI 2026-05 — NOAA PSL (monthly) (older than usual)",
-      "hist": [
-        -0.01,
-        -0.07,
-        -0.42,
-        -0.47,
-        -0.45,
-        -0.26,
-        -0.02,
-        0.12,
-        0.53,
-        0.28,
-        0.28,
-        0.15
-      ],
+      "src": "DMI computed from NOAA OISST — 2026-08-31 (nrt/coastwatch)",
+      "hist": [],
       "asOf": "2026-08-31",
-      "adviceOk": false,
+      "adviceOk": true,
       "computed": true
     },
     {
@@ -544,8 +531,8 @@
     ],
     [
       "DMI (IOD)",
+      "NOAA OISST (computed)",
       "NOAA PSL monthly",
-      "NOAA PSL (monthly)",
       "live",
       "just now"
     ],
