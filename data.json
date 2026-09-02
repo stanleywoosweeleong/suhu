@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-02T11:04:11.175Z",
+  "generated": "2026-09-02T16:24:52.562Z",
   "snapshotDate": "2 September 2026",
   "note": "Seed only. Overwritten by fetch-data.js on each scheduled run. Values here are a past snapshot, so every source ships flagged 'stale' — the app shows a stale chip until the pipeline has actually run. Card labels (name/heading/interpretation) live in DRV in index.html and the rules table is computed live by ruleRows(); neither is stored here, so neither can go stale.",
   "banner": {
@@ -132,19 +132,14 @@
     },
     {
       "key": "mjo",
-      "value": "Ph 7 · 1.0",
+      "value": "Ph 7 · 1.1",
       "cls": "s-dry",
       "status": "Active · suppressed over Maritime Continent",
-      "gauge": 45.9,
+      "gauge": 49.95,
       "gcol": "var(--dry)",
       "phase": 7,
-      "amp": 1.02,
+      "amp": 1.11,
       "track": [
-        {
-          "rmm1": -0.45,
-          "rmm2": 0.049,
-          "amp": 0.45
-        },
         {
           "rmm1": -0.336,
           "rmm2": 0.101,
@@ -321,28 +316,33 @@
           "amp": 0.84
         },
         {
-          "rmm1": -0.682,
-          "rmm2": 0.625,
-          "amp": 0.93
-        },
-        {
-          "rmm1": -0.713,
-          "rmm2": 0.673,
-          "amp": 0.98
-        },
-        {
           "rmm1": -0.664,
-          "rmm2": 0.735,
+          "rmm2": 0.663,
+          "amp": 0.94
+        },
+        {
+          "rmm1": -0.689,
+          "rmm2": 0.71,
           "amp": 0.99
         },
         {
-          "rmm1": -0.597,
-          "rmm2": 0.831,
-          "amp": 1.02
+          "rmm1": -0.644,
+          "rmm2": 0.769,
+          "amp": 1
+        },
+        {
+          "rmm1": -0.584,
+          "rmm2": 0.856,
+          "amp": 1.04
+        },
+        {
+          "rmm1": -0.622,
+          "rmm2": 0.922,
+          "amp": 1.11
         }
       ],
-      "src": "NOAA PSL ROMI (OLR-based, RMM-equivalent per Kiladis 2014) · 2026-08-28",
-      "asOf": "2026-08-28"
+      "src": "NOAA PSL ROMI (OLR-based, RMM-equivalent per Kiladis 2014) · 2026-08-29",
+      "asOf": "2026-08-29"
     },
     {
       "key": "flavor",
@@ -533,7 +533,7 @@
       "DMI (IOD)",
       "NOAA OISST (computed)",
       "NOAA PSL monthly",
-      "live",
+      "stale",
       "just now"
     ],
     [
