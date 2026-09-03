@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-03T16:15:19.377Z",
+  "generated": "2026-09-03T20:52:33.843Z",
   "snapshotDate": "3 September 2026",
   "note": "Seed only. Overwritten by fetch-data.js on each scheduled run. Values here are a past snapshot, so every source ships flagged 'stale' — the app shows a stale chip until the pipeline has actually run. Card labels (name/heading/interpretation) live in DRV in index.html and the rules table is computed live by ruleRows(); neither is stored here, so neither can go stale.",
   "banner": {
@@ -50,14 +50,13 @@
     },
     {
       "key": "oni",
-      "value": "+1.39°C",
+      "value": "+1.80°C",
       "cls": "s-hot",
-      "status": "Moderate El Niño",
-      "gauge": 80,
+      "status": "Strong El Niño",
+      "gauge": 88,
       "gcol": "var(--hot)",
       "src": "NOAA CPC ONI (oni.ascii.txt) · 3-month running mean",
       "hist": [
-        -0.11,
         -0.26,
         -0.43,
         -0.57,
@@ -68,19 +67,19 @@
         0.11,
         0.46,
         0.95,
-        1.39
+        1.39,
+        1.8
       ]
     },
     {
       "key": "roni",
-      "value": "+0.98°C",
-      "cls": "s-dry",
-      "status": "Weak El Niño",
-      "gauge": 65,
-      "gcol": "var(--dry)",
+      "value": "+1.36°C",
+      "cls": "s-hot",
+      "status": "Moderate El Niño",
+      "gauge": 80,
+      "gcol": "var(--hot)",
       "src": "NOAA CPC RONI (RONI.ascii.txt) · relative to tropical mean",
       "hist": [
-        -0.41,
         -0.59,
         -0.78,
         -0.93,
@@ -91,7 +90,8 @@
         -0.44,
         -0.04,
         0.49,
-        0.98
+        0.97,
+        1.36
       ]
     },
     {
@@ -124,7 +124,7 @@
       "status": "Neutral",
       "gauge": 60.09946808510638,
       "gcol": "var(--neutral)",
-      "src": "DMI computed from NOAA OISST — 2026-09-02 (nrt/coastwatch)",
+      "src": "DMI computed from NOAA OISST — 2026-09-02 (nrt/upwell)",
       "hist": [],
       "asOf": "2026-09-02",
       "adviceOk": true,
