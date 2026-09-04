@@ -1,6 +1,6 @@
 {
-  "generated": "2026-09-03T20:52:33.843Z",
-  "snapshotDate": "3 September 2026",
+  "generated": "2026-09-04T04:07:24.599Z",
+  "snapshotDate": "4 September 2026",
   "note": "Seed only. Overwritten by fetch-data.js on each scheduled run. Values here are a past snapshot, so every source ships flagged 'stale' — the app shows a stale chip until the pipeline has actually run. Card labels (name/heading/interpretation) live in DRV in index.html and the rules table is computed live by ruleRows(); neither is stored here, so neither can go stale.",
   "banner": {
     "tone": "warm",
@@ -124,7 +124,7 @@
       "status": "Neutral",
       "gauge": 60.09946808510638,
       "gcol": "var(--neutral)",
-      "src": "DMI computed from NOAA OISST — 2026-09-02 (nrt/upwell)",
+      "src": "DMI computed from NOAA OISST — 2026-09-02 (nrt/coastwatch)",
       "hist": [],
       "asOf": "2026-09-02",
       "adviceOk": true,
