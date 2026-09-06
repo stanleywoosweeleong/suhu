@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-06T15:19:32.149Z",
+  "generated": "2026-09-06T20:17:03.104Z",
   "snapshotDate": "6 September 2026",
   "note": "Seed only. Overwritten by fetch-data.js on each scheduled run. Values here are a past snapshot, so every source ships flagged 'stale' — the app shows a stale chip until the pipeline has actually run. Card labels (name/heading/interpretation) live in DRV in index.html and the rules table is computed live by ruleRows(); neither is stored here, so neither can go stale.",
   "banner": {
@@ -132,19 +132,14 @@
     },
     {
       "key": "mjo",
-      "value": "Ph 8 · 1.1",
-      "cls": "s-dry",
-      "status": "Active · suppressed over Maritime Continent",
-      "gauge": 50.400000000000006,
-      "gcol": "var(--dry)",
+      "value": "Ph 8 · 1.0",
+      "cls": "s-neu",
+      "status": "Weak · little MJO influence",
+      "gauge": 44.55,
+      "gcol": "var(--neutral)",
       "phase": 8,
-      "amp": 1.12,
+      "amp": 0.99,
       "track": [
-        {
-          "rmm1": 0.046,
-          "rmm2": 0.285,
-          "amp": 0.29
-        },
         {
           "rmm1": 0.082,
           "rmm2": 0.327,
@@ -321,28 +316,33 @@
           "amp": 1.05
         },
         {
-          "rmm1": -0.751,
-          "rmm2": 0.798,
-          "amp": 1.1
+          "rmm1": -0.743,
+          "rmm2": 0.717,
+          "amp": 1.03
         },
         {
-          "rmm1": -0.794,
-          "rmm2": 0.789,
-          "amp": 1.12
+          "rmm1": -0.779,
+          "rmm2": 0.699,
+          "amp": 1.05
         },
         {
-          "rmm1": -0.815,
-          "rmm2": 0.804,
-          "amp": 1.15
+          "rmm1": -0.795,
+          "rmm2": 0.701,
+          "amp": 1.06
         },
         {
-          "rmm1": -0.809,
-          "rmm2": 0.781,
-          "amp": 1.12
+          "rmm1": -0.785,
+          "rmm2": 0.665,
+          "amp": 1.03
+        },
+        {
+          "rmm1": -0.798,
+          "rmm2": 0.588,
+          "amp": 0.99
         }
       ],
-      "src": "NOAA PSL ROMI (OLR-based, RMM-equivalent per Kiladis 2014) · 2026-09-01",
-      "asOf": "2026-09-01"
+      "src": "NOAA PSL ROMI (OLR-based, RMM-equivalent per Kiladis 2014) · 2026-09-02",
+      "asOf": "2026-09-02"
     },
     {
       "key": "flavor",
