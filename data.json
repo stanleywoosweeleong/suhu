@@ -1,12 +1,12 @@
 {
-  "generated": "2026-09-07T04:10:05.168Z",
+  "generated": "2026-09-07T12:12:02.791Z",
   "snapshotDate": "7 September 2026",
   "note": "Seed only. Overwritten by fetch-data.js on each scheduled run. Values here are a past snapshot, so every source ships flagged 'stale' — the app shows a stale chip until the pipeline has actually run. Card labels (name/heading/interpretation) live in DRV in index.html and the rules table is computed live by ruleRows(); neither is stored here, so neither can go stale.",
   "banner": {
     "tone": "warm",
     "tag": "National Climate-Driver Status · Southwest Monsoon",
-    "title": "El Niño — Holding steady",
-    "desc": "El Niño is holding steady during Malaysia's drier season. Expect a warm, dry bias with elevated drought and transboundary-haze risk.",
+    "title": "El Niño — Strengthening",
+    "desc": "El Niño is strengthening during Malaysia's drier season. Expect a warm, dry bias with elevated drought and transboundary-haze risk.",
     "pills": [
       [
         "hot",
@@ -25,14 +25,13 @@
   "drivers": [
     {
       "key": "enso",
-      "value": "+2.6°C",
+      "value": "+2.7°C",
       "cls": "s-hot",
-      "status": "Very strong El Niño (\"super\") · holding steady",
+      "status": "Very strong El Niño (\"super\") · strengthening",
       "gauge": 95,
       "gcol": "var(--hot)",
-      "src": "NOAA CPC weekly OISSTv2.1 (wksst9120.for) · 1991-2020 base · week centred 26AUG2026",
+      "src": "NOAA CPC weekly OISSTv2.1 (wksst9120.for) · 1991-2020 base · week centred 02SEP2026",
       "hist": [
-        1.5,
         1.7,
         1.8,
         1.7,
@@ -41,12 +40,13 @@
         2.2,
         2.4,
         2.5,
-        2.7,
         2.6,
-        2.6
+        2.6,
+        2.6,
+        2.7
       ],
       "basis": "weekly",
-      "asOf": "26AUG2026"
+      "asOf": "02SEP2026"
     },
     {
       "key": "oni",
@@ -457,7 +457,6 @@
   ],
   "nino34history": {
     "labels": [
-      "10JUN",
       "17JUN",
       "24JUN",
       "01JUL",
@@ -468,10 +467,10 @@
       "05AUG",
       "12AUG",
       "19AUG",
-      "26AUG"
+      "26AUG",
+      "02SEP"
     ],
     "values": [
-      1.5,
       1.7,
       1.8,
       1.7,
@@ -480,9 +479,10 @@
       2.2,
       2.4,
       2.5,
-      2.7,
       2.6,
-      2.6
+      2.6,
+      2.6,
+      2.7
     ],
     "basis": "weekly"
   },
@@ -533,7 +533,7 @@
       "DMI (IOD)",
       "NOAA OISST (computed)",
       "NOAA PSL monthly",
-      "live",
+      "stale",
       "just now"
     ],
     [
