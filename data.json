@@ -1,12 +1,12 @@
 {
-  "generated": "2026-09-09T20:48:47.125Z",
-  "snapshotDate": "9 September 2026",
+  "generated": "2026-09-10T04:15:07.510Z",
+  "snapshotDate": "10 September 2026",
   "note": "Seed only. Overwritten by fetch-data.js on each scheduled run. Values here are a past snapshot, so every source ships flagged 'stale' — the app shows a stale chip until the pipeline has actually run. Card labels (name/heading/interpretation) live in DRV in index.html and the rules table is computed live by ruleRows(); neither is stored here, so neither can go stale.",
   "banner": {
     "tone": "warm",
     "tag": "National Climate-Driver Status · Southwest Monsoon",
     "title": "El Niño — Strengthening",
-    "desc": "El Niño is strengthening during Malaysia's drier season. Expect a warm, dry bias with elevated drought and transboundary-haze risk, compounded by a positive Indian Ocean Dipole.",
+    "desc": "El Niño is strengthening during Malaysia's drier season. Expect a warm, dry bias with elevated drought and transboundary-haze risk.",
     "pills": [
       [
         "hot",
@@ -19,10 +19,6 @@
       [
         "watch",
         "🔥 Haze watch"
-      ],
-      [
-        "dry",
-        "Positive IOD"
       ]
     ]
   },
@@ -537,7 +533,7 @@
       "DMI (IOD)",
       "NOAA OISST (computed)",
       "NOAA PSL monthly",
-      "live",
+      "stale",
       "just now"
     ],
     [
