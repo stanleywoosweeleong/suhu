@@ -1,36 +1,35 @@
 {
-  "generated": "2026-09-11T11:55:43.323Z",
+  "generated": "2026-09-11T16:38:36.149Z",
   "source": "NASA FIRMS VIIRS — highest of NOAA-20 / S-NPP / NOAA-21",
   "day_range": 2,
   "frame": "2026-09-11",
   "regions": [
     {
       "name": "Sumatra",
-      "count": 584,
-      "stale": true,
-      "asOf": "2026-09-11T04:56:00.686Z"
+      "count": 854,
+      "stale": false,
+      "asOf": "2026-09-11T16:38:29.465Z"
     },
     {
       "name": "Kalimantan",
-      "count": 3001,
-      "stale": true,
-      "asOf": "2026-09-11T04:56:00.686Z"
+      "count": 6975,
+      "stale": false,
+      "asOf": "2026-09-11T16:38:29.465Z"
     },
     {
       "name": "Peninsular Malaysia",
-      "count": 11,
-      "stale": true,
-      "asOf": "2026-09-11T04:56:00.686Z"
+      "count": 12,
+      "stale": false,
+      "asOf": "2026-09-11T16:38:29.465Z"
     },
     {
       "name": "Sarawak / Sabah",
-      "count": 215,
-      "stale": true,
-      "asOf": "2026-09-11T04:56:00.686Z"
+      "count": 403,
+      "stale": false,
+      "asOf": "2026-09-11T16:38:29.465Z"
     }
   ],
-  "total": 3811,
-  "partial": true,
-  "oldestAsOf": "2026-09-11T04:56:00.686Z",
-  "reason": "Some regions kept last-good values — empty body (no CSV header) — throttled or unavailable"
+  "total": 8244,
+  "partial": false,
+  "oldestAsOf": "2026-09-11T16:38:29.465Z"
 }
