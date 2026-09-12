@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-12T10:30:52.908Z",
+  "generated": "2026-09-12T15:23:57.002Z",
   "snapshotDate": "12 September 2026",
   "note": "Seed only. Overwritten by fetch-data.js on each scheduled run. Values here are a past snapshot, so every source ships flagged 'stale' — the app shows a stale chip until the pipeline has actually run. Card labels (name/heading/interpretation) live in DRV in index.html and the rules table is computed live by ruleRows(); neither is stored here, so neither can go stale.",
   "banner": {
@@ -123,14 +123,14 @@
     },
     {
       "key": "iod",
-      "value": "+0.77°C",
+      "value": "+0.68°C",
       "cls": "s-dry",
       "status": "Positive IOD · drier for SE Asia",
-      "gauge": 88.6095744680851,
+      "gauge": 83.86244680851067,
       "gcol": "var(--dry)",
-      "src": "DMI computed from NOAA OISST — 2026-09-10 (nrt/coastwatch)",
+      "src": "DMI computed from NOAA OISST — 2026-09-11 (nrt/coastwatch)",
       "hist": [],
-      "asOf": "2026-09-10",
+      "asOf": "2026-09-11",
       "adviceOk": true,
       "computed": true
     },
