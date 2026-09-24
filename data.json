@@ -1,12 +1,12 @@
 {
-  "generated": "2026-09-24T11:31:13.528Z",
+  "generated": "2026-09-24T16:57:44.356Z",
   "snapshotDate": "24 September 2026",
   "note": "Seed only. Overwritten by fetch-data.js on each scheduled run. Values here are a past snapshot, so every source ships flagged 'stale' — the app shows a stale chip until the pipeline has actually run. Card labels (name/heading/interpretation) live in DRV in index.html and the rules table is computed live by ruleRows(); neither is stored here, so neither can go stale.",
   "banner": {
     "tone": "warm",
     "tag": "National Climate-Driver Status · Southwest Monsoon",
     "title": "El Niño — Strengthening",
-    "desc": "El Niño is strengthening during Malaysia's drier season. Expect a warm, dry bias with elevated drought and transboundary-haze risk, compounded by a positive Indian Ocean Dipole.",
+    "desc": "El Niño is strengthening during Malaysia's drier season. Expect a warm, dry bias with elevated drought and transboundary-haze risk.",
     "pills": [
       [
         "hot",
@@ -19,10 +19,6 @@
       [
         "watch",
         "🔥 Haze watch"
-      ],
-      [
-        "dry",
-        "Positive IOD"
       ]
     ]
   },
@@ -136,19 +132,14 @@
     },
     {
       "key": "mjo",
-      "value": "Ph 4 · 1.1",
+      "value": "Ph 4 · 1.0",
       "cls": "s-wet",
       "status": "Active · wet pulse over Maritime Continent",
-      "gauge": 49.50000000000001,
+      "gauge": 46.35,
       "gcol": "var(--wet)",
       "phase": 4,
-      "amp": 1.1,
+      "amp": 1.03,
       "track": [
-        {
-          "rmm1": 0.117,
-          "rmm2": -0.125,
-          "amp": 0.17
-        },
         {
           "rmm1": 0.09,
           "rmm2": -0.046,
@@ -325,28 +316,33 @@
           "amp": 0.92
         },
         {
-          "rmm1": 0.81,
-          "rmm2": -0.534,
-          "amp": 0.97
+          "rmm1": 0.832,
+          "rmm2": -0.446,
+          "amp": 0.94
         },
         {
-          "rmm1": 0.907,
-          "rmm2": -0.555,
+          "rmm1": 0.919,
+          "rmm2": -0.453,
+          "amp": 1.02
+        },
+        {
+          "rmm1": 0.968,
+          "rmm2": -0.43,
           "amp": 1.06
         },
         {
-          "rmm1": 0.963,
-          "rmm2": -0.545,
-          "amp": 1.11
+          "rmm1": 1.024,
+          "rmm2": -0.275,
+          "amp": 1.06
         },
         {
-          "rmm1": 1.03,
-          "rmm2": -0.381,
-          "amp": 1.1
+          "rmm1": 1.027,
+          "rmm2": -0.038,
+          "amp": 1.03
         }
       ],
-      "src": "NOAA PSL ROMI (OLR-based, RMM-equivalent per Kiladis 2014) · 2026-09-19",
-      "asOf": "2026-09-19"
+      "src": "NOAA PSL ROMI (OLR-based, RMM-equivalent per Kiladis 2014) · 2026-09-20",
+      "asOf": "2026-09-20"
     },
     {
       "key": "flavor",
@@ -537,7 +533,7 @@
       "DMI (IOD)",
       "NOAA OISST (computed)",
       "NOAA PSL monthly",
-      "live",
+      "stale",
       "just now"
     ],
     [
