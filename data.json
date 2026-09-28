@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-28T04:58:36.598Z",
+  "generated": "2026-09-28T13:34:07.946Z",
   "snapshotDate": "28 September 2026",
   "note": "Seed only. Overwritten by fetch-data.js on each scheduled run. Values here are a past snapshot, so every source ships flagged 'stale' — the app shows a stale chip until the pipeline has actually run. Card labels (name/heading/interpretation) live in DRV in index.html and the rules table is computed live by ruleRows(); neither is stored here, so neither can go stale.",
   "banner": {
@@ -29,14 +29,13 @@
   "drivers": [
     {
       "key": "enso",
-      "value": "+3.0°C",
+      "value": "+3.1°C",
       "cls": "s-hot",
       "status": "Very strong El Niño (\"super\") · strengthening",
       "gauge": 95,
       "gcol": "var(--hot)",
-      "src": "NOAA CPC weekly OISSTv2.1 (wksst9120.for) · 1991-2020 base · week centred 16SEP2026",
+      "src": "NOAA CPC weekly OISSTv2.1 (wksst9120.for) · 1991-2020 base · week centred 23SEP2026",
       "hist": [
-        1.7,
         2,
         2.1,
         2.2,
@@ -45,12 +44,13 @@
         2.6,
         2.6,
         2.6,
-        2.7,
+        2.8,
         2.9,
-        3
+        3,
+        3.1
       ],
       "basis": "weekly",
-      "asOf": "16SEP2026"
+      "asOf": "23SEP2026"
     },
     {
       "key": "oni",
@@ -461,7 +461,6 @@
   ],
   "nino34history": {
     "labels": [
-      "01JUL",
       "08JUL",
       "15JUL",
       "22JUL",
@@ -472,10 +471,10 @@
       "26AUG",
       "02SEP",
       "09SEP",
-      "16SEP"
+      "16SEP",
+      "23SEP"
     ],
     "values": [
-      1.7,
       2,
       2.1,
       2.2,
@@ -484,9 +483,10 @@
       2.6,
       2.6,
       2.6,
-      2.7,
+      2.8,
       2.9,
-      3
+      3,
+      3.1
     ],
     "basis": "weekly"
   },
