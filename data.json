@@ -1,6 +1,6 @@
 {
-  "generated": "2026-10-20T21:28:12.113Z",
-  "snapshotDate": "20 October 2026",
+  "generated": "2026-10-21T04:19:30.558Z",
+  "snapshotDate": "21 October 2026",
   "note": "Seed only. Overwritten by fetch-data.js on each scheduled run. Values here are a past snapshot, so every source ships flagged 'stale' — the app shows a stale chip until the pipeline has actually run. Card labels (name/heading/interpretation) live in DRV in index.html and the rules table is computed live by ruleRows(); neither is stored here, so neither can go stale.",
   "banner": {
     "tone": "warm",
@@ -365,14 +365,13 @@
     },
     {
       "key": "hc",
-      "value": "+3.5",
+      "value": "+3.2",
       "cls": "s-dry",
       "status": "Strongly recharged · El Niño-favourable",
       "gauge": 100,
       "gcol": "var(--dry)",
       "src": "NOAA PMEL TAO — warm water volume (wwv.dat) · ×10^14 m³",
       "hist": [
-        -0.26,
         -0.12,
         -0.16,
         0.2,
@@ -383,7 +382,8 @@
         2.7,
         3,
         3.24,
-        3.46
+        3.46,
+        3.16
       ]
     },
     {
