@@ -1,12 +1,12 @@
 {
-  "generated": "2026-10-26T04:20:52.599Z",
+  "generated": "2026-10-26T12:41:47.404Z",
   "snapshotDate": "26 October 2026",
   "note": "Seed only. Overwritten by fetch-data.js on each scheduled run. Values here are a past snapshot, so every source ships flagged 'stale' — the app shows a stale chip until the pipeline has actually run. Card labels (name/heading/interpretation) live in DRV in index.html and the rules table is computed live by ruleRows(); neither is stored here, so neither can go stale.",
   "banner": {
     "tone": "warm",
     "tag": "National Climate-Driver Status · Inter-monsoon",
-    "title": "El Niño — Holding steady",
-    "desc": "El Niño is holding steady during Malaysia's drier season. Expect a warm, dry bias with elevated drought and transboundary-haze risk, compounded by a positive Indian Ocean Dipole.",
+    "title": "El Niño — Strengthening",
+    "desc": "El Niño is strengthening during Malaysia's drier season. Expect a warm, dry bias with elevated drought and transboundary-haze risk, compounded by a positive Indian Ocean Dipole.",
     "pills": [
       [
         "hot",
@@ -29,14 +29,13 @@
   "drivers": [
     {
       "key": "enso",
-      "value": "+3.3°C",
+      "value": "+3.4°C",
       "cls": "s-hot",
-      "status": "Very strong El Niño (\"super\") · holding steady",
+      "status": "Very strong El Niño (\"super\") · strengthening",
       "gauge": 95,
       "gcol": "var(--hot)",
-      "src": "NOAA CPC weekly OISSTv2.1 (wksst9120.for) · 1991-2020 base · week centred 14OCT2026",
+      "src": "NOAA CPC weekly OISSTv2.1 (wksst9120.for) · 1991-2020 base · week centred 21OCT2026",
       "hist": [
-        2.4,
         2.5,
         2.6,
         2.6,
@@ -47,10 +46,11 @@
         3.1,
         3.2,
         3.3,
-        3.3
+        3.3,
+        3.4
       ],
       "basis": "weekly",
-      "asOf": "14OCT2026"
+      "asOf": "21OCT2026"
     },
     {
       "key": "oni",
@@ -128,7 +128,7 @@
       "status": "Positive IOD · drier for SE Asia",
       "gauge": 95.19521276595744,
       "gcol": "var(--dry)",
-      "src": "DMI computed from NOAA OISST — 2026-10-24 (nrt/upwell)",
+      "src": "DMI computed from NOAA OISST — 2026-10-24 (nrt/coastwatch)",
       "hist": [],
       "asOf": "2026-10-24",
       "adviceOk": true,
@@ -461,7 +461,6 @@
   ],
   "nino34history": {
     "labels": [
-      "29JUL",
       "05AUG",
       "12AUG",
       "19AUG",
@@ -472,10 +471,10 @@
       "23SEP",
       "30SEP",
       "07OCT",
-      "14OCT"
+      "14OCT",
+      "21OCT"
     ],
     "values": [
-      2.4,
       2.5,
       2.6,
       2.6,
@@ -486,7 +485,8 @@
       3.1,
       3.2,
       3.3,
-      3.3
+      3.3,
+      3.4
     ],
     "basis": "weekly"
   },
