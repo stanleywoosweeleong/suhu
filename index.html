@@ -18,7 +18,7 @@
 <style>
   /* Themes: dark is the default. Light applies when the phone prefers light
      (unless the user picked dark), or when the user picked light. Diagrams
-     keep their dark "figure" panel in both themes so their colours read. */
+     follow the theme too: figTheme() swaps their colours for light mode. */
   :root{
     --bg:#0b1220;--panel:#131c2e;--panel2:#1a2438;--line:#25324b;--ink:#eaf0fb;--muted:#93a1bd;
     --accent:#3b82f6;--dry:#f59e0b;--hot:#ef4444;--wet:#22c55e;--neutral:#64748b;--red:#e23744;
@@ -44,7 +44,7 @@
     --pill-bg:rgba(60,45,20,.08);--pill-watch:rgba(60,45,20,.11);--pill-ink:#1f1c17;
     --v-warm:rgba(254,215,200,.55);--v-cool:rgba(219,234,254,.7);
     --aq-good:#15803d;--aq-mod:#a16207;--aq-bad:#c2410c;--aq-danger:#dc2626;--aq-vbad:#7e22ce;
-    --fig-bg:#0f1a2e;--fig-line:#0f1a2e;--fig-ink:#e2e8f0;--fig-pad:8px;
+    --fig-bg:#efe9dd;--fig-line:#e0d8c8;--fig-ink:#1f1c17;--fig-pad:8px;
     color-scheme:light;
   } }
   :root[data-theme="light"]{
@@ -58,7 +58,7 @@
     --pill-bg:rgba(60,45,20,.08);--pill-watch:rgba(60,45,20,.11);--pill-ink:#1f1c17;
     --v-warm:rgba(254,215,200,.55);--v-cool:rgba(219,234,254,.7);
     --aq-good:#15803d;--aq-mod:#a16207;--aq-bad:#c2410c;--aq-danger:#dc2626;--aq-vbad:#7e22ce;
-    --fig-bg:#0f1a2e;--fig-line:#0f1a2e;--fig-ink:#e2e8f0;--fig-pad:8px;
+    --fig-bg:#efe9dd;--fig-line:#e0d8c8;--fig-ink:#1f1c17;--fig-pad:8px;
     color-scheme:light;
   }
   *{box-sizing:border-box}
@@ -440,6 +440,7 @@ function applyTheme(){
   if(THEME==='auto') root.removeAttribute('data-theme'); else root.setAttribute('data-theme',THEME);
   paintThemeBtn();
   const meta=document.querySelector('meta[name="theme-color"]'); if(meta) meta.content=cssVar('--bg');
+  renderGuideDiagrams();      // diagrams pick their palette at draw time too
   if(DATA) renderAll(DATA);   // the chart reads its colours at draw time
 }
 // Icon + label for the header button (label follows the language too).
@@ -867,6 +868,27 @@ function mjoReading(D){
     detail:(DRV.mjo?pick(DRV.mjo.interp):'')};
 }
 
+// ===== Diagram palette =====
+// The diagrams are drawn with dark-theme colours: pale text and lines meant for
+// a navy panel. In light mode figTheme() swaps those for darker equivalents
+// (and the SST map's navy ocean for a pale one). Tinted fills, the anomaly
+// gradients and the legend swatches read on both, so they are left alone.
+const FIG_LIGHT={
+  '#fbbf24':'#b45309','#f5b301':'#b45309','#fdba8c':'#c2410c','#f0b088':'#c2410c','#fca5a5':'#b91c1c',
+  '#2dd4bf':'#0d9488','#5eead4':'#0f766e','#9fe6da':'#0f766e','#f0abcc':'#be185d',
+  '#93c5fd':'#1d4ed8','#8fc0ea':'#1d4ed8','#7dd3fc':'#0369a1','#38bdf8':'#0284c7',
+  '#93a1bd':'#5d564a','#aab7cf':'#5d564a','#a7b4cc':'#5d564a','#8493ad':'#5d564a','#7f8ca6':'#6a6357','#cbd5e1':'#3a352d',
+  '#fff':'#1f1c17','#eaf3ff':'#1f1c17','#dfe8f5':'#475569',
+  '#0a1522':'#fbf8f2','#0a1420':'#fbf8f2','#0a0f19':'#fbf8f2',
+  '#152a44':'#d6e6f5','#5a6473':'#cfc6b4',
+  'rgba(8,12,22,.6)':'rgba(251,248,242,.85)','rgba(255,255,255,.30)':'rgba(60,45,20,.35)',
+  'rgba(255,255,255,.14)':'rgba(60,45,20,.2)','rgba(125,211,252,.5)':'rgba(3,105,161,.5)',
+};
+const FIG_RE=new RegExp(Object.keys(FIG_LIGHT).map(k=>k.replace(/[().]/g,'\\$&')+(k[0]==='#'?'(?![0-9a-fA-F])':'')).join('|'),'g');
+function figTheme(svg){
+  return getComputedStyle(document.documentElement).colorScheme==='light' ? svg.replace(FIG_RE,m=>FIG_LIGHT[m]) : svg;
+}
+
 // ===== MJO phase wheel (ported from the enso app, recoloured for dark theme) =====
 // Standard 8-phase RMM diagram. Highlights the current phase, tints the Maritime
 // Continent sectors (4-5 = "us"), plots the current (RMM1,RMM2) point, and draws
@@ -1017,9 +1039,9 @@ function iodMapSvg(){
 }
 function renderGuideDiagrams(){
   const set=(id,html)=>{const el=document.getElementById(id); if(el) el.innerHTML=html;};
-  set('gmapNino', ninoMapSvg());
-  set('gmapWalker', walkerSvg());
-  set('gmapIod', iodMapSvg());
+  set('gmapNino', figTheme(ninoMapSvg()));
+  set('gmapWalker', figTheme(walkerSvg()));
+  set('gmapIod', figTheme(iodMapSvg()));
 }
 
 // ===== Holistic region model =====
@@ -1438,7 +1460,7 @@ function renderAll(D){
 
   // MJO phase wheel + trail
   const _mjod=_byKey['mjo'];
-  const _mw=document.getElementById('mjowheel'); if(_mw) _mw.innerHTML=mjoWheelSvg(_mjod);
+  const _mw=document.getElementById('mjowheel'); if(_mw) _mw.innerHTML=figTheme(mjoWheelSvg(_mjod));
   const _mwn=document.getElementById('mjowheelnote');
   if(_mwn){ const mr=mjoReading(D);
     _mwn.innerHTML=`<div style="font-size:15px;color:var(--ink);margin-bottom:7px"><b>${mr.plain}</b> · <span style="color:var(--muted)">${mr.tag}</span></div><div style="font-size:13px;color:var(--src);line-height:1.65">`+
@@ -1451,7 +1473,7 @@ function renderAll(D){
 
   renderSources(D);
 
-  const _sm=document.getElementById('sstmap'); if(_sm) _sm.innerHTML=sstMap(D);
+  const _sm=document.getElementById('sstmap'); if(_sm) _sm.innerHTML=figTheme(sstMap(D));
   const _wc=document.getElementById('windChk'); if(_wc) _wc.checked=_showWind;
   // Noisy-signal caveat: shown only when the arrow is visible AND this week's trade
   // winds run opposite to the ENSO ocean state (ONI) — a short-term wind burst.
