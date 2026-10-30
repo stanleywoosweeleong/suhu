@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-30T06:30:44.897Z",
+  "generated": "2026-10-30T07:10:16.335Z",
   "snapshotDate": "30 October 2026",
   "note": "Seed only. Overwritten by fetch-data.js on each scheduled run. Values here are a past snapshot, so every source ships flagged 'stale' — the app shows a stale chip until the pipeline has actually run. Card labels (name/heading/interpretation) live in DRV in index.html and the rules table is computed live by ruleRows(); neither is stored here, so neither can go stale.",
   "banner": {
@@ -350,18 +350,18 @@
     },
     {
       "key": "flavor",
-      "value": "Niño4 +1.2 · N1+2 +2.8",
+      "value": "Niño4 +0.9 · N1+2 +4.7",
       "cls": "s-dry",
       "status": "Eastern-Pacific El Niño",
       "gauge": 62,
       "gcol": "var(--dry)",
       "nreg": {
-        "n12": 2.82,
-        "n3": 1.71,
-        "n4": 1.22,
-        "n34": 1.44
+        "n12": 4.69,
+        "n3": 3.64,
+        "n4": 0.95,
+        "n34": 2.84
       },
-      "src": "NOAA CPC ERSSTv5 monthly Niño regions · Jun 2026"
+      "src": "NOAA CPC OISST monthly Niño regions (sstoi.indices) · Sep 2026"
     },
     {
       "key": "hc",
@@ -500,8 +500,8 @@
     ],
     [
       "ENSO flavor (EP/CP)",
+      "NOAA CPC OISST",
       "NOAA CPC ERSSTv5",
-      "OISST Niño regions",
       "live",
       "just now"
     ],
