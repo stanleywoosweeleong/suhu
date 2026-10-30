@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-30T05:24:27.209Z",
+  "generated": "2026-10-30T06:30:44.897Z",
   "snapshotDate": "30 October 2026",
   "note": "Seed only. Overwritten by fetch-data.js on each scheduled run. Values here are a past snapshot, so every source ships flagged 'stale' — the app shows a stale chip until the pipeline has actually run. Card labels (name/heading/interpretation) live in DRV in index.html and the rules table is computed live by ruleRows(); neither is stored here, so neither can go stale.",
   "banner": {
@@ -547,5 +547,14 @@
       "live",
       "just now"
     ]
-  ]
+  ],
+  "outlook": {
+    "status": "El Niño Advisory",
+    "synopsis": "El Niño continues to strengthen, with a strong-to-very strong El Niño likely through January-March 2027 (remaining greater than an 83% chance).",
+    "synopsisZh": "厄尔尼诺持续强化，到2027年1月至3月可能出现强烈到非常强烈的厄尔尼诺(仍有超过83%的可能性)。",
+    "synopsisMs": "El Niño terus mengukuh, dengan El Niño yang kuat hingga sangat kuat mungkin sehingga Januari-Mac 2027 (kemungkinan kekal di atas 83%).",
+    "issued": "8 October 2026",
+    "next": "12 November 2026",
+    "via": "proxy"
+  }
 }
