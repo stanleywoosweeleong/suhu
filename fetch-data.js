@@ -731,6 +731,41 @@ async function fetchFlavor() {
 // as live long after JAMSTEC was dropped -- a label claiming a source the
 // pipeline had stopped using. Whatever actually answered now writes its own
 // name here.
+// ---- NOAA's monthly ENSO bulletin (CPC Diagnostic Discussion) ---------------
+// Alert status, one-line synopsis, issue date and the date of the NEXT issue.
+// Primary: the ENSO app's Cloudflare Worker (shared by both apps), which also
+// returns the synopsis machine-translated to Chinese and Malay. Fallback: read
+// CPC's page directly — status and dates still work, synopsis English-only.
+const OUTLOOK_PROXY = 'https://enso-proxy.standphoto.workers.dev/?feed=outlook';
+const CPC_DISC_URL  = 'https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/enso_advisory/ensodisc.shtml';
+async function fetchOutlook() {
+  let o = null, via = 'proxy';
+  try {
+    const j = JSON.parse(await getText(OUTLOOK_PROXY));
+    if (j && j.ok && j.status) o = j;
+  } catch (e) { console.warn('WARN outlook proxy: ' + e.message + ' — trying CPC directly'); }
+  if (!o) {
+    via = 'cpc';
+    const ENT = { nbsp: ' ', amp: '&', quot: '"', apos: "'", lt: '<', gt: '>', ntilde: 'ñ', Ntilde: 'Ñ',
+                  rsquo: '’', lsquo: '‘', ldquo: '“', rdquo: '”', ndash: '–', mdash: '—', deg: '°' };
+    const t = (await getText(CPC_DISC_URL)).replace(/<[^>]+>/g, ' ')
+      .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(+n))
+      .replace(/&([a-zA-Z]+);/g, (m, n) => ENT[n] != null ? ENT[n] : m)
+      .replace(/\s+/g, ' ');
+    const st = /ENSO Alert System Status:\s*(.{2,60}?)\s*(?:Synopsis:|$)/.exec(t);
+    if (!st) throw new Error('CPC status not found');
+    const sy = /Synopsis:\s*((?:[\s\S]{20,400}?[^\s])\.)(?=\s|$)/.exec(t);
+    const is = /issued\s+by[\s\S]{0,300}?(\d{1,2}\s+[A-Z][a-z]+\s+\d{4})/.exec(t);
+    const nx = /next\s+ENSO\s+Diagnostics?\s+Discussion\s+is\s+scheduled\s+for\s+(\d{1,2}\s+[A-Z][a-z]+\s+\d{4})/i.exec(t);
+    o = { status: st[1].trim(), synopsis: sy ? sy[1].trim() : null, issued: is ? is[1] : null, next: nx ? nx[1] : null };
+  }
+  // Monthly product: undated or older than 45 days is not "the latest bulletin".
+  if (ageDays(proseDateTs(o.issued)) > 45) throw new Error('bulletin dated ' + o.issued + ' is older than 45 days');
+  return { status: o.status, synopsis: o.synopsis || null,
+           synopsisZh: o.synopsisZh || null, synopsisMs: o.synopsisMs || null,
+           issued: o.issued, next: o.next || null, via };
+}
+
 function setSource(data, name, ok, names) {
   const row = data.sources.find(s => s[0].startsWith(name));
   if (!row) return;
@@ -869,6 +904,13 @@ async function main() {
   await runDriver(data, 'iod', 'DMI', fetchDMI);
   await runDriver(data, 'mjo', 'MJO', fetchMJO);
 
+  // NOAA's monthly bulletin. On failure keep the last one; the page applies the
+  // same 45-day limit, so a stale copy drops off on its own.
+  try {
+    data.outlook = await fetchOutlook();
+    console.log('OK  outlook: ' + data.outlook.status + ' (' + data.outlook.issued + ', next ' + data.outlook.next + ', via ' + data.outlook.via + ')');
+  } catch (e) { console.error('ERR outlook failed, keeping last value: ' + e.message); }
+
   // National narrative from the live ENSO sign + IOD + monsoon month
   try {
     const h = data.nino34history;
@@ -905,4 +947,4 @@ if (require.main === module) {
   main().catch(e => { console.error('fatal', e); process.exit(1); });
 }
 
-module.exports = { latestMonthly, latestCpcStd, parseWeeklyNino, parseErsstNino, buildNinoCard, weekTs, classifyNino, classifySOI, classifyDMI, classifyMJO, classifyWWV, classifyWind, classifyOLR, classifyFlavor, fmt };
+module.exports = { fetchOutlook, latestMonthly, latestCpcStd, parseWeeklyNino, parseErsstNino, buildNinoCard, weekTs, classifyNino, classifySOI, classifyDMI, classifyMJO, classifyWWV, classifyWind, classifyOLR, classifyFlavor, fmt };

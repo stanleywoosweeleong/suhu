@@ -1,5 +1,5 @@
 // SUHU service worker — offline app shell + fresh-data strategy
-const VERSION = 'suhu-v67';
+const VERSION = 'suhu-v71';
 const APP_SHELL = [
   './',
   './index.html',
@@ -16,11 +16,14 @@ self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(VERSION).then((c) => c.addAll(APP_SHELL)).then(() => self.skipWaiting()));
 });
 
-// Activate: drop old caches.
+// Activate: drop OUR old caches. Cache storage is shared by every app on
+// stanleywoosweeleong.github.io (enso, grasscutting...), so only names with
+// our own prefix are ours to delete.
+const CACHE_PREFIX = 'suhu-';
 self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== VERSION).map((k) => caches.delete(k)))
+      Promise.all(keys.filter((k) => k.startsWith(CACHE_PREFIX) && k !== VERSION).map((k) => caches.delete(k)))
     ).then(() => self.clients.claim())
   );
 });

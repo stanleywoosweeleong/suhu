@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>SUHU-ENSO — Malaysia</title>
 <meta name="theme-color" content="#0b1220">
+<script>/* apply a saved theme before first paint (no flash) */try{var _t=localStorage.getItem("suhu_theme");if(_t==="light"||_t==="dark")document.documentElement.setAttribute("data-theme",_t)}catch(e){}</script>
 <meta name="description" content="Multi-source El Niño / IOD / MJO monitoring for Malaysia and the Maritime Continent.">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/png" href="icons/icon-192.png">
@@ -15,9 +16,50 @@
 <meta name="apple-mobile-web-app-title" content="SUHU-ENSO">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
+  /* Themes: dark is the default. Light applies when the phone prefers light
+     (unless the user picked dark), or when the user picked light. Diagrams
+     keep their dark "figure" panel in both themes so their colours read. */
   :root{
     --bg:#0b1220;--panel:#131c2e;--panel2:#1a2438;--line:#25324b;--ink:#eaf0fb;--muted:#93a1bd;
     --accent:#3b82f6;--dry:#f59e0b;--hot:#ef4444;--wet:#22c55e;--neutral:#64748b;--red:#e23744;
+    --soft:rgba(255,255,255,.08);--src:#6b7a97;--sub:#c9d5ea;--neu-ink:#9fb0c9;--on-wet:#04220f;
+    --stale-ink:#e0b878;--stale-chip:#c99a5b;
+    --inset:rgba(6,10,20,.35);--inset2:rgba(6,10,20,.45);
+    --bw1:#3a1d10;--bw2:#4a1418;--bwb:#6b2d1a;--bc1:#0d2436;--bc2:#10233a;--bcb:#1d3a5b;--bn1:#1a2230;--bn2:#181f2e;--bnb:#2a3550;
+    --b-tag:#cdd9ee;--b-desc:#e6edfa;--b-trend:#f0c98a;--b-mark:#fff;--b-mark2:#cdd7ea;--b-zone:#8b98b3;
+    --pill-bg:rgba(255,255,255,.12);--pill-watch:rgba(255,255,255,.16);--pill-ink:#fff;
+    --v-warm:rgba(58,29,16,.45);--v-cool:rgba(13,36,54,.45);
+    --aq-good:#22c55e;--aq-mod:#f4c430;--aq-bad:#f59e0b;--aq-danger:#ef4444;--aq-vbad:#c084fc;
+    --fig-bg:rgba(255,255,255,.03);--fig-line:rgba(255,255,255,.08);--fig-ink:#eaf0fb;--fig-pad:0;
+    color-scheme:dark;
+  }
+  @media (prefers-color-scheme: light){ :root:not([data-theme="dark"]){
+    --bg:#f4f7fb;--panel:#ffffff;--panel2:#eef2f8;--line:#d8e0ec;--ink:#0f172a;--muted:#52607a;
+    --accent:#2563eb;--dry:#b45309;--hot:#dc2626;--wet:#15803d;--neutral:#64748b;--red:#dc2626;
+    --soft:rgba(15,23,42,.08);--src:#64748b;--sub:#334155;--neu-ink:#475569;--on-wet:#ffffff;
+    --stale-ink:#92400e;--stale-chip:#a16207;
+    --inset:rgba(15,23,42,.05);--inset2:rgba(255,255,255,.75);
+    --bw1:#fff1e8;--bw2:#fde4e1;--bwb:#f5c4b0;--bc1:#e8f2fd;--bc2:#e3edfb;--bcb:#bcd3f0;--bn1:#f1f4f8;--bn2:#eceff5;--bnb:#d5dce8;
+    --b-tag:#475569;--b-desc:#1e293b;--b-trend:#9a3412;--b-mark:#0f172a;--b-mark2:#475569;--b-zone:#64748b;
+    --pill-bg:rgba(15,23,42,.07);--pill-watch:rgba(15,23,42,.1);--pill-ink:#0f172a;
+    --v-warm:rgba(254,215,200,.55);--v-cool:rgba(219,234,254,.7);
+    --aq-good:#15803d;--aq-mod:#a16207;--aq-bad:#c2410c;--aq-danger:#dc2626;--aq-vbad:#7e22ce;
+    --fig-bg:#0f1a2e;--fig-line:#0f1a2e;--fig-ink:#e2e8f0;--fig-pad:8px;
+    color-scheme:light;
+  } }
+  :root[data-theme="light"]{
+    --bg:#f4f7fb;--panel:#ffffff;--panel2:#eef2f8;--line:#d8e0ec;--ink:#0f172a;--muted:#52607a;
+    --accent:#2563eb;--dry:#b45309;--hot:#dc2626;--wet:#15803d;--neutral:#64748b;--red:#dc2626;
+    --soft:rgba(15,23,42,.08);--src:#64748b;--sub:#334155;--neu-ink:#475569;--on-wet:#ffffff;
+    --stale-ink:#92400e;--stale-chip:#a16207;
+    --inset:rgba(15,23,42,.05);--inset2:rgba(255,255,255,.75);
+    --bw1:#fff1e8;--bw2:#fde4e1;--bwb:#f5c4b0;--bc1:#e8f2fd;--bc2:#e3edfb;--bcb:#bcd3f0;--bn1:#f1f4f8;--bn2:#eceff5;--bnb:#d5dce8;
+    --b-tag:#475569;--b-desc:#1e293b;--b-trend:#9a3412;--b-mark:#0f172a;--b-mark2:#475569;--b-zone:#64748b;
+    --pill-bg:rgba(15,23,42,.07);--pill-watch:rgba(15,23,42,.1);--pill-ink:#0f172a;
+    --v-warm:rgba(254,215,200,.55);--v-cool:rgba(219,234,254,.7);
+    --aq-good:#15803d;--aq-mod:#a16207;--aq-bad:#c2410c;--aq-danger:#dc2626;--aq-vbad:#7e22ce;
+    --fig-bg:#0f1a2e;--fig-line:#0f1a2e;--fig-ink:#e2e8f0;--fig-pad:8px;
+    color-scheme:light;
   }
   *{box-sizing:border-box}
   /* Safe area: keep content clear of the iPhone Dynamic Island / notch */
@@ -34,44 +76,44 @@
   header{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
   h1{font-size:20px;margin:0}
   .sub{color:var(--muted);font-size:12px;margin-top:2px}
-  #installBtn{display:none;background:var(--wet);border:none;color:#04220f;font-weight:700;
+  #installBtn{display:none;background:var(--wet);border:none;color:var(--on-wet);font-weight:700;
     padding:8px 14px;border-radius:999px;cursor:pointer;font-size:13px}
 
   .banner{border-radius:16px;padding:20px 22px;margin-bottom:16px;border:1px solid var(--line)}
-  .banner.tone-warm{background:linear-gradient(135deg,#3a1d10,#4a1418);border-color:#6b2d1a}
-  .banner.tone-cool{background:linear-gradient(135deg,#0d2436,#10233a);border-color:#1d3a5b}
-  .banner.tone-neutral{background:linear-gradient(135deg,#1a2230,#181f2e);border-color:#2a3550}
-  .banner .tag{display:inline-block;font-size:10.5px;letter-spacing:1.4px;text-transform:uppercase;color:#cdd9ee;font-weight:700}
+  .banner.tone-warm{background:linear-gradient(135deg,var(--bw1),var(--bw2));border-color:var(--bwb)}
+  .banner.tone-cool{background:linear-gradient(135deg,var(--bc1),var(--bc2));border-color:var(--bcb)}
+  .banner.tone-neutral{background:linear-gradient(135deg,var(--bn1),var(--bn2));border-color:var(--bnb)}
+  .banner .tag{display:inline-block;font-size:10.5px;letter-spacing:1.4px;text-transform:uppercase;color:var(--b-tag);font-weight:700}
   .banner h2{margin:6px 0 4px;font-size:26px}
-  .banner .desc{color:#e6edfa;max-width:660px;font-size:14px;margin-top:16px}
+  .banner .desc{color:var(--b-desc);max-width:660px;font-size:14px;margin-top:16px}
   .pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
   .btop{display:flex;align-items:center;gap:11px;margin:8px 0 2px}
   .btop h2{margin:0;font-size:26px}
   .bdot{width:14px;height:14px;border-radius:50%;flex:0 0 auto}
-  .btrend{margin-left:auto;font-size:13px;color:#f0c98a;white-space:nowrap}
+  .btrend{margin-left:auto;font-size:13px;color:var(--b-trend);white-space:nowrap}
   .escale{position:relative;margin:18px 2px 4px;padding-top:30px}
   .ebar{display:flex;height:16px;border-radius:8px;overflow:hidden}
   .ebar>div{height:100%}
   .emark{position:absolute;transform:translateX(-50%);text-align:center;white-space:nowrap;pointer-events:none}
   .emark span{font-size:11px;display:block;line-height:1.2}
-  .eoni{top:0} .eoni span{color:#fff;font-weight:700}
-  .eoni i{display:block;width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:7px solid #fff;margin:2px auto 0}
-  .eroni{top:48px} .eroni span{color:#cdd7ea}
-  .eroni i{display:block;width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-bottom:7px solid #cdd7ea;margin:0 auto 1px}
-  .ezones{display:flex;justify-content:space-between;font-size:10px;color:#8b98b3;margin-top:42px}
+  .eoni{top:0} .eoni span{color:var(--b-mark);font-weight:700}
+  .eoni i{display:block;width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:7px solid var(--b-mark);margin:2px auto 0}
+  .eroni{top:48px} .eroni span{color:var(--b-mark2)}
+  .eroni i{display:block;width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-bottom:7px solid var(--b-mark2);margin:0 auto 1px}
+  .ezones{display:flex;justify-content:space-between;font-size:10px;color:var(--b-zone);margin-top:42px}
   .bgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:13px}
   @media(max-width:620px){.bgrid{grid-template-columns:1fr}}
-  .pill{font-size:12px;font-weight:700;padding:5px 11px;border-radius:999px;background:rgba(255,255,255,.12);color:#fff}
-  .pill.hot{background:rgba(239,68,68,.25)} .pill.dry{background:rgba(245,158,11,.25)} .pill.watch{background:rgba(255,255,255,.16)} .pill.wet{background:rgba(34,197,94,.25)}
+  .pill{font-size:12px;font-weight:700;padding:5px 11px;border-radius:999px;background:var(--pill-bg);color:var(--pill-ink)}
+  .pill.hot{background:rgba(239,68,68,.25)} .pill.dry{background:rgba(245,158,11,.25)} .pill.watch{background:var(--pill-watch)} .pill.wet{background:rgba(34,197,94,.25)}
 
   .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:13px;margin-bottom:16px}
-  .dgroup{grid-column:1/-1;font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:8px 0 -4px;padding-top:9px;border-top:1px solid rgba(255,255,255,.08)}
+  .dgroup{grid-column:1/-1;font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:8px 0 -4px;padding-top:9px;border-top:1px solid var(--soft)}
   .dgroup:first-child{margin-top:0;padding-top:0;border-top:none}
-  .mjowrap{max-width:540px;margin:0 auto}
+  .mjowrap{max-width:540px;margin:0 auto;background:var(--fig-bg);border-radius:12px;padding:var(--fig-pad)}
   .windtgl{display:inline-flex;align-items:center;gap:7px;margin-top:9px;font-size:12px;color:var(--muted);cursor:pointer;user-select:none}
   .windtgl input{accent-color:var(--accent);cursor:pointer;margin:0}
-  .gmap{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px 10px 6px;margin:10px 0}
-  .gmap .gmt{font-size:12px;font-weight:700;color:var(--ink);margin-bottom:6px}
+  .gmap{background:var(--fig-bg);border:1px solid var(--fig-line);border-radius:10px;padding:10px 10px 6px;margin:10px 0}
+  .gmap .gmt{font-size:12px;font-weight:700;color:var(--fig-ink);margin-bottom:6px}
   .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:15px}
   .card h3{margin:0 0 2px;font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
   .card .name{font-size:12px;color:var(--muted)}
@@ -81,13 +123,13 @@
   .spark svg{flex:0 0 auto}
   .status{display:inline-block;font-size:12px;font-weight:700;padding:3px 9px;border-radius:6px;margin-bottom:8px}
   .s-dry{background:rgba(245,158,11,.18);color:var(--dry)} .s-hot{background:rgba(239,68,68,.18);color:var(--hot)}
-  .s-wet{background:rgba(34,197,94,.18);color:var(--wet)} .s-neu{background:rgba(100,116,139,.2);color:#9fb0c9}
+  .s-wet{background:rgba(34,197,94,.18);color:var(--wet)} .s-neu{background:rgba(100,116,139,.2);color:var(--neu-ink)}
   .card .interp{font-size:12.5px;color:var(--muted);margin-top:4px}
   .gauge{height:7px;background:var(--panel2);border-radius:99px;margin:10px 0 4px;position:relative;overflow:hidden}
   .gauge .fill{position:absolute;top:0;bottom:0;border-radius:99px}
-  .gsrc{font-size:10.5px;color:#6b7a97;margin-top:8px}
-  #staleNotice{background:rgba(201,154,91,.12);border:1px solid rgba(201,154,91,.38);color:#e0b878;padding:10px 14px;border-radius:10px;margin:0 0 14px;font-size:13px;line-height:1.5}
-  .stalechip{display:inline-block;font-size:10px;font-weight:600;color:#c99a5b;border:1px solid rgba(201,154,91,.45);border-radius:4px;padding:1px 5px;margin-left:7px;vertical-align:middle;white-space:nowrap}
+  .gsrc{font-size:10.5px;color:var(--src);margin-top:8px}
+  #staleNotice{background:rgba(201,154,91,.12);border:1px solid rgba(201,154,91,.38);color:var(--stale-ink);padding:10px 14px;border-radius:10px;margin:0 0 14px;font-size:13px;line-height:1.5}
+  .stalechip{display:inline-block;font-size:10px;font-weight:600;color:var(--stale-chip);border:1px solid rgba(201,154,91,.45);border-radius:4px;padding:1px 5px;margin-left:7px;vertical-align:middle;white-space:nowrap}
 
   .section-title{font-size:14px;font-weight:700;margin:24px 0 12px;display:flex;align-items:center;gap:8px}
   .section-title::before{content:"";width:4px;height:16px;background:var(--accent);border-radius:2px}
@@ -120,22 +162,24 @@
   .impact-ctrl select{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:13px}
   .big{font-size:32px;font-weight:800;line-height:1.1;margin:4px 0 2px}
   .verdict{margin-bottom:16px;border:1px solid var(--line)}
-  .verdict.tone-warm{border-left:4px solid var(--hot);background:linear-gradient(135deg,rgba(58,29,16,.45),var(--panel))}
-  .verdict.tone-cool{border-left:4px solid var(--accent);background:linear-gradient(135deg,rgba(13,36,54,.45),var(--panel))}
+  .verdict.tone-warm{border-left:4px solid var(--hot);background:linear-gradient(135deg,var(--v-warm),var(--panel))}
+  .verdict.tone-cool{border-left:4px solid var(--accent);background:linear-gradient(135deg,var(--v-cool),var(--panel))}
   .verdict.tone-neutral{border-left:4px solid var(--neutral)}
   .vtitle{font-size:18px;font-weight:800;margin-bottom:6px}
-  .vwhy{font-size:13px;color:#c9d5ea;line-height:1.6;margin-bottom:8px}
+  .vwhy{font-size:13px;color:var(--sub);line-height:1.6;margin-bottom:8px}
   .vfarm{font-size:13px;color:var(--ink);background:var(--panel2);border-radius:8px;padding:9px 11px;line-height:1.55}
-  .vshort{font-size:12.5px;color:var(--ink);line-height:1.55;margin-top:8px;padding:8px 11px;border-radius:8px;background:rgba(6,10,20,.35);border-left:3px solid var(--muted)}
+  .vshort{font-size:12.5px;color:var(--ink);line-height:1.55;margin-top:8px;padding:8px 11px;border-radius:8px;background:var(--inset);border-left:3px solid var(--muted)}
   .vshort b{color:var(--ink)}
+  .vnoaa{font-size:12.5px;color:var(--ink);line-height:1.55;margin-top:8px;padding:8px 11px;border-radius:8px;background:var(--inset);border-left:3px solid var(--accent)}
+  .vnoaa .nd{color:var(--muted);font-size:11.5px}
   .subrow{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:8px}
   .subrow b{color:var(--ink)}
   .advice{font-size:12.5px;color:var(--muted);margin-top:8px;padding-top:8px;border-top:1px solid var(--line)}
-  .s-good{background:rgba(34,197,94,.18);color:#22c55e}
-  .s-mod{background:rgba(244,196,48,.18);color:#f4c430}
-  .s-bad{background:rgba(245,158,11,.18);color:#f59e0b}
-  .s-danger{background:rgba(239,68,68,.18);color:#ef4444}
-  .s-vbad{background:rgba(168,85,247,.22);color:#c084fc}
+  .s-good{background:rgba(34,197,94,.18);color:var(--aq-good)}
+  .s-mod{background:rgba(244,196,48,.18);color:var(--aq-mod)}
+  .s-bad{background:rgba(245,158,11,.18);color:var(--aq-bad)}
+  .s-danger{background:rgba(239,68,68,.18);color:var(--aq-danger)}
+  .s-vbad{background:rgba(168,85,247,.22);color:var(--aq-vbad)}
 
   .hbtn{background:var(--panel);border:1px solid var(--line);color:var(--ink);padding:7px 13px;border-radius:999px;cursor:pointer;font-size:13px;font-weight:600}
   .hbtn:hover{border-color:var(--accent);color:var(--accent)}
@@ -156,18 +200,51 @@
   .guide table{table-layout:fixed;width:100%}
   .guide h3{font-size:14px;margin:22px 0 8px;color:var(--ink)}
   .guide>p:first-child,.guide h3:first-child{margin-top:0}
-  .guide p{font-size:13.5px;color:#c9d5ea;line-height:1.6;margin:0 0 10px}
+  .guide p{font-size:13.5px;color:var(--sub);line-height:1.6;margin:0 0 10px}
   .guide ul{margin:8px 0;padding-left:18px}
-  .guide li{font-size:12.8px;color:#c9d5ea;margin:5px 0;line-height:1.5}
+  .guide li{font-size:12.8px;color:var(--sub);margin:5px 0;line-height:1.5}
   .guide .gitem{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:11px 13px;margin:8px 0}
   .guide .gitem .gt{font-weight:700;color:var(--ink);font-size:13.5px}
   .guide .gitem p{margin:4px 0 0;font-size:12.8px}
   @media(min-width:720px){
     .sheet{top:50%;bottom:auto;left:50%;right:auto;transform:translate(-50%,-50%);width:min(680px,92vw);max-height:86vh;border-radius:16px;border:1px solid var(--line)}
   }
+  /* First launch: pick a language */
+  .onboard{position:fixed;inset:0;z-index:200;overflow:auto;background:var(--bg);color:var(--ink);
+    padding:calc(28px + env(safe-area-inset-top)) 20px calc(24px + env(safe-area-inset-bottom))}
+  .onboard[hidden]{display:none}
+  .ob-in{max-width:420px;min-height:100%;margin:0 auto;display:flex;flex-direction:column;gap:22px}
+  .ob-top{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
+  .ob-top img{width:64px;height:64px;border-radius:14px}
+  .ob-top b{font-size:20px;letter-spacing:.04em}.ob-top span{font-size:13px;color:var(--muted)}
+  .ob-pick{text-align:center;margin-top:auto}
+  .ob-pick h2{font-size:22px;margin:0;line-height:1.35}
+  .ob-pick h2 + h2{font-size:17px;font-weight:600;color:var(--muted)}
+  .ob-langs{display:flex;flex-direction:column;gap:10px;margin-bottom:auto}
+  .ob-langs button{display:flex;justify-content:space-between;align-items:center;width:100%;
+    background:var(--panel);color:var(--ink);border:2px solid var(--line);border-radius:12px;
+    padding:15px 16px;font-size:17px;font-weight:700;cursor:pointer;font-family:inherit}
+  .ob-langs button span{font-weight:500;color:var(--muted);font-size:13px}
+  .ob-langs button[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.3)}
+  .ob-langs button:active{transform:scale(.98)}
 </style>
 </head>
 <body>
+<div class="onboard" id="onboard" role="dialog" aria-modal="true" aria-label="Choose your language" hidden>
+  <div class="ob-in">
+    <div class="ob-top">
+      <img src="icons/icon-192.png" alt="">
+      <b>SUHU</b>
+      <span>Malaysia &amp; the Maritime Continent</span>
+    </div>
+    <div class="ob-pick">
+      <h2 lang="zh">选择语言</h2>
+      <h2 lang="en">Choose your language</h2>
+      <h2 lang="ms">Pilih bahasa</h2>
+    </div>
+    <div class="ob-langs" id="obLangs"></div>
+  </div>
+</div>
 <div class="wrap">
   <header>
     <div>
@@ -178,6 +255,7 @@
         <circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><circle cx="12" cy="7.6" r="1.1" fill="currentColor" stroke="none"/>
       </svg>
     </button>
+    <button class="hbtn" id="themeBtn" onclick="cycleTheme()">🌓</button>
     <button class="hbtn" id="langBtn" onclick="toggleLang()">EN</button>
     <button id="installBtn" onclick="doInstall()" data-i18n="install_btn">⬇ 安装</button>
   </header>
@@ -201,7 +279,7 @@
     <h4 data-i18n="panel_sst">海表温度距平 · 太平洋</h4>
     <div id="sstmap"></div>
     <label class="windtgl"><input type="checkbox" id="windChk" onchange="toggleWind()"><span data-i18n="wind_arrow">显示信风 / 暖水推移箭头</span></label>
-    <div id="windnote" style="margin-top:8px;font-size:11px;line-height:1.55;color:#c99a5b"></div>
+    <div id="windnote" style="margin-top:8px;font-size:11px;line-height:1.55;color:var(--stale-chip)"></div>
     <div class="gsrc" style="margin-top:8px" data-i18n="sst_note"></div>
   </div>
   <div class="panel" style="margin-top:14px">
@@ -287,17 +365,73 @@
 
 <script>
 // ============ Language ============
-let LANG = localStorage.getItem('suhu_lang') || 'zh';
-const L = (zh,en)=>LANG==='zh'?zh:en;
+// Cycle: Chinese → English → Bahasa Melayu. Anything missing in Malay falls
+// back to English (never to Chinese).
+const LANGS = ['zh','en','ms'];
+const LANG_LBL = { zh:'中文', en:'EN', ms:'BM' };
+const LANG_NATIVE = { zh:'中文', en:'English', ms:'Bahasa Melayu' };
+// First launch = nothing of ours stored and no service worker from an earlier
+// visit. Decided once, at startup, so people who used SUHU before the picker
+// existed never see it.
+const FIRST_RUN = (function(){
+  try {
+    if (navigator.serviceWorker && navigator.serviceWorker.controller) return false;
+    return !['suhu_onboarded','suhu_lang','suhu_loc','suhu_wind'].some(k=>localStorage.getItem(k)!==null);
+  } catch(e){ return false; }
+})();
+// Best guess from the phone's language, pre-selected on the picker.
+function deviceLang(){
+  const l=((navigator.languages&&navigator.languages[0])||navigator.language||'').toLowerCase();
+  if(l.startsWith('zh')) return 'zh';
+  if(l.startsWith('ms')||l.startsWith('id')) return 'ms';
+  return l.startsWith('en') ? 'en' : 'zh';
+}
+let LANG = (function(){ try{ return localStorage.getItem('suhu_lang'); }catch(e){ return null; } })()
+        || (FIRST_RUN ? deviceLang() : 'zh');
+if (!LANGS.includes(LANG)) LANG = 'zh';
+const L = (zh,en,ms)=>LANG==='zh'?zh:(LANG==='ms'&&ms!=null?ms:en);
 let DATA=null, LOC=null;
 
-function toggleLang(){ setLang(LANG==='zh'?'en':'zh'); }
+function toggleLang(){ setLang(LANGS[(LANGS.indexOf(LANG)+1)%LANGS.length]); }
 function setLang(l){ LANG=l; try{localStorage.setItem('suhu_lang',l);}catch(e){} applyLang(); }
+
+// ============ Theme ============
+// 'auto' follows the phone; 'light' / 'dark' are the user's override (saved).
+// The <head> script applies a saved choice before first paint.
+const THEMES = ['auto','light','dark'];
+const THEME_ICON = { auto:'🌓', light:'☀️', dark:'🌙' };
+let THEME = (function(){ try{ const t=localStorage.getItem('suhu_theme'); return THEMES.includes(t)?t:'auto'; }catch(e){ return 'auto'; } })();
+const darkMQ = window.matchMedia ? matchMedia('(prefers-color-scheme: dark)') : null;
+const cssVar = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+function applyTheme(){
+  const root=document.documentElement;
+  if(THEME==='auto') root.removeAttribute('data-theme'); else root.setAttribute('data-theme',THEME);
+  paintThemeBtn();
+  const meta=document.querySelector('meta[name="theme-color"]'); if(meta) meta.content=cssVar('--bg');
+  if(DATA) renderAll(DATA);   // the chart reads its colours at draw time
+}
+// Icon + label for the header button (label follows the language too).
+function paintThemeBtn(){
+  const btn=document.getElementById('themeBtn'); if(!btn) return;
+  btn.textContent=THEME_ICON[THEME];
+  const name=THEME==='auto'?L('跟随手机','Follow phone','Ikut telefon'):THEME==='light'?L('浅色','Light','Cerah'):L('深色','Dark','Gelap');
+  btn.title=L('主题：','Theme: ','Tema: ')+name; btn.setAttribute('aria-label',btn.title);
+}
+function cycleTheme(){
+  THEME=THEMES[(THEMES.indexOf(THEME)+1)%THEMES.length];
+  try{ THEME==='auto'?localStorage.removeItem('suhu_theme'):localStorage.setItem('suhu_theme',THEME); }catch(e){}
+  applyTheme();
+}
+// In auto mode, follow the phone when it switches (e.g. at sunset).
+if(darkMQ&&darkMQ.addEventListener) darkMQ.addEventListener('change',()=>{ if(THEME==='auto') applyTheme(); });
+// Table lookup with an English fallback for keys not yet in Malay.
+const tk = k => (T[LANG]&&T[LANG][k]!=null) ? T[LANG][k] : T.en[k];
 function applyLang(){
-  document.documentElement.lang = LANG==='zh'?'zh':'en';
-  document.getElementById('langBtn').textContent = LANG==='zh'?'中文':'EN';
-  document.querySelectorAll('[data-i18n]').forEach(el=>{ const v=T[LANG][el.dataset.i18n]; if(v!=null) el.textContent=v; });
-  document.querySelectorAll('[data-i18n-html]').forEach(el=>{ const v=T[LANG][el.dataset.i18nHtml]; if(v!=null) el.innerHTML=v; });
+  document.documentElement.lang = LANG;
+  document.getElementById('langBtn').textContent = LANG_LBL[LANG];
+  if(typeof paintThemeBtn==='function') paintThemeBtn();
+  document.querySelectorAll('[data-i18n]').forEach(el=>{ const v=tk(el.dataset.i18n); if(v!=null) el.textContent=v; });
+  document.querySelectorAll('[data-i18n-html]').forEach(el=>{ const v=tk(el.dataset.i18nHtml); if(v!=null) el.innerHTML=v; });
   const _cs=document.getElementById('citySel'); if(_cs&&window._fillCities){const _v=_cs.value;window._fillCities();_cs.value=_v;}
   renderGuideDiagrams();
   if(DATA) renderAll(DATA);
@@ -398,21 +532,79 @@ const T = {
     g_noaa_body:'<ul><li><b>Multi-driver, not ENSO-only</b> — ENSO + IOD + MJO + monsoon, the drivers that govern Malaysian rain.</li><li><b>Tuned to the Maritime Continent</b> — weights Maritime-Continent drivers over the eastern-Pacific indices (the IOD is computed directly from NOAA OISST).</li><li><b>Interprets locally</b> — turns "state of the Pacific" into drought / haze vs flood risk, by region and season.</li><li><b>Multi-source & fault-tolerant</b> — several sources with automatic fallback, so no single agency going down blinds the tool.</li></ul><p>In short: NOAA answers "what is the Pacific doing?" — SUHU answers "what does it mean for Malaysia this season?"</p>',
     g_attr_h:'Data & attribution',
     g_attr_p:'ENSO / Niño 3.4 / ONI / RONI — NOAA CPC · ENSO flavor (Niño 1+2/3/4) — NOAA CPC ERSSTv5 · Subsurface heat content (WWV) — NOAA PMEL / GODAS · SOI — Australia BoM (Troup) · Trade winds (850 hPa) & dateline OLR — NOAA CPC · IOD / DMI — computed from NOAA OISST (fallback: NOAA PSL monthly) · MJO — NOAA PSL ROMI (fallback: Australia BoM RMM) · Air quality & heat — Open-Meteo · Fire — NASA FIRMS. Used with attribution; no endorsement by these agencies is implied.'
+  },
+  ms:{
+    sub:'Malaysia & Benua Maritim',
+    guide_btn:'ⓘ Panduan',
+    install_btn:'⬇ Pasang',
+    st_drivers:'Pemacu iklim',
+    st_mjo:'Penjejak fasa MJO',
+    gmap_nino:'Empat kotak pemantauan (barat ke timur)',
+    gmap_walker:'Peredaran Walker: mengapa El Niño menjadikan kita lebih kering',
+    gmap_iod:'Dipol Lautan Hindi: dua kutub SST',
+    drivers_intro:'El Niño / La Niña merentasi tiga tiang — <b>permukaan</b> (Niño 3.4 / ONI / RONI / jenis), <b>bawah permukaan</b> (kandungan haba) dan <b>atmosfera</b> (SOI / angin pasat / perolakan) — serta <b>IOD</b> dan <b>MJO</b>. Baru di sini? Buka <a href="#" onclick="openGuide();return false">ⓘ Panduan</a>.',
+    st_regions:'Tinjauan serantau — maksudnya di lapangan',
+    st_nowcast:'Keadaan & trend lautan',
+    panel_sst:'Anomali SST · Indo-Pasifik',
+    wind_arrow:'Tunjuk anak panah angin / air panas',
+    sat_note:'Skematik berpusat di Benua Maritim (Malaysia): lidah panas yang menjulur ke timur ialah El Niño; kotak putih ialah Niño 3.4. Kekuatan dan kedudukannya (timur = jenis EP, tengah = CP/Modoki) dilukis secara langsung daripada SST kawasan Niño yang sudah diambil oleh aplikasi — bukan imej satelit. Garis pantai: Natural Earth (110m); palet mengikut NASA SVS.',
+    panel_chart:'Anomali SST Niño 3.4 — 12 minggu terakhir',
+    chart_note:'Anomali °C, 12 minggu terakhir. Positif & meningkat = El Niño semakin kuat. Sumber: NOAA CPC OISST mingguan (asas 1991–2020).',
+    st_impact:'Kesan setempat — ',
+    loc_label:'Lokasi',
+    geo_btn:'📍 Guna lokasi saya',
+    impact_note:'Kualiti udara & haba: Open-Meteo (dimodelkan, dikemas kini secara langsung mengikut lokasi). Titik panas kebakaran: NASA FIRMS (VIIRS + MODIS, 5 satelit). Indeks rasmi Malaysia: <a href="https://eqms.doe.gov.my" target="_blank">DOE MyEQMS · APIMS ↗</a>.',
+    guide_title:'Panduan — cara membaca SUHU',
+    g_intro:'<strong>SUHU ialah lapisan tafsiran, bukan ramalan bebas.</strong> Ia mengumpulkan pemantauan ENSO / IOD / MJO dunia — termasuk NOAA — dan menterjemahkannya kepada maksud pemacu-pemacu itu terhadap hujan, kemarau dan jerebu di Malaysia. NOAA, BoM, JAMSTEC dan JMA kekal sebagai pihak berkuasa asas.',
+    g_share_h:'Buka / kongsi aplikasi ini',
+    g_share_p:'Imbas kod QR atau buka pautan untuk menggunakan aplikasi ini pada mana-mana peranti:<br><a href="https://stanleywoosweeleong.github.io/suhu/" target="_blank">stanleywoosweeleong.github.io/suhu</a>',
+    g_banner_h:'Sepanduk status',
+    g_banner_p:'Sepanduk berwarna di atas ialah kesimpulan kebangsaan: fasa ENSO (El Niño / La Niña / neutral), sama ada ia semakin kuat atau reda, dan risiko utama musim ini. Warna panas bermaksud cenderung kering / jerebu; biru sejuk bermaksud cenderung basah / banjir.',
+    g_drivers_h:'Pemacu iklim',
+    g_d_ocean:'<span class="gt">ENSO — Lautan (Niño 3.4)</span><p>Bahagian lautan ENSO: suhu permukaan laut di tengah Pasifik. Angka utama — panas = El Niño, sejuk = La Niña.</p>',
+    g_d_index:'<span class="gt">ENSO — Indeks (ONI)</span><p>Purata rasmi 3 bulan bagi Niño 3.4. Lebih licin dan perlahan daripada kad Lautan; agensi menggunakannya untuk mengisytiharkan El Niño atau La Niña secara rasmi.</p>',
+    g_d_atmos:'<span class="gt">ENSO — Atmosfera (SOI)</span><p>Jongkang-jongket tekanan udara antara Tahiti dan Darwin. Sangat negatif mengesahkan El Niño sudah "terkunci"; sangat positif menunjukkan La Niña.</p>',
+    g_d_iod:'<span class="gt">Dipol Lautan Hindi (DMI)</span><p>Pemacu berasingan di sebelah barat kita. Positif = Asia Tenggara lebih kering (menambah kemarau El Niño); negatif = lebih basah.</p>',
+    g_d_mjo:'<span class="gt">MJO</span><p>Ayunan Madden–Julian: gelombang hujan yang mengelilingi kawasan tropika setiap 30–60 hari, memberi Malaysia tempoh basah atau kering yang singkat di atas corak bermusim.</p>',
+    g_d_flavor:'<span class="gt">Jenis ENSO (EP lwn CP)</span><p>Membandingkan sub-kawasan Niño. Jenis Pasifik Tengah / Modoki (Niño 4 paling panas) mengalihkan kemarau ke arah Benua Maritim — lebih teruk bagi Malaysia; jenis Pasifik Timur (kanonik) lebih ringan bagi kita.</p>',
+    g_d_hc:'<span class="gt">Kandungan haba bawah permukaan (Isi Padu Air Panas)</span><p>Simpanan haba lapisan atas lautan di Pasifik khatulistiwa — isyarat "cas / nyahcas" yang mendahului permukaan beberapa minggu hingga bulan. Positif = dicas semula (memihak El Niño); negatif = dinyahcas (memihak La Niña). Inilah penunjuk pendahulu utama yang sebelum ini tiada dalam alat ini.</p>',
+    g_d_wind:'<span class="gt">Angin pasat (angin zonal 850 hPa)</span><p>Kekuatan angin pasat aras rendah. Anomali angin barat (angin pasat lemah) ialah pencetus dan tanda gandingan El Niño; anomali angin timur (angin pasat kuat) cenderung ke La Niña.</p>',
+    g_d_olr:'<span class="gt">Perolakan garis tarikh (OLR)</span><p>Di mana ribut petir berada. Negatif = perolakan beralih ke timur ke garis tarikh (gandingan El Niño) — mekanisme yang mengeringkan Benua Maritim; positif = tertahan di sana, kekal di atas kita.</p>',
+    g_d_walker:'<span class="gt">Peredaran Walker (SOI + angin + OLR)</span><p>Tiga kad di atas — SOI (jongkang-jongket tekanan), angin pasat dan OLR garis tarikh — semuanya mengukur satu perkara: gelung gergasi timur–barat di sepanjang Pasifik khatulistiwa. Ia melemah semasa El Niño (angin pasat kendur, cabang naik beralih ke timur menjauhi kita) dan menguat semasa La Niña. Apabila ketiga-tiganya menunjuk ke arah yang sama, atmosfera dan lautan berganding.</p>',
+    g_chart_h:'Carta trend terkini',
+    g_chart_p:'12 minggu terakhir Niño 3.4, terus daripada NOAA (mingguan, asas 1991–2020 — angka yang sama dipetik oleh CPC, BoM dan IRI sebagai Niño 3.4 semasa). Nilai kad ialah titik terakhir pada carta ini. Jika suapan mingguan terputus, saluran data beralih kepada data bulanan dan melabel kad dengan sewajarnya. Positif = El Niño, negatif = La Niña — paksi berbalik mengikutnya.',
+    g_regions_h:'Tinjauan serantau',
+    g_regions_p:'Maksud pemacu-pemacu di lapangan bagi Semenanjung (barat / timur), Sabah dan Sarawak. Risiko setiap kawasan (Rendah / Sederhana / Tinggi) datang daripada "skor tekanan" gabungan ENSO (ONI), jenisnya (corak Pasifik Tengah / Modoki memburukkan kemarau di sini), Dipol Lautan Hindi (IOD) dan MJO, diselaraskan mengikut musim monsun. Setiap kad menyenaraikan pemacu di sebaliknya.',
+    g_sat_h:'Peta anomali SST',
+    g_sat_p:'Skematik Indo-Pasifik berpusat di Benua Maritim: lidah panas yang menjulur ke timur ialah El Niño (lidah sejuk ialah La Niña); kotak putih ialah Niño 3.4. Dilukis secara langsung daripada SST kawasan Niño (1+2/3/4/3.4) yang sudah ada dalam aplikasi, dengan garis pantai tersedia untuk kegunaan luar talian — skematik, bukan imej satelit.',
+    g_impact_h:'Kesan setempat — apa yang anda rasai hari ini',
+    g_i_haze:'<span class="gt">Jerebu · Kualiti Udara</span><p>PM2.5 semasa (zarah jerebu) dengan jalur kesihatan dan nasihat pelitup; AQI AS, PM10 dan debu di sebelahnya. Untuk indeks rasmi, lihat DOE MyEQMS.</p>',
+    g_i_heat:'<span class="gt">Haba & UV</span><p>Suhu terasa dan UV sekarang, serta puncak hari ini supaya anda boleh merancang mengikut waktu paling panas dan terik.</p>',
+    g_i_fire:'<span class="gt">Titik panas kebakaran</span><p>Kiraan kebakaran aktif 24 jam di Sumatera dan Kalimantan (punca jerebu dari arah angin) daripada NASA FIRMS — amaran awal sebelum jerebu tiba.</p>',
+    g_impact_note:'Kualiti udara & haba dikemas kini secara langsung mengikut lokasi — pilih bandar atau guna lokasi anda.',
+    g_engine_h:'Cara enjin tafsiran berfungsi',
+    g_engine_p:'SUHU menggabungkan isyarat ENSO (ONI), jenisnya (EP lwn CP), Dipol Lautan Hindi (IOD) dan MJO dengan kalendar monsun menjadi satu skor tekanan bagi setiap kawasan (positif = lebih kering / kebakaran, negatif = lebih basah / banjir), kemudian mewarnakan risikonya. Inilah peraturan utama yang digunakan:',
+    g_health_h:'Kesihatan sumber & lebihan',
+    g_health_p:'Setiap penunjuk mempunyai sumber utama dan sekurang-kurangnya satu sandaran, jadi tiada satu agensi pun (termasuk NOAA) menjadi titik kegagalan. Status langsung:',
+    g_noaa_h:'Bagaimana ini berbeza daripada NOAA',
+    g_noaa_body:'<ul><li><b>Pelbagai pemacu, bukan ENSO sahaja</b> — ENSO + IOD + MJO + monsun, pemacu yang mengawal hujan Malaysia.</li><li><b>Ditala untuk Benua Maritim</b> — memberi lebih pemberat kepada pemacu Benua Maritim berbanding indeks Pasifik timur (IOD dikira terus daripada NOAA OISST).</li><li><b>Tafsiran setempat</b> — menukar "keadaan Pasifik" kepada risiko kemarau / jerebu atau banjir, mengikut kawasan dan musim.</li><li><b>Pelbagai sumber & tahan gangguan</b> — beberapa sumber dengan sandaran automatik, jadi gangguan satu agensi tidak membutakan alat ini.</li></ul><p>Ringkasnya: NOAA menjawab "apa yang sedang berlaku di Pasifik?" — SUHU menjawab "apa maksudnya bagi Malaysia musim ini?"</p>',
+    g_attr_h:'Data & atribusi',
+    g_attr_p:'ENSO / Niño 3.4 / ONI / RONI — NOAA CPC · Jenis ENSO (Niño 1+2/3/4) — NOAA CPC ERSSTv5 · Kandungan haba bawah permukaan (WWV) — NOAA PMEL / GODAS · SOI — BoM Australia (Troup) · Angin pasat (850 hPa) & OLR garis tarikh — NOAA CPC · IOD / DMI — dikira daripada NOAA OISST (sandaran: NOAA PSL bulanan) · MJO — NOAA PSL ROMI (sandaran: BoM Australia RMM) · Kualiti udara & haba — Open-Meteo · Kebakaran — NASA FIRMS. Digunakan dengan atribusi; tiada sokongan daripada agensi-agensi ini tersirat.'
   }
 };
 
 // Driver card labels (h / name / interp) per driver key
 const DRV = {
-  enso:{h:['ENSO — 海洋','ENSO — Ocean'], name:['Niño 3.4 海温距平（每周）','Niño 3.4 SST anomaly (weekly)'], interp:['太平洋中部海温——厄尔尼诺/拉尼娜的头条数字。','Sea temperature in the central Pacific — the headline ENSO number.']},
-  oni:{h:['ENSO — 指数','ENSO — Index'], name:['ONI（3个月平均）','ONI (3-month running)'], interp:['官方3个月平均值，用于正式判定厄尔尼诺/拉尼娜。','Official 3-month average; used to formally declare El Niño / La Niña.']},
-  roni:{h:['ENSO — 相对指数','ENSO — Relative'], name:['RONI（相对海洋尼诺指数）','RONI (Relative ONI)'], interp:['与 ONI 同一指数，但减去热带整体增温背景——在变暖气候下读数比 ONI 低，更能反映纯厄尔尼诺信号。','Same index as ONI but with the tropical-mean warming removed — reads lower than ONI in a warming climate, isolating the pure ENSO signal.']},
-  soi:{h:['ENSO — 大气','ENSO — Atmosphere'], name:['SOI（南方涛动 · Troup）','SOI (monthly, Troup)'], interp:['塔希提与达尔文之间的气压跷跷板，确认 ENSO 与大气耦合。','Tahiti–Darwin pressure seesaw; confirms ENSO is coupled to the atmosphere.']},
-  iod:{h:['印度洋偶极子','Indian Ocean Dipole'], name:['DMI（偶极子指数）','DMI (Dipole Mode Index)'], interp:['西侧的独立驱动因子。正值使东南亚偏干（叠加厄尔尼诺）；负值偏湿。','A separate driver to our west. Positive = drier SE Asia; negative = wetter.']},
-  mjo:{h:['MJO','MJO'], name:['RMM 位相与振幅','RMM phase & amplitude'], interp:['热带每30–60天绕行的降雨脉冲，带来短期干湿波动。','A rain pulse circling the tropics every 30–60 days — short wet/dry spells.']},
-  flavor:{h:['ENSO — 类型','ENSO — Flavor'], name:['尼诺分区型态（东太 vs 中太）','Niño region pattern (EP vs CP)'], interp:['暖（冷）水集中在哪里：中太型（Modoki，Niño4 最暖）会把干旱推向海洋大陆，对马来西亚更不利；东太型影响较温和。','Where the warm (cool) water sits: a Central-Pacific / Modoki type (Niño 4 warmest) pushes drought toward the Maritime Continent — worse for Malaysia; an Eastern-Pacific type is milder for us.']},
-  hc:{h:['ENSO — 次表层','ENSO — Subsurface'], name:['暖水体积（海洋热含量）','Warm Water Volume (heat content)'], interp:['赤道太平洋上层海洋的热量储备——领先海表数周至数月的预警信号。正值＝已充电（利于厄尔尼诺），负值＝已放电（利于拉尼娜）。','The equatorial Pacific’s upper-ocean heat reserve — a leading signal that runs weeks to months ahead of the surface. Positive = recharged (favours El Niño); negative = discharged (favours La Niña).']},
-  wind:{h:['ENSO — 信风','ENSO — Trade Winds'], name:['850 百帕纬向风（西太平洋）','850 hPa zonal wind, W Pacific'], interp:['低层信风的强弱。西风异常（信风减弱）是厄尔尼诺的触发与耦合信号；东风异常（信风增强）则偏拉尼娜。','The strength of the low-level trade winds. A westerly anomaly (weakened trades) is the trigger and coupling signature of El Niño; an easterly anomaly (strengthened trades) leans La Niña.']},
-  olr:{h:['ENSO — 对流','ENSO — Convection'], name:['日界线外逸长波辐射（160°E–160°W）','OLR at the dateline (160°E–160°W)'], interp:['对流（雷暴）活动的位置。负值＝对流东移至日界线（厄尔尼诺耦合，海洋大陆偏干）；正值＝对流受抑制于此（留在我们上空）。','Where the convection (thunderstorms) sits. Negative = convection shifted east to the dateline (El Niño coupling, drier Maritime Continent); positive = suppressed there (stays over us).']}
+  enso:{h:['ENSO — 海洋','ENSO — Ocean','ENSO — Lautan'], name:['Niño 3.4 海温距平（每周）','Niño 3.4 SST anomaly (weekly)','Anomali SST Niño 3.4 (mingguan)'], interp:['太平洋中部海温——厄尔尼诺/拉尼娜的头条数字。','Sea temperature in the central Pacific — the headline ENSO number.','Suhu laut di tengah Pasifik — angka utama ENSO.']},
+  oni:{h:['ENSO — 指数','ENSO — Index','ENSO — Indeks'], name:['ONI（3个月平均）','ONI (3-month running)','ONI (purata bergerak 3 bulan)'], interp:['官方3个月平均值，用于正式判定厄尔尼诺/拉尼娜。','Official 3-month average; used to formally declare El Niño / La Niña.','Purata rasmi 3 bulan; digunakan untuk mengisytiharkan El Niño / La Niña secara rasmi.']},
+  roni:{h:['ENSO — 相对指数','ENSO — Relative','ENSO — Relatif'], name:['RONI（相对海洋尼诺指数）','RONI (Relative ONI)','RONI (ONI Relatif)'], interp:['与 ONI 同一指数，但减去热带整体增温背景——在变暖气候下读数比 ONI 低，更能反映纯厄尔尼诺信号。','Same index as ONI but with the tropical-mean warming removed — reads lower than ONI in a warming climate, isolating the pure ENSO signal.','Indeks yang sama seperti ONI tetapi dengan pemanasan purata tropika dikeluarkan — bacaannya lebih rendah daripada ONI dalam iklim yang memanas, mengasingkan isyarat ENSO tulen.']},
+  soi:{h:['ENSO — 大气','ENSO — Atmosphere','ENSO — Atmosfera'], name:['SOI（南方涛动 · Troup）','SOI (monthly, Troup)','SOI (bulanan, Troup)'], interp:['塔希提与达尔文之间的气压跷跷板，确认 ENSO 与大气耦合。','Tahiti–Darwin pressure seesaw; confirms ENSO is coupled to the atmosphere.','Jongkang-jongket tekanan Tahiti–Darwin; mengesahkan ENSO berganding dengan atmosfera.']},
+  iod:{h:['印度洋偶极子','Indian Ocean Dipole','Dipol Lautan Hindi'], name:['DMI（偶极子指数）','DMI (Dipole Mode Index)','DMI (Indeks Mod Dipol)'], interp:['西侧的独立驱动因子。正值使东南亚偏干（叠加厄尔尼诺）；负值偏湿。','A separate driver to our west. Positive = drier SE Asia; negative = wetter.','Pemacu berasingan di sebelah barat kita. Positif = Asia Tenggara lebih kering; negatif = lebih basah.']},
+  mjo:{h:['MJO','MJO','MJO'], name:['RMM 位相与振幅','RMM phase & amplitude','Fasa & amplitud RMM'], interp:['热带每30–60天绕行的降雨脉冲，带来短期干湿波动。','A rain pulse circling the tropics every 30–60 days — short wet/dry spells.','Gelombang hujan yang mengelilingi kawasan tropika setiap 30–60 hari — tempoh basah/kering yang singkat.']},
+  flavor:{h:['ENSO — 类型','ENSO — Flavor','ENSO — Jenis'], name:['尼诺分区型态（东太 vs 中太）','Niño region pattern (EP vs CP)','Corak kawasan Niño (EP lwn CP)'], interp:['暖（冷）水集中在哪里：中太型（Modoki，Niño4 最暖）会把干旱推向海洋大陆，对马来西亚更不利；东太型影响较温和。','Where the warm (cool) water sits: a Central-Pacific / Modoki type (Niño 4 warmest) pushes drought toward the Maritime Continent — worse for Malaysia; an Eastern-Pacific type is milder for us.','Di mana air panas (sejuk) berada: jenis Pasifik Tengah / Modoki (Niño 4 paling panas) menolak kemarau ke arah Benua Maritim — lebih teruk bagi Malaysia; jenis Pasifik Timur lebih ringan bagi kita.']},
+  hc:{h:['ENSO — 次表层','ENSO — Subsurface','ENSO — Bawah permukaan'], name:['暖水体积（海洋热含量）','Warm Water Volume (heat content)','Isi Padu Air Panas (kandungan haba)'], interp:['赤道太平洋上层海洋的热量储备——领先海表数周至数月的预警信号。正值＝已充电（利于厄尔尼诺），负值＝已放电（利于拉尼娜）。','The equatorial Pacific’s upper-ocean heat reserve — a leading signal that runs weeks to months ahead of the surface. Positive = recharged (favours El Niño); negative = discharged (favours La Niña).','Simpanan haba lapisan atas lautan di Pasifik khatulistiwa — isyarat pendahulu yang mendahului permukaan beberapa minggu hingga bulan. Positif = dicas semula (memihak El Niño); negatif = dinyahcas (memihak La Niña).']},
+  wind:{h:['ENSO — 信风','ENSO — Trade Winds','ENSO — Angin Pasat'], name:['850 百帕纬向风（西太平洋）','850 hPa zonal wind, W Pacific','Angin zonal 850 hPa, Pasifik Barat'], interp:['低层信风的强弱。西风异常（信风减弱）是厄尔尼诺的触发与耦合信号；东风异常（信风增强）则偏拉尼娜。','The strength of the low-level trade winds. A westerly anomaly (weakened trades) is the trigger and coupling signature of El Niño; an easterly anomaly (strengthened trades) leans La Niña.','Kekuatan angin pasat aras rendah. Anomali angin barat (angin pasat lemah) ialah pencetus dan tanda gandingan El Niño; anomali angin timur (angin pasat kuat) cenderung ke La Niña.']},
+  olr:{h:['ENSO — 对流','ENSO — Convection','ENSO — Perolakan'], name:['日界线外逸长波辐射（160°E–160°W）','OLR at the dateline (160°E–160°W)','OLR di garis tarikh (160°T–160°B)'], interp:['对流（雷暴）活动的位置。负值＝对流东移至日界线（厄尔尼诺耦合，海洋大陆偏干）；正值＝对流受抑制于此（留在我们上空）。','Where the convection (thunderstorms) sits. Negative = convection shifted east to the dateline (El Niño coupling, drier Maritime Continent); positive = suppressed there (stays over us).','Di mana perolakan (ribut petir) berada. Negatif = perolakan beralih ke timur ke garis tarikh (gandingan El Niño, Benua Maritim lebih kering); positif = tertahan di sana (kekal di atas kita).']}
 };
 
 // Status phrase map (translate the English status from data.json into Chinese)
@@ -435,12 +627,30 @@ const PH={
  'Central-Pacific (Modoki) El Niño':'中太型（Modoki）厄尔尼诺','Eastern-Pacific El Niño':'东太型厄尔尼诺',
  'Central-Pacific La Niña':'中太型拉尼娜','Eastern-Pacific La Niña':'东太型拉尼娜','Neutral — no clear flavor':'中性 — 无明显类型'
 };
-function trStatus(s){ if(LANG==='en')return s; return String(s).split(' · ').map(x=>PH[x]||x).join(' · '); }
+// Same phrases in Malay. Anything not listed stays in English.
+const PH_MS={
+ 'Very strong El Niño ("super")':'El Niño sangat kuat ("super")','Strong El Niño':'El Niño kuat','Moderate El Niño':'El Niño sederhana','Weak El Niño':'El Niño lemah',
+ 'Neutral':'Neutral','Weak La Niña':'La Niña lemah','Moderate+ La Niña':'La Niña sederhana ke atas',
+ 'strengthening':'semakin kuat','easing':'semakin reda','holding steady':'kekal stabil',
+ 'Strongly El Niño-coupled':'Sangat berganding El Niño','El Niño-coupled':'Berganding El Niño','La Niña-coupled':'Berganding La Niña','Strongly La Niña-coupled':'Sangat berganding La Niña',
+ 'Positive IOD':'IOD positif','drier for SE Asia':'lebih kering bagi Asia Tenggara','Negative IOD':'IOD negatif','wetter for SE Asia':'lebih basah bagi Asia Tenggara',
+ 'Weak':'Lemah','little MJO influence':'pengaruh MJO kecil','Active':'Aktif','wet pulse over Maritime Continent':'gelombang basah di Benua Maritim','suppressed over Maritime Continent':'tertahan di Benua Maritim',
+ 'El Niño (moderate)':'El Niño (sederhana)','positive forecast':'ramalan positif',
+ 'Strongly recharged':'Dicas semula dengan kuat','El Niño-favourable':'Memihak El Niño','Recharging':'Sedang dicas semula','warm build-up':'pengumpulan air panas',
+ 'Neutral heat content':'Kandungan haba neutral','Discharging':'Sedang dinyahcas','cool build-up':'pengumpulan air sejuk','Strongly discharged':'Dinyahcas dengan kuat','La Niña-favourable':'Memihak La Niña',
+ 'Westerly anomaly':'Anomali angin barat','Easterly anomaly':'Anomali angin timur','Near-normal trade winds':'Angin pasat hampir normal',
+ 'Enhanced convection at dateline':'Perolakan meningkat di garis tarikh','Suppressed convection at dateline':'Perolakan tertahan di garis tarikh','Near-normal convection':'Perolakan hampir normal',
+ 'Central-Pacific (Modoki) El Niño':'El Niño Pasifik Tengah (Modoki)','Eastern-Pacific El Niño':'El Niño Pasifik Timur',
+ 'Central-Pacific La Niña':'La Niña Pasifik Tengah','Eastern-Pacific La Niña':'La Niña Pasifik Timur','Neutral — no clear flavor':'Neutral — tiada jenis yang jelas'
+};
+// Pick a [zh, en, ms?] pair/triple for the current language (English fallback).
+const pick = a => a ? (LANG==='zh' ? a[0] : (LANG==='ms' && a[2]!=null ? a[2] : a[1])) : '';
+function trStatus(s){ const map=LANG==='zh'?PH:LANG==='ms'?PH_MS:null; if(!map)return s; return String(s).split(' · ').map(x=>map[x]||x).join(' · '); }
 
 // ============ Client narrative (banner + regions), bilingual ============
 const MON=m=>[11,12,1,2,3].includes(m)?'NE':([5,6,7,8,9].includes(m)?'SW':'INTER');
-function monLabel(s){return s==='NE'?L('东北季风','Northeast Monsoon'):s==='SW'?L('西南季风','Southwest Monsoon'):L('季风间期','Inter-monsoon');}
-function riskLabel(r){return r==='r-high'?L('高风险','High risk'):r==='r-mod'?L('中等','Moderate'):L('低','Low');}
+function monLabel(s){return s==='NE'?L('东北季风','Northeast Monsoon','Monsun Timur Laut'):s==='SW'?L('西南季风','Southwest Monsoon','Monsun Barat Daya'):L('季风间期','Inter-monsoon','Peralihan monsun');}
+function riskLabel(r){return r==='r-high'?L('高风险','High risk','Risiko tinggi'):r==='r-mod'?L('中等','Moderate','Sederhana'):L('低','Low','Rendah');}
 function deriveInputs(D){
   const v=D.nino34history.values, a=v[v.length-1], p=v.length>=2?v[v.length-2]:a;
   const mag=Math.round((Math.abs(a)-Math.abs(p))*10)/10;
@@ -450,7 +660,7 @@ function deriveInputs(D){
   const dmi=parseFloat(String(iod).replace('−','-'))||0;
   return {a,dmi,month,trend};
 }
-function trendWord(t){return t==='up'?L('增强中','strengthening'):t==='down'?L('减弱中','easing'):L('保持稳定','holding steady');}
+function trendWord(t){return t==='up'?L('增强中','strengthening','semakin kuat'):t==='down'?L('减弱中','easing','semakin reda'):L('保持稳定','holding steady','kekal stabil');}
 function region(rn,risk,p){return {rn,risk,label:riskLabel(risk),p};}
 
 function buildNarrative(D){
@@ -458,43 +668,43 @@ function buildNarrative(D){
   let banner,regions;
   if(a>=0.5){ const dry=(mon==='SW'||mon==='INTER');
     banner={tone:'warm',
-      tag:L('全国气候驱动状态 · ','National Climate-Driver Status · ')+ml,
-      title:L('厄尔尼诺 — ','El Niño — ')+tw,
-      desc:dry?L('厄尔尼诺正'+tw+'，正值马来西亚较干旱的季节。预计偏暖偏干，干旱与跨境烟霾风险升高'+(dmi>=0.4?'，并因正印度洋偶极子而加剧。':'。'),'El Niño is '+tw+" during Malaysia's drier season — a warm, dry bias with elevated drought and haze risk"+(dmi>=0.4?', compounded by a positive Indian Ocean Dipole.':'.'))
-              :L('厄尔尼诺正'+tw+'，正值东北季风，往往抑制降雨——雨季偏干，洪灾风险较低，但需留意用水紧张。','El Niño is '+tw+' during the northeast monsoon, tending to suppress rainfall — a drier-than-normal wet season; watch for water stress.'),
-      pills:dry?[['hot',L('偏暖','Warm bias')],['dry',L('干旱风险','Drought risk')],['watch',L('🔥 烟霾预警','🔥 Haze watch')]]
-               :[['hot',L('偏暖','Warm bias')],['dry',L('雨季偏干','Drier wet season')]]};
-    if(dmi>=0.4)banner.pills.push(['dry',L('正 IOD','Positive IOD')]);
+      tag:L('全国气候驱动状态 · ','National Climate-Driver Status · ','Status Pemacu Iklim Kebangsaan · ')+ml,
+      title:L('厄尔尼诺 — ','El Niño — ','El Niño — ')+tw,
+      desc:dry?L('厄尔尼诺正'+tw+'，正值马来西亚较干旱的季节。预计偏暖偏干，干旱与跨境烟霾风险升高'+(dmi>=0.4?'，并因正印度洋偶极子而加剧。':'。'),'El Niño is '+tw+" during Malaysia's drier season — a warm, dry bias with elevated drought and haze risk"+(dmi>=0.4?', compounded by a positive Indian Ocean Dipole.':'.'),'El Niño '+tw+' ketika musim lebih kering di Malaysia — cenderung panas dan kering dengan risiko kemarau dan jerebu yang meningkat'+(dmi>=0.4?', diburukkan lagi oleh Dipol Lautan Hindi yang positif.':'.'))
+              :L('厄尔尼诺正'+tw+'，正值东北季风，往往抑制降雨——雨季偏干，洪灾风险较低，但需留意用水紧张。','El Niño is '+tw+' during the northeast monsoon, tending to suppress rainfall — a drier-than-normal wet season; watch for water stress.','El Niño '+tw+' ketika Monsun Timur Laut, cenderung mengurangkan hujan — musim hujan lebih kering daripada biasa; awasi tekanan bekalan air.'),
+      pills:dry?[['hot',L('偏暖','Warm bias','Cenderung panas')],['dry',L('干旱风险','Drought risk','Risiko kemarau')],['watch',L('🔥 烟霾预警','🔥 Haze watch','🔥 Awas jerebu')]]
+               :[['hot',L('偏暖','Warm bias','Cenderung panas')],['dry',L('雨季偏干','Drier wet season','Musim hujan lebih kering')]]};
+    if(dmi>=0.4)banner.pills.push(['dry',L('正 IOD','Positive IOD','IOD positif')]);
     regions=[
-      region(L('半岛西海岸','Peninsula — West Coast'),dry?'r-high':'r-mod',dry?L('最干旱、最易起烟霾的地区。高温加少雨；留意巴生谷/马六甲空气质量。','Driest & most haze-prone zone now. Heat + reduced rainfall; watch Klang Valley/Melaka air quality.'):L('较常年偏干；降雨减少但洪灾风险有限，留意供水。','Drier than normal; reduced rainfall, limited flood risk. Watch water supply.')),
-      region(L('半岛东海岸','Peninsula — East Coast'),'r-mod',mon==='NE'?L('东北季风受厄尔尼诺抑制——雨季偏干，洪灾风险低于往常。','NE monsoon suppressed by El Niño — a drier wet season, lower flood risk than usual.'):L('接近常年至偏干；主要洪灾季为11月至3月。','Near-normal to drier; main flood season is Nov–Mar.')),
-      region(L('沙巴','Sabah'),'r-mod',L('偏干；农业用水紧张，可能出现局部火灾风险。','Drier bias; agricultural water stress and localised fire risk possible.')),
-      region(L('砂拉越','Sarawak'),dry?'r-high':'r-mod',L('持续干旱下泥炭地火灾与烟霾风险升高；关注热点。','Peatland fire & haze risk elevated under prolonged dry conditions; monitor hotspots.'))
+      region(L('半岛西海岸','Peninsula — West Coast','Semenanjung — Pantai Barat'),dry?'r-high':'r-mod',dry?L('最干旱、最易起烟霾的地区。高温加少雨；留意巴生谷/马六甲空气质量。','Driest & most haze-prone zone now. Heat + reduced rainfall; watch Klang Valley/Melaka air quality.','Zon paling kering & paling mudah berjerebu kini. Panas + hujan berkurangan; pantau kualiti udara Lembah Klang/Melaka.'):L('较常年偏干；降雨减少但洪灾风险有限，留意供水。','Drier than normal; reduced rainfall, limited flood risk. Watch water supply.','Lebih kering daripada biasa; hujan berkurangan, risiko banjir terhad. Pantau bekalan air.')),
+      region(L('半岛东海岸','Peninsula — East Coast','Semenanjung — Pantai Timur'),'r-mod',mon==='NE'?L('东北季风受厄尔尼诺抑制——雨季偏干，洪灾风险低于往常。','NE monsoon suppressed by El Niño — a drier wet season, lower flood risk than usual.','Monsun Timur Laut dilemahkan oleh El Niño — musim hujan lebih kering, risiko banjir lebih rendah daripada biasa.'):L('接近常年至偏干；主要洪灾季为11月至3月。','Near-normal to drier; main flood season is Nov–Mar.','Hampir normal hingga lebih kering; musim banjir utama ialah Nov–Mac.')),
+      region(L('沙巴','Sabah','Sabah'),'r-mod',L('偏干；农业用水紧张，可能出现局部火灾风险。','Drier bias; agricultural water stress and localised fire risk possible.','Cenderung kering; tekanan air pertanian dan risiko kebakaran setempat mungkin berlaku.')),
+      region(L('砂拉越','Sarawak','Sarawak'),dry?'r-high':'r-mod',L('持续干旱下泥炭地火灾与烟霾风险升高；关注热点。','Peatland fire & haze risk elevated under prolonged dry conditions; monitor hotspots.','Risiko kebakaran tanah gambut & jerebu meningkat dalam keadaan kering berpanjangan; pantau titik panas.'))
     ];
   } else if(a<=-0.5){ const wet=(mon==='NE'||mon==='INTER');
     banner={tone:'cool',
-      tag:L('全国气候驱动状态 · ','National Climate-Driver Status · ')+ml,
-      title:L('拉尼娜 — ','La Niña — ')+tw,
-      desc:wet?L('拉尼娜正'+tw+'，正值东北季风——马来西亚的洪灾季。预计偏湿偏凉，洪水与滑坡风险升高，尤以半岛东海岸、沙巴和砂拉越为甚'+(dmi<=-0.4?'，并因负印度洋偶极子而加剧。':'。'),'La Niña is '+tw+" during the northeast monsoon — Malaysia's flood season. A wetter, cooler bias with elevated flood and landslide risk, especially the east-coast Peninsula, Sabah and Sarawak"+(dmi<=-0.4?', compounded by a negative Indian Ocean Dipole.':'.'))
-              :L('拉尼娜正'+tw+'，正值西南季风，往往增强降雨——旱季偏湿，烟霾风险较低，但可能出现局部洪水。','La Niña is '+tw+' during the southwest monsoon, tending to enhance rainfall — a wetter-than-normal dry season; localised flooding possible.'),
-      pills:wet?[['wet',L('偏湿','Wet bias')],['wet',L('洪灾风险','Flood risk')],['watch',L('滑坡预警','Landslide watch')]]
-               :[['wet',L('偏湿','Wet bias')],['wet',L('较常年偏湿','Wetter than normal')]]};
-    if(dmi<=-0.4)banner.pills.push(['wet',L('负 IOD','Negative IOD')]);
+      tag:L('全国气候驱动状态 · ','National Climate-Driver Status · ','Status Pemacu Iklim Kebangsaan · ')+ml,
+      title:L('拉尼娜 — ','La Niña — ','La Niña — ')+tw,
+      desc:wet?L('拉尼娜正'+tw+'，正值东北季风——马来西亚的洪灾季。预计偏湿偏凉，洪水与滑坡风险升高，尤以半岛东海岸、沙巴和砂拉越为甚'+(dmi<=-0.4?'，并因负印度洋偶极子而加剧。':'。'),'La Niña is '+tw+" during the northeast monsoon — Malaysia's flood season. A wetter, cooler bias with elevated flood and landslide risk, especially the east-coast Peninsula, Sabah and Sarawak"+(dmi<=-0.4?', compounded by a negative Indian Ocean Dipole.':'.'),'La Niña '+tw+' ketika Monsun Timur Laut — musim banjir Malaysia. Cenderung lebih basah dan sejuk dengan risiko banjir dan tanah runtuh yang meningkat, terutamanya di pantai timur Semenanjung, Sabah dan Sarawak'+(dmi<=-0.4?', diburukkan lagi oleh Dipol Lautan Hindi yang negatif.':'.'))
+              :L('拉尼娜正'+tw+'，正值西南季风，往往增强降雨——旱季偏湿，烟霾风险较低，但可能出现局部洪水。','La Niña is '+tw+' during the southwest monsoon, tending to enhance rainfall — a wetter-than-normal dry season; localised flooding possible.','La Niña '+tw+' ketika Monsun Barat Daya, cenderung menambah hujan — musim kering lebih basah daripada biasa; banjir setempat mungkin berlaku.'),
+      pills:wet?[['wet',L('偏湿','Wet bias','Cenderung basah')],['wet',L('洪灾风险','Flood risk','Risiko banjir')],['watch',L('滑坡预警','Landslide watch','Awas tanah runtuh')]]
+               :[['wet',L('偏湿','Wet bias','Cenderung basah')],['wet',L('较常年偏湿','Wetter than normal','Lebih basah daripada biasa')]]};
+    if(dmi<=-0.4)banner.pills.push(['wet',L('负 IOD','Negative IOD','IOD negatif')]);
     regions=[
-      region(L('半岛西海岸','Peninsula — West Coast'),'r-mod',L('较常年偏湿；强降雨时有局部骤发洪水风险。','Wetter than normal; localised flash-flood risk in heavy downpours.')),
-      region(L('半岛东海岸','Peninsula — East Coast'),wet?'r-high':'r-mod',wet?L('东北季风被拉尼娜增强——洪灾风险最高。留意吉兰丹、登嘉楼、彭亨。','NE monsoon amplified by La Niña — highest flood risk. Watch Kelantan, Terengganu, Pahang.'):L('较常年偏湿；洪灾季为11月至3月。','Wetter than normal; flood season is Nov–Mar.')),
-      region(L('沙巴','Sabah'),wet?'r-high':'r-mod',L('降雨增强；洪水与滑坡风险，尤以东海岸为甚。','Enhanced rainfall; flood and landslide risk, especially the east coast.')),
-      region(L('砂拉越','Sarawak'),wet?'r-high':'r-mod',L('天气偏湿；内陆河流洪水与滑坡风险。','Wetter conditions; river flooding and landslide risk in the interior.'))
+      region(L('半岛西海岸','Peninsula — West Coast','Semenanjung — Pantai Barat'),'r-mod',L('较常年偏湿；强降雨时有局部骤发洪水风险。','Wetter than normal; localised flash-flood risk in heavy downpours.','Lebih basah daripada biasa; risiko banjir kilat setempat ketika hujan lebat.')),
+      region(L('半岛东海岸','Peninsula — East Coast','Semenanjung — Pantai Timur'),wet?'r-high':'r-mod',wet?L('东北季风被拉尼娜增强——洪灾风险最高。留意吉兰丹、登嘉楼、彭亨。','NE monsoon amplified by La Niña — highest flood risk. Watch Kelantan, Terengganu, Pahang.','Monsun Timur Laut diperkuat oleh La Niña — risiko banjir paling tinggi. Pantau Kelantan, Terengganu, Pahang.'):L('较常年偏湿；洪灾季为11月至3月。','Wetter than normal; flood season is Nov–Mar.','Lebih basah daripada biasa; musim banjir ialah Nov–Mac.')),
+      region(L('沙巴','Sabah','Sabah'),wet?'r-high':'r-mod',L('降雨增强；洪水与滑坡风险，尤以东海岸为甚。','Enhanced rainfall; flood and landslide risk, especially the east coast.','Hujan meningkat; risiko banjir dan tanah runtuh, terutamanya di pantai timur.')),
+      region(L('砂拉越','Sarawak','Sarawak'),wet?'r-high':'r-mod',L('天气偏湿；内陆河流洪水与滑坡风险。','Wetter conditions; river flooding and landslide risk in the interior.','Keadaan lebih basah; risiko banjir sungai dan tanah runtuh di kawasan pedalaman.'))
     ];
   } else {
-    banner={tone:'neutral',tag:L('全国气候驱动状态 · ','National Climate-Driver Status · ')+ml,title:L('ENSO 中性','ENSO-neutral'),
-      desc:L('太平洋接近中性，主要由'+ml+'主导天气。没有明显的盆地尺度干旱或洪水推动；关注季风与 MJO 的短期波动。','The Pacific is near neutral, so the '+ml+' drives conditions. No strong basin-scale push toward drought or flood; watch the monsoon and MJO.'),
-      pills:[['watch',L('接近常年','Near-normal')],['watch',ml]]};
+    banner={tone:'neutral',tag:L('全国气候驱动状态 · ','National Climate-Driver Status · ','Status Pemacu Iklim Kebangsaan · ')+ml,title:L('ENSO 中性','ENSO-neutral','ENSO neutral'),
+      desc:L('太平洋接近中性，主要由'+ml+'主导天气。没有明显的盆地尺度干旱或洪水推动；关注季风与 MJO 的短期波动。','The Pacific is near neutral, so the '+ml+' drives conditions. No strong basin-scale push toward drought or flood; watch the monsoon and MJO.','Pasifik hampir neutral, jadi '+ml+' yang memacu keadaan. Tiada tolakan besar ke arah kemarau atau banjir; pantau monsun dan MJO.'),
+      pills:[['watch',L('接近常年','Near-normal','Hampir normal')],['watch',ml]]};
     regions=[
-      region(L('半岛西海岸','Peninsula — West Coast'),'r-low',L('接近常年；由季风主导。','Near-normal; monsoon-driven weather.')),
-      region(L('半岛东海岸','Peninsula — East Coast'),mon==='NE'?'r-mod':'r-low',mon==='NE'?L('东北季风降雨——照例留意季节性洪水。','Northeast monsoon rains — usual seasonal flood watch.'):L('接近常年的季节性天气。','Near-normal seasonal conditions.')),
-      region(L('沙巴','Sabah'),'r-low',L('接近常年；关注 MJO 的短期湿位相。','Near-normal; watch the MJO for short-term wet spells.')),
-      region(L('砂拉越','Sarawak'),'r-low',L('接近常年的季节性天气。','Near-normal seasonal conditions.'))
+      region(L('半岛西海岸','Peninsula — West Coast','Semenanjung — Pantai Barat'),'r-low',L('接近常年；由季风主导。','Near-normal; monsoon-driven weather.','Hampir normal; cuaca dipacu monsun.')),
+      region(L('半岛东海岸','Peninsula — East Coast','Semenanjung — Pantai Timur'),mon==='NE'?'r-mod':'r-low',mon==='NE'?L('东北季风降雨——照例留意季节性洪水。','Northeast monsoon rains — usual seasonal flood watch.','Hujan Monsun Timur Laut — pantau banjir bermusim seperti biasa.'):L('接近常年的季节性天气。','Near-normal seasonal conditions.','Keadaan bermusim hampir normal.')),
+      region(L('沙巴','Sabah','Sabah'),'r-low',L('接近常年；关注 MJO 的短期湿位相。','Near-normal; watch the MJO for short-term wet spells.','Hampir normal; pantau MJO untuk tempoh basah jangka pendek.')),
+      region(L('砂拉越','Sarawak','Sarawak'),'r-low',L('接近常年的季节性天气。','Near-normal seasonal conditions.','Keadaan bermusim hampir normal.'))
     ];
   }
   // Regions now come from the holistic ENSO+IOD+MJO scorer (banner branches above
@@ -516,20 +726,20 @@ function ruleRows(D){
   const elnino=oni>=0.5, lanina=oni<=-0.5, dry=(mon==='SW'||mon==='INTER');
   const staleN=((D&&D.sources)||[]).filter(s=>Array.isArray(s)&&s[3]==='stale').length;
   const oniS=oni.toFixed(2), dmiS=(dmi>=0?'+':'')+dmi.toFixed(2);
-  const HOT='color:#f0973f;font-weight:700', WARM='color:#c99a5b;font-weight:600', OFF='color:var(--muted)';
-  const s1 = elnino&&dry ? [HOT,L('生效','ACTIVE')] : elnino ? [WARM,L('待命·非旱季','armed · wet season')] : [OFF,L('未触发（ONI '+oniS+'）','off (ONI '+oniS+')')];
-  const s2 = elnino&&dmi>=0.4 ? [HOT,L('生效 · IOD '+dmiS,'ACTIVE · IOD '+dmiS)] : elnino ? [WARM,L('待命 · IOD '+dmiS,'armed · IOD '+dmiS)] : [OFF,L('未触发','off')];
-  const s3 = lanina&&mon==='NE' ? [HOT,L('生效','ACTIVE')] : lanina ? [WARM,L('待命·非东北季风','armed · not NE')] : [OFF,L('未触发（ONI '+oniS+'）','off (ONI '+oniS+')')];
-  const s4 = (amp>=1&&(ph===4||ph===5)) ? [HOT,L('生效 · 第'+ph+'位相','ACTIVE · Ph '+ph)] : [OFF,(typeof ph==='number'?L('未触发 · 第'+ph+'位相'+(amp>=1?'':'·弱'),'off · Ph '+ph+(amp>=1?'':', weak')):L('未触发','off'))];
-  const s5 = staleN>0 ? [WARM,L(staleN+' 项标记',staleN+' flag'+(staleN>1?'s':''))] : [OFF,L('无','none')];
+  const HOT='color:var(--dry);font-weight:700', WARM='color:var(--stale-chip);font-weight:600', OFF='color:var(--muted)';
+  const s1 = elnino&&dry ? [HOT,L('生效','ACTIVE','AKTIF')] : elnino ? [WARM,L('待命·非旱季','armed · wet season','bersedia · musim hujan')] : [OFF,L('未触发（ONI '+oniS+'）','off (ONI '+oniS+')','tidak aktif (ONI '+oniS+')')];
+  const s2 = elnino&&dmi>=0.4 ? [HOT,L('生效 · IOD '+dmiS,'ACTIVE · IOD '+dmiS,'AKTIF · IOD '+dmiS)] : elnino ? [WARM,L('待命 · IOD '+dmiS,'armed · IOD '+dmiS,'bersedia · IOD '+dmiS)] : [OFF,L('未触发','off','tidak aktif')];
+  const s3 = lanina&&mon==='NE' ? [HOT,L('生效','ACTIVE','AKTIF')] : lanina ? [WARM,L('待命·非东北季风','armed · not NE','bersedia · bukan Timur Laut')] : [OFF,L('未触发（ONI '+oniS+'）','off (ONI '+oniS+')','tidak aktif (ONI '+oniS+')')];
+  const s4 = (amp>=1&&(ph===4||ph===5)) ? [HOT,L('生效 · 第'+ph+'位相','ACTIVE · Ph '+ph,'AKTIF · Fasa '+ph)] : [OFF,(typeof ph==='number'?L('未触发 · 第'+ph+'位相'+(amp>=1?'':'·弱'),'off · Ph '+ph+(amp>=1?'':', weak'),'tidak aktif · Fasa '+ph+(amp>=1?'':', lemah')):L('未触发','off','tidak aktif'))];
+  const s5 = staleN>0 ? [WARM,L(staleN+' 项标记',staleN+' flag'+(staleN>1?'s':''),staleN+' tanda')] : [OFF,L('无','none','tiada')];
   const R=[
-    [L('厄尔尼诺 + 旱季季风','El Niño + dry-season monsoon'),L('→ 高干旱与烟霾风险','→ High drought & haze'),s1],
-    [L('厄尔尼诺 + 正 IOD (≥+0.4)','El Niño + positive IOD (≥+0.4)'),L('→ 干旱压力升一级','→ Escalate dry risk'),s2],
-    [L('拉尼娜 + 东北季风','La Niña + NE monsoon'),L('→ 高洪灾风险（东海岸/婆罗洲）','→ High flood risk (east / Borneo)'),s3],
-    [L('MJO 活跃 · 第4–5位相','MJO active · phase 4–5'),L('→ 未来1–2周偏湿','→ Wet pulse, next 1–2 wks'),s4],
-    [L('任一数据源 >48 小时','Any source stale >48 h'),L('→ 回退并标记','→ Fall back + flag'),s5]
+    [L('厄尔尼诺 + 旱季季风','El Niño + dry-season monsoon','El Niño + monsun musim kering'),L('→ 高干旱与烟霾风险','→ High drought & haze','→ Kemarau & jerebu tinggi'),s1],
+    [L('厄尔尼诺 + 正 IOD (≥+0.4)','El Niño + positive IOD (≥+0.4)','El Niño + IOD positif (≥+0.4)'),L('→ 干旱压力升一级','→ Escalate dry risk','→ Tingkatkan risiko kering'),s2],
+    [L('拉尼娜 + 东北季风','La Niña + NE monsoon','La Niña + Monsun Timur Laut'),L('→ 高洪灾风险（东海岸/婆罗洲）','→ High flood risk (east / Borneo)','→ Risiko banjir tinggi (timur / Borneo)'),s3],
+    [L('MJO 活跃 · 第4–5位相','MJO active · phase 4–5','MJO aktif · fasa 4–5'),L('→ 未来1–2周偏湿','→ Wet pulse, next 1–2 wks','→ Gelombang basah, 1–2 minggu akan datang'),s4],
+    [L('任一数据源 >48 小时','Any source stale >48 h','Mana-mana sumber lama >48 j'),L('→ 回退并标记','→ Fall back + flag','→ Guna sandaran + tanda'),s5]
   ];
-  return `<tr><th>${L('条件','Condition')}</th><th>${L('动作','Action')}</th><th>${L('现在','Now')}</th></tr>`+
+  return `<tr><th>${L('条件','Condition','Keadaan')}</th><th>${L('动作','Action','Tindakan')}</th><th>${L('现在','Now','Sekarang')}</th></tr>`+
     R.map(r=>`<tr><td>${r[0]}</td><td style="color:var(--muted)">${r[1]}</td><td style="${r[2][0]}">${r[2][1]}</td></tr>`).join('');
 }
 
@@ -540,18 +750,21 @@ const SRCZH={'ENSO flavor (EP/CP)':'ENSO 类型（东太/中太）','Heat conten
 function trSrc(x){ if(LANG!=='zh'||x==null) return x; return SRCZH[x]!=null?SRCZH[x]:x; }
 function renderSources(D){
   const sT=document.getElementById('sources'); if(!sT) return;
-  sT.innerHTML=`<tr><th>${L('指标','Indicator')}</th><th>${L('主来源','Primary')}</th><th>${L('备用','Fallback')}</th><th>${L('状态','Status')}</th><th>${L('更新','Updated')}</th></tr>`+
+  sT.innerHTML=`<tr><th>${L('指标','Indicator','Penunjuk')}</th><th>${L('主来源','Primary','Utama')}</th><th>${L('备用','Fallback','Sandaran')}</th><th>${L('状态','Status','Status')}</th><th>${L('更新','Updated','Dikemas kini')}</th></tr>`+
     (D.sources||[]).map(s=>`<tr><td>${trSrc(s[0])}</td><td>${trSrc(s[1])}</td><td style="color:var(--muted)">${trSrc(s[2])}</td>`+
-      `<td><span class="dot ${s[3]==='live'?'live-dot':'stale-dot'}"></span>${s[3]==='live'?L('实时','live'):L('过期','stale')}</td>`+
+      `<td><span class="dot ${s[3]==='live'?'live-dot':'stale-dot'}"></span>${s[3]==='live'?L('实时','live','langsung'):L('过期','stale','lama')}</td>`+
       `<td style="color:var(--muted)">${trUpdated(s[4])}</td></tr>`).join('');
 }
 const MONMAP={Jan:'1月',Feb:'2月',Mar:'3月',Apr:'4月',May:'5月',Jun:'6月',Jul:'7月',Aug:'8月',Sep:'9月',Oct:'10月',Nov:'11月',Dec:'12月'};
+const MONMAP_MS={Jan:'Jan',Feb:'Feb',Mar:'Mac',Apr:'Apr',May:'Mei',Jun:'Jun',Jul:'Jul',Aug:'Ogo',Sep:'Sep',Oct:'Okt',Nov:'Nov',Dec:'Dis'};
 function chartLabel(l){
   const star=l.endsWith('*'); const base=star?l.slice(0,-1):l;
   const wk=/^(\d{1,2})([A-Za-z]{3})$/.exec(base);   // weekly stamp like "05AUG"
-  if(wk) return LANG==='en' ? (+wk[1])+' '+wk[2][0]+wk[2].slice(1).toLowerCase()
-                            : (MONMAP[wk[2][0]+wk[2].slice(1).toLowerCase()]||wk[2])+(+wk[1])+'日';
+  if(wk){ const mo=wk[2][0]+wk[2].slice(1).toLowerCase();
+    return LANG==='zh' ? (MONMAP[mo]||wk[2])+(+wk[1])+'日'
+                       : (+wk[1])+' '+(LANG==='ms'?(MONMAP_MS[mo]||mo):mo); }
   if(LANG==='en')return l;
+  if(LANG==='ms')return (MONMAP_MS[base]||base)+(star?'*':'');
   return (MONMAP[base]||base)+(star?'*':'');
 }
 // Says out loud which feed a card's date belongs to. The Niño 3.4 card is
@@ -559,44 +772,46 @@ function chartLabel(l){
 // fallback, and that must be visible rather than silently passed off as "now".
 function asOfLabel(d){
   if(d.key==='enso') return d.basis==='monthly'
-    ? L('⚠️ 回退：NOAA 月值 · ','⚠️ fallback: NOAA monthly · ')
-    : L('最新 · NOAA 每周 · ','latest · NOAA weekly · ');
+    ? L('⚠️ 回退：NOAA 月值 · ','⚠️ fallback: NOAA monthly · ','⚠️ sandaran: NOAA bulanan · ')
+    : L('最新 · NOAA 每周 · ','latest · NOAA weekly · ','terkini · NOAA mingguan · ');
   // The IOD card names its own basis. This used to fall through to a hardcoded
   // "BoM weekly" for EVERY non-ENSO card -- so the label claimed a source that,
   // after the BoM scrape was retired, nothing was fetching at all.
   if(d.key==='iod') return d.computed
-    ? L('最新 · OISST 计算 · ','latest · computed from OISST · ')
+    ? L('最新 · OISST 计算 · ','latest · computed from OISST · ','terkini · dikira daripada OISST · ')
     : d.monthly
-      ? L('⚠️ 回退：月度 DMI · ','⚠️ fallback: monthly DMI · ')
-      : L('最新 · ','latest · ');
+      ? L('⚠️ 回退：月度 DMI · ','⚠️ fallback: monthly DMI · ','⚠️ sandaran: DMI bulanan · ')
+      : L('最新 · ','latest · ','terkini · ');
   // Anything else: state the date without asserting a source we have not checked.
-  return L('最新 · ','latest · ');
+  return L('最新 · ','latest · ','terkini · ');
 }
-function trUpdated(s){ if(LANG==='en')return s; return String(s).replace('just now','刚刚').replace(' h ago',' 小时前').replace(' d ago',' 天前').replace(' min ago',' 分钟前').replace(' ago',' 前'); }
+function trUpdated(s){ if(LANG==='en')return s;
+  if(LANG==='ms') return String(s).replace('just now','sebentar tadi').replace(' h ago',' j lalu').replace(' d ago',' hari lalu').replace(' min ago',' min lalu').replace(' ago',' lalu');
+  return String(s).replace('just now','刚刚').replace(' h ago',' 小时前').replace(' d ago',' 天前').replace(' min ago',' 分钟前').replace(' ago',' 前'); }
 
 // Plain-language MJO reading — turns "Ph 6–7 · ~1.3" + status into "is it raining on us now?"
 // MJO phases 4–5 sit the wet pulse over the Maritime Continent (our region); 6–7–8–1 suppress it.
 function mjoReading(D){
-  const c=(D.drivers||[]).find(d=>d.key==='mjo'); if(!c) return {effect:'neu',plain:L('中性','Neutral'),tag:L('无短期信号','No short-term signal'),detail:L('MJO 数据暂缺。','MJO data unavailable.')};
+  const c=(D.drivers||[]).find(d=>d.key==='mjo'); if(!c) return {effect:'neu',plain:L('中性','Neutral','Neutral'),tag:L('无短期信号','No short-term signal','Tiada isyarat jangka pendek'),detail:L('MJO 数据暂缺。','MJO data unavailable.','Data MJO tidak tersedia.')};
   const st=String(c.status||''), val=String(c.value||'');
   const amp=parseFloat((val.match(/([\d.]+)\s*$/)||[])[1])||0;      // amplitude, e.g. ~1.3
   const weak=amp<1 || /little|weak/i.test(st);
   const wet=/wet pulse|enhanc|active over maritime/i.test(st);
   const suppressed=/suppress/i.test(st);
   if(weak) return {effect:'neu',
-    plain:L('目前几乎没有影响','Barely a factor now'),
-    tag:L('未来1–2周：中性','Next 1–2 weeks: neutral'),
-    detail:L('MJO 现在很弱，未来一两周对马来西亚的短期降雨没有明显推动。','The MJO is weak right now, so it won’t push Malaysia’s rainfall much either way over the next week or two.')};
+    plain:L('目前几乎没有影响','Barely a factor now','Hampir tiada kesan kini'),
+    tag:L('未来1–2周：中性','Next 1–2 weeks: neutral','1–2 minggu akan datang: neutral'),
+    detail:L('MJO 现在很弱，未来一两周对马来西亚的短期降雨没有明显推动。','The MJO is weak right now, so it won’t push Malaysia’s rainfall much either way over the next week or two.','MJO lemah sekarang, jadi ia tidak banyak menolak hujan Malaysia ke mana-mana arah dalam seminggu dua akan datang.')};
   if(suppressed) return {effect:'dry',
-    plain:L('正在压制降雨','Holding rain back now'),
-    tag:L('未来1–2周：偏干','Next 1–2 weeks: drier'),
-    detail:L('MJO 的“干位相”正经过我们上空，未来一两周雨量偏少——叠加在季节格局之上。','The MJO’s dry phase is passing over us, so the next week or two lean drier — on top of the seasonal pattern.')};
+    plain:L('正在压制降雨','Holding rain back now','Sedang menahan hujan'),
+    tag:L('未来1–2周：偏干','Next 1–2 weeks: drier','1–2 minggu akan datang: lebih kering'),
+    detail:L('MJO 的“干位相”正经过我们上空，未来一两周雨量偏少——叠加在季节格局之上。','The MJO’s dry phase is passing over us, so the next week or two lean drier — on top of the seasonal pattern.','Fasa kering MJO sedang melalui kawasan kita, jadi seminggu dua akan datang cenderung lebih kering — di atas corak bermusim.')};
   if(wet) return {effect:'wet',
-    plain:L('正在增强降雨','Boosting rain now'),
-    tag:L('未来1–2周：偏湿','Next 1–2 weeks: wetter'),
-    detail:L('MJO 的“湿位相”正经过我们上空，未来一两周有一波偏多的降雨。','The MJO’s wet phase is passing over us, so expect a wetter pulse over the next week or two.')};
-  return {effect:'neu',plain:L('中性','Neutral'),tag:L('未来1–2周：中性','Next 1–2 weeks: neutral'),
-    detail:(DRV.mjo?DRV.mjo.interp[LANG==='zh'?0:1]:'')};
+    plain:L('正在增强降雨','Boosting rain now','Sedang menambah hujan'),
+    tag:L('未来1–2周：偏湿','Next 1–2 weeks: wetter','1–2 minggu akan datang: lebih basah'),
+    detail:L('MJO 的“湿位相”正经过我们上空，未来一两周有一波偏多的降雨。','The MJO’s wet phase is passing over us, so expect a wetter pulse over the next week or two.','Fasa basah MJO sedang melalui kawasan kita, jadi jangkakan tempoh lebih basah dalam seminggu dua akan datang.')};
+  return {effect:'neu',plain:L('中性','Neutral','Neutral'),tag:L('未来1–2周：中性','Next 1–2 weeks: neutral','1–2 minggu akan datang: neutral'),
+    detail:(DRV.mjo?pick(DRV.mjo.interp):'')};
 }
 
 // ===== MJO phase wheel (ported from the enso app, recoloured for dark theme) =====
@@ -629,13 +844,13 @@ function mjoWheelSvg(d){
     svg+=`<text x="${lp[0].toFixed(1)}" y="${(lp[1]+4).toFixed(1)}" font-size="13" font-weight="bold" fill="#aab7cf" text-anchor="middle">${ph}</text>`;
   }
   svg+=`<circle cx="${cx}" cy="${cy}" r="${rIn}" fill="rgba(8,12,22,.6)" stroke="rgba(255,255,255,.30)" stroke-width="1" stroke-dasharray="2 2"/>`;
-  svg+=`<text x="${cx}" y="${cy+rIn-5}" font-size="9" fill="#8493ad" text-anchor="middle">${L('振幅1','amp 1')}</text>`;
+  svg+=`<text x="${cx}" y="${cy+rIn-5}" font-size="9" fill="#8493ad" text-anchor="middle">${L('振幅1','amp 1','amp 1')}</text>`;
   // Region labels follow the standard WH04 geography: phases 6–7 top (W. Pacific),
   // 4–5 right (Maritime Continent = us, amber), 2–3 bottom (Indian Ocean), 8–1 left.
-  svg+=`<text x="${cx}" y="21" font-size="11" fill="#a7b4cc" text-anchor="middle">${L('西太平洋','Western Pacific')}</text>`;
-  svg+=`<text x="${cx}" y="260" font-size="11" fill="#a7b4cc" text-anchor="middle">${L('印度洋','Indian Ocean')}</text>`;
-  svg+=`<text x="6" y="${cy+4}" font-size="11" fill="#a7b4cc" text-anchor="start">${L('西半球 / 非洲','Western Hemisphere / Africa')}</text>`;
-  svg+=`<text x="534" y="${cy+4}" font-size="11" font-weight="bold" fill="#f5b301" text-anchor="end">${L('海洋大陆（这里）','Maritime Continent (here)')}</text>`;
+  svg+=`<text x="${cx}" y="21" font-size="11" fill="#a7b4cc" text-anchor="middle">${L('西太平洋','Western Pacific','Pasifik Barat')}</text>`;
+  svg+=`<text x="${cx}" y="260" font-size="11" fill="#a7b4cc" text-anchor="middle">${L('印度洋','Indian Ocean','Lautan Hindi')}</text>`;
+  svg+=`<text x="6" y="${cy+4}" font-size="11" fill="#a7b4cc" text-anchor="start">${L('西半球 / 非洲','Western Hemisphere / Africa','Hemisfera Barat / Afrika')}</text>`;
+  svg+=`<text x="534" y="${cy+4}" font-size="11" font-weight="bold" fill="#f5b301" text-anchor="end">${L('海洋大陆（这里）','Maritime Continent (here)','Benua Maritim (di sini)')}</text>`;
   // A track point plots in true RMM space: angle = atan2(rmm2,rmm1), radius from amplitude
   // (amp 1 sits on the dashed ring rIn; stronger pushes outward). Dot = last point exactly.
   const plot=(r1,r2,a)=>{ let rr=rIn+((a!=null?a:Math.hypot(r1,r2))-1)*((R-rIn)/2); rr=Math.max(3,Math.min(R,rr));
@@ -659,33 +874,33 @@ function mjoWheelSvg(d){
 // ===== Educational SVG diagrams (ported from the enso app, dark-themed) =====
 // Niño-region map: shows where the four monitoring boxes sit across the Pacific.
 function ninoMapSvg(){
-  const eq=L('赤道','Equator');
+  const eq=L('赤道','Equator','Khatulistiwa');
   return `<svg viewBox="0 0 360 250" style="width:100%;height:auto;display:block" role="img" aria-label="Niño regions map">`
     +`<rect x="6" y="70" width="348" height="86" rx="7" fill="rgba(56,189,248,.10)" stroke="rgba(56,189,248,.30)"/>`
     +`<line x1="6" y1="113" x2="354" y2="113" stroke="rgba(125,211,252,.5)" stroke-width="1" stroke-dasharray="3 3"/>`
     +`<text x="30" y="129" font-size="8" fill="#7dd3fc">${eq}</text>`
     +`<rect x="6" y="86" width="20" height="54" rx="3" fill="rgba(148,163,184,.16)" stroke="rgba(148,163,184,.3)"/>`
-    +`<text x="16" y="64" font-size="9" fill="#93a1bd" text-anchor="middle">${L('西','West')}</text>`
+    +`<text x="16" y="64" font-size="9" fill="#93a1bd" text-anchor="middle">${L('西','West','Barat')}</text>`
     +`<rect x="334" y="86" width="20" height="54" rx="3" fill="rgba(148,163,184,.16)" stroke="rgba(148,163,184,.3)"/>`
-    +`<text x="344" y="64" font-size="9" fill="#93a1bd" text-anchor="middle">${L('东','East')}</text>`
+    +`<text x="344" y="64" font-size="9" fill="#93a1bd" text-anchor="middle">${L('东','East','Timur')}</text>`
     +`<rect x="70" y="86" width="88" height="30" rx="4" fill="rgba(45,212,191,.16)" stroke="rgba(45,212,191,.5)"/>`
     +`<text x="114" y="99" font-size="10" font-weight="bold" fill="#5eead4" text-anchor="middle">Niño 4</text>`
-    +`<text x="114" y="111" font-size="7.5" fill="#5eead4" text-anchor="middle">${L('中部，近亚洲','central, near Asia')}</text>`
+    +`<text x="114" y="111" font-size="7.5" fill="#5eead4" text-anchor="middle">${L('中部，近亚洲','central, near Asia','tengah, dekat Asia')}</text>`
     +`<rect x="205" y="124" width="108" height="28" rx="4" fill="rgba(251,146,60,.16)" stroke="rgba(251,146,60,.5)"/>`
     +`<text x="259" y="137" font-size="10" font-weight="bold" fill="#fdba8c" text-anchor="middle">Niño 3</text>`
-    +`<text x="259" y="148" font-size="7.5" fill="#fdba8c" text-anchor="middle">${L('东太平洋','eastern Pacific')}</text>`
+    +`<text x="259" y="148" font-size="7.5" fill="#fdba8c" text-anchor="middle">${L('东太平洋','eastern Pacific','Pasifik timur')}</text>`
     +`<rect x="158" y="90" width="112" height="34" rx="4" fill="rgba(245,158,11,.22)" stroke="#f59e0b" stroke-width="2"/>`
     +`<text x="214" y="104" font-size="10.5" font-weight="bold" fill="#fbbf24" text-anchor="middle">Niño 3.4 ★</text>`
-    +`<text x="214" y="116" font-size="7.5" fill="#fbbf24" text-anchor="middle">${L('主指标','the main one')}</text>`
+    +`<text x="214" y="116" font-size="7.5" fill="#fbbf24" text-anchor="middle">${L('主指标','the main one','yang utama')}</text>`
     +`<rect x="316" y="86" width="34" height="30" rx="3" fill="rgba(244,114,182,.16)" stroke="rgba(244,114,182,.5)"/>`
     +`<text x="333" y="99" font-size="9" font-weight="bold" fill="#f0abcc" text-anchor="middle">1+2</text>`
-    +`<text x="333" y="110" font-size="7" fill="#f0abcc" text-anchor="middle">${L('近岸','coast')}</text>`
+    +`<text x="333" y="110" font-size="7" fill="#f0abcc" text-anchor="middle">${L('近岸','coast','pantai')}</text>`
     +`<circle cx="16" cy="180" r="5" fill="#2dd4bf"/>`
-    +`<text x="26" y="177" font-size="9" font-weight="bold" fill="#2dd4bf">${L('马来西亚','Malaysia')}</text>`
-    +`<text x="26" y="190" font-size="7.5" fill="#93a1bd">${L('最西端 — 厄尔尼诺时偏干','far west — drier in El Niño')}</text>`
+    +`<text x="26" y="177" font-size="9" font-weight="bold" fill="#2dd4bf">${L('马来西亚','Malaysia','Malaysia')}</text>`
+    +`<text x="26" y="190" font-size="7.5" fill="#93a1bd">${L('最西端 — 厄尔尼诺时偏干','far west — drier in El Niño','paling barat — lebih kering semasa El Niño')}</text>`
     +`<circle cx="344" cy="210" r="5" fill="#fb923c"/>`
-    +`<text x="336" y="207" font-size="9" font-weight="bold" fill="#fdba8c" text-anchor="end">${L('南美洲','S. America')}</text>`
-    +`<text x="180" y="238" font-size="8" fill="#fbbf24" text-anchor="middle">★ ${L('Niño 3.4 跨在 Niño 3 与 4 之间','Niño 3.4 straddles Niño 3 and 4')}</text>`
+    +`<text x="336" y="207" font-size="9" font-weight="bold" fill="#fdba8c" text-anchor="end">${L('南美洲','S. America','Amerika Selatan')}</text>`
+    +`<text x="180" y="238" font-size="8" fill="#fbbf24" text-anchor="middle">★ ${L('Niño 3.4 跨在 Niño 3 与 4 之间','Niño 3.4 straddles Niño 3 and 4','Niño 3.4 merentasi Niño 3 dan 4')}</text>`
     +`</svg>`;
 }
 // Walker Circulation in the EL NIÑO state: sinking/dry over Malaysia (west),
@@ -696,7 +911,7 @@ function walkerSvg(){
   s+=`<rect x="0" y="0" width="${W}" height="${oceanY}" fill="rgba(56,189,248,.06)" rx="6"/>`;
   s+=`<rect x="0" y="${oceanY}" width="${W}" height="${H-oceanY}" fill="rgba(37,99,235,.16)"/>`;
   s+=`<rect x="150" y="${oceanY}" width="150" height="${H-oceanY}" fill="rgba(239,68,68,.22)"/>`;
-  s+=`<text x="225" y="${oceanY+34}" font-size="8.5" fill="#fca5a5" text-anchor="middle">${L('暖海东移 →','warm water shifts east →')}</text>`;
+  s+=`<text x="225" y="${oceanY+34}" font-size="8.5" fill="#fca5a5" text-anchor="middle">${L('暖海东移 →','warm water shifts east →','air panas beralih ke timur →')}</text>`;
   s+=`<line x1="${loopR}" y1="${oceanY-6}" x2="${loopR}" y2="${loopTop}" stroke="#3b82f6" stroke-width="3"/>`;
   s+=`<polygon points="${loopR},${loopTop-2} ${loopR-5},${loopTop+8} ${loopR+5},${loopTop+8}" fill="#3b82f6"/>`;
   s+=`<line x1="${loopR}" y1="${loopTop}" x2="${loopL}" y2="${loopTop}" stroke="#60a5fa" stroke-width="3"/>`;
@@ -706,34 +921,34 @@ function walkerSvg(){
   s+=`<line x1="${loopL}" y1="${oceanY-6}" x2="${loopR}" y2="${oceanY-6}" stroke="rgba(148,163,184,.55)" stroke-width="2" stroke-dasharray="4 3"/>`;
   s+=`<polygon points="${loopR},${oceanY-6} ${loopR-9},${oceanY-11} ${loopR-9},${oceanY-1}" fill="rgba(148,163,184,.7)"/>`; // return flow → east, completes the loop
   for(let i=0;i<4;i++){const rx=loopR-32+i*7; s+=`<line x1="${rx}" y1="${oceanY-30}" x2="${rx-3}" y2="${oceanY-14}" stroke="#60a5fa" stroke-width="1.5"/>`;}
-  s+=`<text x="${loopR}" y="${loopTop+22}" font-size="8.5" font-weight="bold" fill="#93c5fd" text-anchor="middle">${L('上升 · 多雨','rising · rainy')}</text>`;
+  s+=`<text x="${loopR}" y="${loopTop+22}" font-size="8.5" font-weight="bold" fill="#93c5fd" text-anchor="middle">${L('上升 · 多雨','rising · rainy','naik · berhujan')}</text>`;
   s+=`<circle cx="${loopL}" cy="${loopTop+26}" r="7" fill="#f59e0b"/>`;
-  s+=`<text x="${loopL}" y="${loopTop+48}" font-size="8.5" font-weight="bold" fill="#fbbf24" text-anchor="middle">${L('下沉 · 干燥','sinking · dry')}</text>`;
-  s+=`<text x="${loopL}" y="${H-8}" font-size="9" font-weight="bold" fill="#2dd4bf" text-anchor="middle">★ ${L('马来西亚','Malaysia')}</text>`;
-  s+=`<text x="${loopR}" y="${H-8}" font-size="8.5" fill="#cbd5e1" text-anchor="middle">${L('中太平洋 (Niño 3.4)','Central Pacific (Niño 3.4)')}</text>`;
+  s+=`<text x="${loopL}" y="${loopTop+48}" font-size="8.5" font-weight="bold" fill="#fbbf24" text-anchor="middle">${L('下沉 · 干燥','sinking · dry','turun · kering')}</text>`;
+  s+=`<text x="${loopL}" y="${H-8}" font-size="9" font-weight="bold" fill="#2dd4bf" text-anchor="middle">★ ${L('马来西亚','Malaysia','Malaysia')}</text>`;
+  s+=`<text x="${loopR}" y="${H-8}" font-size="8.5" fill="#cbd5e1" text-anchor="middle">${L('中太平洋 (Niño 3.4)','Central Pacific (Niño 3.4)','Pasifik Tengah (Niño 3.4)')}</text>`;
   s+=`</svg>`; return s;
 }
 // Indian Ocean Dipole: west pole vs east pole (off Sumatra, next to us).
 function iodMapSvg(){
-  const eq=L('赤道','Equator');
+  const eq=L('赤道','Equator','Khatulistiwa');
   return `<svg viewBox="0 0 360 250" style="width:100%;height:auto;display:block" role="img" aria-label="Indian Ocean Dipole map">`
     +`<rect x="6" y="70" width="348" height="92" rx="7" fill="rgba(56,189,248,.10)" stroke="rgba(56,189,248,.30)"/>`
     +`<line x1="6" y1="150" x2="354" y2="150" stroke="rgba(125,211,252,.5)" stroke-width="1" stroke-dasharray="3 3"/>`
     +`<text x="46" y="160" font-size="8" fill="#7dd3fc" text-anchor="middle">${eq}</text>`
     +`<rect x="10" y="80" width="20" height="64" rx="3" fill="rgba(148,163,184,.16)" stroke="rgba(148,163,184,.3)"/>`
-    +`<text x="20" y="64" font-size="8.5" fill="#93a1bd" text-anchor="middle">${L('非洲','Africa')}</text>`
+    +`<text x="20" y="64" font-size="8.5" fill="#93a1bd" text-anchor="middle">${L('非洲','Africa','Afrika')}</text>`
     +`<rect x="330" y="80" width="20" height="64" rx="3" fill="rgba(148,163,184,.16)" stroke="rgba(148,163,184,.3)"/>`
-    +`<text x="340" y="64" font-size="8.5" fill="#93a1bd" text-anchor="middle">${L('苏门答腊','Sumatra')}</text>`
+    +`<text x="340" y="64" font-size="8.5" fill="#93a1bd" text-anchor="middle">${L('苏门答腊','Sumatra','Sumatera')}</text>`
     +`<rect x="44" y="86" width="100" height="44" rx="4" fill="rgba(59,130,246,.16)" stroke="rgba(147,197,253,.6)" stroke-width="1.5"/>`
-    +`<text x="94" y="103" font-size="10" font-weight="bold" fill="#93c5fd" text-anchor="middle">${L('西极','West pole')}</text>`
-    +`<text x="94" y="116" font-size="7.5" fill="#93c5fd" text-anchor="middle">${L('阿拉伯海一带','Arabian Sea side')}</text>`
+    +`<text x="94" y="103" font-size="10" font-weight="bold" fill="#93c5fd" text-anchor="middle">${L('西极','West pole','Kutub barat')}</text>`
+    +`<text x="94" y="116" font-size="7.5" fill="#93c5fd" text-anchor="middle">${L('阿拉伯海一带','Arabian Sea side','sebelah Laut Arab')}</text>`
     +`<rect x="216" y="84" width="100" height="48" rx="4" fill="rgba(245,158,11,.22)" stroke="#f59e0b" stroke-width="2"/>`
-    +`<text x="266" y="101" font-size="10" font-weight="bold" fill="#fbbf24" text-anchor="middle">${L('东极','East pole')} ★</text>`
-    +`<text x="266" y="114" font-size="7.5" fill="#fbbf24" text-anchor="middle">${L('苏门答腊外海','off Sumatra')}</text>`
+    +`<text x="266" y="101" font-size="10" font-weight="bold" fill="#fbbf24" text-anchor="middle">${L('东极','East pole','Kutub timur')} ★</text>`
+    +`<text x="266" y="114" font-size="7.5" fill="#fbbf24" text-anchor="middle">${L('苏门答腊外海','off Sumatra','luar pantai Sumatera')}</text>`
     +`<circle cx="318" cy="184" r="5" fill="#2dd4bf"/>`
-    +`<text x="308" y="181" font-size="9" font-weight="bold" fill="#2dd4bf" text-anchor="end">${L('马来西亚','Malaysia')}</text>`
-    +`<text x="308" y="194" font-size="7.5" fill="#93a1bd" text-anchor="end">${L('紧邻东极','next to the east pole')}</text>`
-    +`<text x="180" y="240" font-size="8" fill="#fbbf24" text-anchor="middle">★ ${L('DMI = 西极减东极海温；正值＝偏干','DMI = west-pole minus east-pole SST; positive = drier')}</text>`
+    +`<text x="308" y="181" font-size="9" font-weight="bold" fill="#2dd4bf" text-anchor="end">${L('马来西亚','Malaysia','Malaysia')}</text>`
+    +`<text x="308" y="194" font-size="7.5" fill="#93a1bd" text-anchor="end">${L('紧邻东极','next to the east pole','bersebelahan kutub timur')}</text>`
+    +`<text x="180" y="240" font-size="8" fill="#fbbf24" text-anchor="middle">★ ${L('DMI = 西极减东极海温；正值＝偏干','DMI = west-pole minus east-pole SST; positive = drier','DMI = SST kutub barat tolak kutub timur; positif = lebih kering')}</text>`
     +`</svg>`;
 }
 function renderGuideDiagrams(){
@@ -762,13 +977,13 @@ function driverContribs(D){
 function riskFromNet(n){const a=Math.abs(n);return a>=1.5?'r-high':a>=0.7?'r-mod':'r-low';}
 function driverClause(oni,dmi,mjoEffect,monTag,cp){
   const d=[];
-  if(oni>=0.5)d.push(L('厄尔尼诺','El Niño')); else if(oni<=-0.5)d.push(L('拉尼娜','La Niña'));
-  if(cp && oni>=0.5)d.push(L('中太型（Modoki）','Central-Pacific pattern'));
-  if(dmi>=0.4)d.push(L('正 IOD','positive IOD')); else if(dmi<=-0.4)d.push(L('负 IOD','negative IOD'));
-  if(mjoEffect==='dry')d.push(L('MJO 干位相','MJO dry phase')); else if(mjoEffect==='wet')d.push(L('MJO 湿位相','MJO wet phase'));
+  if(oni>=0.5)d.push(L('厄尔尼诺','El Niño','El Niño')); else if(oni<=-0.5)d.push(L('拉尼娜','La Niña','La Niña'));
+  if(cp && oni>=0.5)d.push(L('中太型（Modoki）','Central-Pacific pattern','corak Pasifik Tengah'));
+  if(dmi>=0.4)d.push(L('正 IOD','positive IOD','IOD positif')); else if(dmi<=-0.4)d.push(L('负 IOD','negative IOD','IOD negatif'));
+  if(mjoEffect==='dry')d.push(L('MJO 干位相','MJO dry phase','fasa kering MJO')); else if(mjoEffect==='wet')d.push(L('MJO 湿位相','MJO wet phase','fasa basah MJO'));
   if(monTag)d.push(monTag);
-  if(!d.length)return L('主要由季风主导。','Mainly monsoon-driven.');
-  return L('驱动因子：','Driven by: ')+d.join(' + ')+'.';
+  if(!d.length)return L('主要由季风主导。','Mainly monsoon-driven.','Terutamanya dipacu monsun.');
+  return L('驱动因子：','Driven by: ','Dipacu oleh: ')+d.join(' + ')+'.';
 }
 function holisticRegions(D){
   const {oni,dmi,mjo,mjoEffect,cp,flavorDry}=driverContribs(D);
@@ -776,24 +991,24 @@ function holisticRegions(D){
   const mon=MON(month), ml=monLabel(mon), monTag=(mon!=='INTER')?ml:null;
   const base=oni+dmi+mjo+flavorDry;   // basin-scale + short-term drivers + flavor, dry = positive
   const defs=[
-    {rn:L('半岛西海岸','Peninsula — West Coast'), seas:mon==='SW'?0.3:(mon==='NE'?-0.1:0),
-     dry:L('最干旱、最易起烟霾的地区；留意巴生谷/马六甲空气质量。','Driest & most haze-prone zone; watch Klang Valley/Melaka air quality.'),
-     wet:L('强降雨时有局部骤发洪水风险。','Localised flash-flood risk in heavy downpours.')},
-    {rn:L('半岛东海岸','Peninsula — East Coast'), seas:mon==='NE'?-0.8:(mon==='SW'?0.1:0),
-     dry:L('本季洪灾风险低。','Low flood risk this season.'),
-     wet:L('洪灾季——留意吉兰丹、登嘉楼、彭亨。','Flood season — watch Kelantan, Terengganu, Pahang.')},
-    {rn:L('沙巴','Sabah'), seas:mon==='NE'?-0.3:0.1,
-     dry:L('农业用水紧张，局部火灾风险。','Agricultural water stress and localised fire risk.'),
-     wet:L('降雨增强；洪水与滑坡风险，尤以东海岸为甚。','Enhanced rainfall; flood and landslide risk, especially the east coast.')},
-    {rn:L('砂拉越','Sarawak'), seas:mon==='NE'?-0.4:0.2,
-     dry:L('泥炭地火灾与烟霾风险；关注热点。','Peatland fire & haze risk; monitor hotspots.'),
-     wet:L('内陆河流洪水与滑坡风险。','River flooding and landslide risk in the interior.')}
+    {rn:L('半岛西海岸','Peninsula — West Coast','Semenanjung — Pantai Barat'), seas:mon==='SW'?0.3:(mon==='NE'?-0.1:0),
+     dry:L('最干旱、最易起烟霾的地区；留意巴生谷/马六甲空气质量。','Driest & most haze-prone zone; watch Klang Valley/Melaka air quality.','Zon paling kering & paling mudah berjerebu; pantau kualiti udara Lembah Klang/Melaka.'),
+     wet:L('强降雨时有局部骤发洪水风险。','Localised flash-flood risk in heavy downpours.','Risiko banjir kilat setempat ketika hujan lebat.')},
+    {rn:L('半岛东海岸','Peninsula — East Coast','Semenanjung — Pantai Timur'), seas:mon==='NE'?-0.8:(mon==='SW'?0.1:0),
+     dry:L('本季洪灾风险低。','Low flood risk this season.','Risiko banjir rendah musim ini.'),
+     wet:L('洪灾季——留意吉兰丹、登嘉楼、彭亨。','Flood season — watch Kelantan, Terengganu, Pahang.','Musim banjir — pantau Kelantan, Terengganu, Pahang.')},
+    {rn:L('沙巴','Sabah','Sabah'), seas:mon==='NE'?-0.3:0.1,
+     dry:L('农业用水紧张，局部火灾风险。','Agricultural water stress and localised fire risk.','Tekanan air pertanian dan risiko kebakaran setempat.'),
+     wet:L('降雨增强；洪水与滑坡风险，尤以东海岸为甚。','Enhanced rainfall; flood and landslide risk, especially the east coast.','Hujan meningkat; risiko banjir dan tanah runtuh, terutamanya di pantai timur.')},
+    {rn:L('砂拉越','Sarawak','Sarawak'), seas:mon==='NE'?-0.4:0.2,
+     dry:L('泥炭地火灾与烟霾风险；关注热点。','Peatland fire & haze risk; monitor hotspots.','Risiko kebakaran tanah gambut & jerebu; pantau titik panas.'),
+     wet:L('内陆河流洪水与滑坡风险。','River flooding and landslide risk in the interior.','Risiko banjir sungai dan tanah runtuh di kawasan pedalaman.')}
   ];
   return defs.map(r=>{
     const net=base+r.seas, risk=riskFromNet(net), dryH=net>=0;
-    const head = risk==='r-high' ? (dryH?L('高干旱与烟霾风险。','High drought & haze risk. '):L('高洪灾与滑坡风险。','High flood & landslide risk. '))
-               : risk==='r-mod'  ? (dryH?L('较常年偏干。','Drier than normal. '):L('较常年偏湿。','Wetter than normal. '))
-               :                    L('接近常年。','Near-normal. ');
+    const head = risk==='r-high' ? (dryH?L('高干旱与烟霾风险。','High drought & haze risk. ','Risiko kemarau & jerebu tinggi. '):L('高洪灾与滑坡风险。','High flood & landslide risk. ','Risiko banjir & tanah runtuh tinggi. '))
+               : risk==='r-mod'  ? (dryH?L('较常年偏干。','Drier than normal. ','Lebih kering daripada biasa. '):L('较常年偏湿。','Wetter than normal. ','Lebih basah daripada biasa. '))
+               :                    L('接近常年。','Near-normal. ','Hampir normal. ');
     const spec = risk==='r-low' ? '' : (dryH?r.dry:r.wet)+' ';
     return region(r.rn, risk, head+spec+driverClause(oni,dmi,mjoEffect,monTag,cp));
   });
@@ -815,7 +1030,7 @@ function driverStale(D,key){
   const row=(D.sources||[]).find(s=>Array.isArray(s)&&String(s[0]).startsWith(nm));
   return row ? row[3]==='stale' : false;              // pipeline flagged this feed
 }
-function staleChip(){ return `<span class="stalechip" title="${L('该数据源上次未能刷新，或数据管道已停更——数值可能已过时','This feed didn’t refresh on the last run, or the pipeline has stalled — value may be out of date')}">⚠ ${L('数据陈旧','stale')}</span>`; }
+function staleChip(){ return `<span class="stalechip" title="${L('该数据源上次未能刷新，或数据管道已停更——数值可能已过时','This feed didn’t refresh on the last run, or the pipeline has stalled — value may be out of date','Suapan ini tidak dikemas kini pada larian terakhir, atau saluran data terhenti — nilai mungkin sudah lama')}">⚠ ${L('数据陈旧','stale','lama')}</span>`; }
 
 // Data-driven IOD outlook: derived from the observed DMI value and its recent
 // trajectory (the fetched 12-month series) — NOT an external forecast model. Honest
@@ -827,49 +1042,81 @@ function iodOutlookText(D){
   const tr=h.length>=4 ? +(h[h.length-1]-h[h.length-4]).toFixed(2) : 0;   // ~3-month change
   const oniC=(D.drivers||[]).find(d=>d.key==='oni');
   const elnino=oniC ? ((parseFloat(String(oniC.value).replace('−','-'))||0)>=0.5) : false;
-  if(v>=0.4)  return L(' 目前已进入正 IOD，正加重本区干旱。',' A positive IOD is now in place, adding to the drying here.');
-  if(v<=-0.4) return L(' 目前为负 IOD，倾向带来额外降雨。',' A negative IOD is in place, leaning toward extra rain.');
+  if(v>=0.4)  return L(' 目前已进入正 IOD，正加重本区干旱。',' A positive IOD is now in place, adding to the drying here.',' IOD positif kini berlaku, menambah kekeringan di sini.');
+  if(v<=-0.4) return L(' 目前为负 IOD，倾向带来额外降雨。',' A negative IOD is in place, leaning toward extra rain.',' IOD negatif sedang berlaku, cenderung membawa hujan tambahan.');
   if(tr>=0.15)  return L(' 近月 DMI 持续上升、正趋向正位相'+(elnino?'，若持续将叠加厄尔尼诺的干旱':'')+'。',
-                        ' The DMI has been climbing toward positive over recent months'+(elnino?', which would add to El Niño’s drying if it holds':'')+'.');
-  if(tr<=-0.15) return L(' 近月 DMI 走低、趋向负位相。',' The DMI has been trending negative over recent months.');
-  return L(' 目前中性、暂无明显趋势。',' Neutral for now, with no clear trend either way.');
+                        ' The DMI has been climbing toward positive over recent months'+(elnino?', which would add to El Niño’s drying if it holds':'')+'.',' DMI terus meningkat ke arah positif dalam beberapa bulan kebelakangan ini'+(elnino?', yang akan menambah kekeringan El Niño jika berterusan':'')+'.');
+  if(tr<=-0.15) return L(' 近月 DMI 走低、趋向负位相。',' The DMI has been trending negative over recent months.',' DMI cenderung negatif dalam beberapa bulan kebelakangan ini.');
+  return L(' 目前中性、暂无明显趋势。',' Neutral for now, with no clear trend either way.',' Neutral buat masa ini, tanpa trend jelas ke mana-mana arah.');
 }
+// ---- NOAA's monthly ENSO bulletin (data.outlook, written by fetch-data.js) ----
+// NOAA writes dates as "8 October 2026"; show them in the current language.
+const PROSE_MO={january:0,february:1,march:2,april:3,may:4,june:5,july:6,august:7,september:8,october:9,november:10,december:11};
+function proseTs(s){ const m=/(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})/.exec(s||''); const mo=m&&PROSE_MO[m[2].toLowerCase()]; return (m&&mo!=null)?Date.UTC(+m[3],mo,+m[1]):0; }
+function proseDate(s){ const ts=proseTs(s); if(!ts) return s||''; const d=new Date(ts), mo=MON_ABBR[d.getUTCMonth()];
+  return L(d.getUTCFullYear()+'年'+(d.getUTCMonth()+1)+'月'+d.getUTCDate()+'日', d.getUTCDate()+' '+mo+' '+d.getUTCFullYear(), d.getUTCDate()+' '+(MONMAP_MS[mo]||mo)+' '+d.getUTCFullYear()); }
+const MON_ABBR=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+// CPC's alert status is a small fixed vocabulary, so it is safe to map.
+const NOAA_STATUS={
+  'not active':['未启动（无预警）','Not Active','Tidak aktif (tiada amaran)'],
+  'el nino watch':['厄尔尼诺观察（酝酿中）','El Niño Watch','Pemerhatian El Niño (sedang terbentuk)'],
+  'la nina watch':['拉尼娜观察（酝酿中）','La Niña Watch','Pemerhatian La Niña (sedang terbentuk)'],
+  'el nino advisory':['厄尔尼诺警报（已形成）','El Niño Advisory','Amaran El Niño (telah terbentuk)'],
+  'la nina advisory':['拉尼娜警报（已形成）','La Niña Advisory','Amaran La Niña (telah terbentuk)'],
+  'final el nino advisory':['厄尔尼诺最终警报（消退中）','Final El Niño Advisory','Amaran akhir El Niño (sedang reda)'],
+  'final la nina advisory':['拉尼娜最终警报（消退中）','Final La Niña Advisory','Amaran akhir La Niña (sedang reda)']
+};
+function noaaBulletin(D){
+  const o=D&&D.outlook;
+  // Monthly product: undated or older than 45 days is not "the latest bulletin".
+  if(!o||!o.status||!(Date.now()-proseTs(o.issued)<=45*864e5)) return '';
+  const k=String(o.status).toLowerCase().replace(/ñ/g,'n').replace(/\s+/g,' ').trim();
+  const st=NOAA_STATUS[k]?pick(NOAA_STATUS[k]):o.status;
+  const tr=LANG==='zh'?o.synopsisZh:LANG==='ms'?o.synopsisMs:null;
+  const syn=tr||o.synopsis;
+  return `<div class="vnoaa">${L('📡 <b>NOAA 最新公告：</b>','📡 <b>Latest NOAA bulletin:</b> ','📡 <b>Buletin NOAA terkini:</b> ')}<b>${st}</b> <span class="nd">(${proseDate(o.issued)})</span>`
+    +(syn?`<div style="margin-top:4px">${syn}</div>`:'')
+    +(o.next?`<div class="nd" style="margin-top:4px">${L('NOAA 每月发布一次，下一期：','NOAA issues this monthly; next update: ','NOAA menerbitkan ini setiap bulan; kemas kini seterusnya: ')}${proseDate(o.next)}</div>`:'')
+    +(tr?`<div class="nd">${L('AI 翻译，以 NOAA 英文原文为准','AI translation; NOAA’s English original prevails','Terjemahan AI; teks asal NOAA dalam bahasa Inggeris diguna pakai')}</div>`:'')
+    +`</div>`;
+}
+
 function shortTermNote(D){
   const gv=k=>{const c=(D.drivers||[]).find(d=>d.key===k);return c?(parseFloat(String(c.value).replace('−','-'))||0):0;};
   const dmi=gv('iod'); const m=mjoReading(D);
-  const iodTxt = dmi>=0.4 ? L('印度洋偶极子转正，正加重干旱','a positive Indian Ocean Dipole is adding to the drying')
-             : dmi<=-0.4 ? L('印度洋偶极子转负，正带来额外降雨','a negative Indian Ocean Dipole is adding extra rain')
-             : L('印度洋偶极子中性（暂不加码）','the Indian Ocean Dipole is neutral (not adding either way)');
-  const mjoTxt = m.effect==='dry' ? L('MJO 正压制降雨，未来1–2周更干','the MJO is holding rain back, so the next 1–2 weeks lean drier')
-             : m.effect==='wet' ? L('MJO 正增强降雨，未来1–2周更湿','the MJO is boosting rain, so the next 1–2 weeks lean wetter')
-             : L('MJO 目前很弱，短期无明显推动','the MJO is weak now, no clear short-term push');
-  return L('🌀 <b>短期叠加：</b>','🌀 <b>Short-term, on top of the season:</b> ')+iodTxt+L('；','; ')+mjoTxt+L('。','.');
+  const iodTxt = dmi>=0.4 ? L('印度洋偶极子转正，正加重干旱','a positive Indian Ocean Dipole is adding to the drying','Dipol Lautan Hindi yang positif sedang menambah kekeringan')
+             : dmi<=-0.4 ? L('印度洋偶极子转负，正带来额外降雨','a negative Indian Ocean Dipole is adding extra rain','Dipol Lautan Hindi yang negatif sedang menambah hujan')
+             : L('印度洋偶极子中性（暂不加码）','the Indian Ocean Dipole is neutral (not adding either way)','Dipol Lautan Hindi neutral (tidak menambah ke mana-mana arah)');
+  const mjoTxt = m.effect==='dry' ? L('MJO 正压制降雨，未来1–2周更干','the MJO is holding rain back, so the next 1–2 weeks lean drier','MJO sedang menahan hujan, jadi 1–2 minggu akan datang cenderung lebih kering')
+             : m.effect==='wet' ? L('MJO 正增强降雨，未来1–2周更湿','the MJO is boosting rain, so the next 1–2 weeks lean wetter','MJO sedang menambah hujan, jadi 1–2 minggu akan datang cenderung lebih basah')
+             : L('MJO 目前很弱，短期无明显推动','the MJO is weak now, no clear short-term push','MJO lemah sekarang, tiada tolakan jangka pendek yang jelas');
+  return L('🌀 <b>短期叠加：</b>','🌀 <b>Short-term, on top of the season:</b> ','🌀 <b>Jangka pendek, di atas musim:</b> ')+iodTxt+L('；','; ','; ')+mjoTxt+L('。','.','.');
 }
 
 // Plain-language ENSO verdict — reconciles the official ONI with the relative RONI
 function ensoVerdict(oni, roni){
   const F={
-    warmStrong:{tone:'warm',icon:'🔴',title:L('强厄尔尼诺','Strong El Niño'),
-      why:L('三项指标一致偏暖，且扣除全球变暖背景后仍强——一次实实在在的强厄尔尼诺。','All indices are warm and stay strong even after the global-warming background is removed — a genuine strong El Niño.'),
-      farm:L('偏干偏热明显：严防干旱、山火与烟霾，做好蓄水与灌溉规划。','Clearly drier and hotter: guard against drought, fire and haze; plan water storage and irrigation.')},
-    warmConfirmed:{tone:'warm',icon:'🟠',title:L('厄尔尼诺（已确认）','El Niño (confirmed)'),
-      why:L('官方指数（ONI）与相对指数（RONI）都已越过门槛——厄尔尼诺已确立，强度中等。','Both the official ONI and the relative RONI have crossed the threshold — El Niño is established, at moderate strength.'),
-      farm:L('偏干偏热的倾向明确：留意用水与火险，关注是否继续增强。','A clear drier, warmer lean: mind water use and fire risk; watch for further strengthening.')},
-    warmEmerging:{tone:'warm',icon:'🟡',title:L('厄尔尼诺初生（偏弱）','El Niño — emerging (weak)'),
-      why:L('官方 ONI 刚越过厄尔尼诺门槛，但扣除全球变暖背景后（RONI）信号仍在边缘——所以是偏弱、刚形成的厄尔尼诺，并不像原始海温数字看起来那么强。','The official ONI has just crossed the El Niño line, but with the global-warming background removed (RONI) the signal is still borderline — so this is a weak, just-forming El Niño, not as strong as the raw sea-temperature number looks.'),
-      farm:L('略偏干、偏热的倾向，但暂无严重干旱信号。照常灌溉，密切留意是否增强。','A slight lean to drier and warmer — but no severe-drought signal yet. Irrigate as usual and watch closely for strengthening.')},
-    coolStrong:{tone:'cool',icon:'🔵',title:L('强拉尼娜','Strong La Niña'),
-      why:L('各指标一致偏冷且强——一次实实在在的强拉尼娜。','Indices are cold and strong across the board — a genuine strong La Niña.'),
-      farm:L('偏湿明显：严防洪水与滑坡，注意排水与作物防涝。','Clearly wetter: guard against floods and landslides; mind drainage and waterlogging.')},
-    coolConfirmed:{tone:'cool',icon:'🟦',title:L('拉尼娜（已确认）','La Niña (confirmed)'),
-      why:L('官方与相对指数都已越过冷侧门槛——拉尼娜已确立。','Both the official and the relative index have crossed the cool threshold — La Niña is established.'),
-      farm:L('偏湿的倾向明确：留意洪水与排水，东北季风期尤需注意。','A clear wetter lean: mind flooding and drainage, especially in the NE monsoon.')},
-    coolEmerging:{tone:'cool',icon:'🟢',title:L('拉尼娜初生（偏弱）','La Niña — emerging (weak)'),
-      why:L('官方指数刚进入拉尼娜，但相对指数仍在边缘——偏弱、刚形成的拉尼娜。','The official index has just entered La Niña, but the relative index is still borderline — a weak, just-forming La Niña.'),
-      farm:L('略偏湿的倾向，暂无严重洪涝信号。留意后续是否增强。','A slight wetter lean, no severe-flood signal yet. Watch for strengthening.')},
-    neutral:{tone:'neutral',icon:'⚪',title:L('中性（无厄尔尼诺 / 拉尼娜）','Neutral (no El Niño / La Niña)'),
-      why:L('太平洋接近中性，没有明显的厄尔尼诺或拉尼娜推动，天气主要由季风主导。','The Pacific is near neutral — no clear El Niño or La Niña push; weather is mainly monsoon-driven.'),
-      farm:L('按常年季风安排即可；留意 MJO 带来的短期干湿波动。','Plan around the usual monsoon; watch the MJO for short-term wet/dry swings.')}
+    warmStrong:{tone:'warm',icon:'🔴',title:L('强厄尔尼诺','Strong El Niño','El Niño kuat'),
+      why:L('三项指标一致偏暖，且扣除全球变暖背景后仍强——一次实实在在的强厄尔尼诺。','All indices are warm and stay strong even after the global-warming background is removed — a genuine strong El Niño.','Semua indeks panas dan kekal kuat walaupun selepas latar pemanasan global dikeluarkan — El Niño kuat yang sebenar.'),
+      farm:L('偏干偏热明显：严防干旱、山火与烟霾，做好蓄水与灌溉规划。','Clearly drier and hotter: guard against drought, fire and haze; plan water storage and irrigation.','Jelas lebih kering dan panas: berwaspada terhadap kemarau, kebakaran dan jerebu; rancang simpanan air dan pengairan.')},
+    warmConfirmed:{tone:'warm',icon:'🟠',title:L('厄尔尼诺（已确认）','El Niño (confirmed)','El Niño (disahkan)'),
+      why:L('官方指数（ONI）与相对指数（RONI）都已越过门槛——厄尔尼诺已确立，强度中等。','Both the official ONI and the relative RONI have crossed the threshold — El Niño is established, at moderate strength.','Kedua-dua ONI rasmi dan RONI relatif telah melepasi ambang — El Niño sudah terbentuk, pada kekuatan sederhana.'),
+      farm:L('偏干偏热的倾向明确：留意用水与火险，关注是否继续增强。','A clear drier, warmer lean: mind water use and fire risk; watch for further strengthening.','Kecenderungan jelas ke arah lebih kering dan panas: jaga penggunaan air dan risiko kebakaran; awasi jika ia semakin kuat.')},
+    warmEmerging:{tone:'warm',icon:'🟡',title:L('厄尔尼诺初生（偏弱）','El Niño — emerging (weak)','El Niño — baru terbentuk (lemah)'),
+      why:L('官方 ONI 刚越过厄尔尼诺门槛，但扣除全球变暖背景后（RONI）信号仍在边缘——所以是偏弱、刚形成的厄尔尼诺，并不像原始海温数字看起来那么强。','The official ONI has just crossed the El Niño line, but with the global-warming background removed (RONI) the signal is still borderline — so this is a weak, just-forming El Niño, not as strong as the raw sea-temperature number looks.','ONI rasmi baru sahaja melepasi garis El Niño, tetapi selepas latar pemanasan global dikeluarkan (RONI) isyaratnya masih di sempadan — jadi ini El Niño lemah yang baru terbentuk, tidak sekuat yang ditunjukkan oleh angka suhu laut mentah.'),
+      farm:L('略偏干、偏热的倾向，但暂无严重干旱信号。照常灌溉，密切留意是否增强。','A slight lean to drier and warmer — but no severe-drought signal yet. Irrigate as usual and watch closely for strengthening.','Sedikit cenderung lebih kering dan panas — tetapi belum ada isyarat kemarau teruk. Siram seperti biasa dan pantau dengan teliti jika ia semakin kuat.')},
+    coolStrong:{tone:'cool',icon:'🔵',title:L('强拉尼娜','Strong La Niña','La Niña kuat'),
+      why:L('各指标一致偏冷且强——一次实实在在的强拉尼娜。','Indices are cold and strong across the board — a genuine strong La Niña.','Indeks sejuk dan kuat di semua bahagian — La Niña kuat yang sebenar.'),
+      farm:L('偏湿明显：严防洪水与滑坡，注意排水与作物防涝。','Clearly wetter: guard against floods and landslides; mind drainage and waterlogging.','Jelas lebih basah: berwaspada terhadap banjir dan tanah runtuh; jaga saliran dan takungan air.')},
+    coolConfirmed:{tone:'cool',icon:'🟦',title:L('拉尼娜（已确认）','La Niña (confirmed)','La Niña (disahkan)'),
+      why:L('官方与相对指数都已越过冷侧门槛——拉尼娜已确立。','Both the official and the relative index have crossed the cool threshold — La Niña is established.','Kedua-dua indeks rasmi dan relatif telah melepasi ambang sejuk — La Niña sudah terbentuk.'),
+      farm:L('偏湿的倾向明确：留意洪水与排水，东北季风期尤需注意。','A clear wetter lean: mind flooding and drainage, especially in the NE monsoon.','Kecenderungan jelas ke arah lebih basah: jaga banjir dan saliran, terutamanya semasa Monsun Timur Laut.')},
+    coolEmerging:{tone:'cool',icon:'🟢',title:L('拉尼娜初生（偏弱）','La Niña — emerging (weak)','La Niña — baru terbentuk (lemah)'),
+      why:L('官方指数刚进入拉尼娜，但相对指数仍在边缘——偏弱、刚形成的拉尼娜。','The official index has just entered La Niña, but the relative index is still borderline — a weak, just-forming La Niña.','Indeks rasmi baru sahaja memasuki La Niña, tetapi indeks relatif masih di sempadan — La Niña lemah yang baru terbentuk.'),
+      farm:L('略偏湿的倾向，暂无严重洪涝信号。留意后续是否增强。','A slight wetter lean, no severe-flood signal yet. Watch for strengthening.','Sedikit cenderung lebih basah, belum ada isyarat banjir teruk. Awasi jika ia semakin kuat.')},
+    neutral:{tone:'neutral',icon:'⚪',title:L('中性（无厄尔尼诺 / 拉尼娜）','Neutral (no El Niño / La Niña)','Neutral (tiada El Niño / La Niña)'),
+      why:L('太平洋接近中性，没有明显的厄尔尼诺或拉尼娜推动，天气主要由季风主导。','The Pacific is near neutral — no clear El Niño or La Niña push; weather is mainly monsoon-driven.','Pasifik hampir neutral — tiada tolakan El Niño atau La Niña yang jelas; cuaca terutamanya dipacu monsun.'),
+      farm:L('按常年季风安排即可；留意 MJO 带来的短期干湿波动。','Plan around the usual monsoon; watch the MJO for short-term wet/dry swings.','Rancang mengikut monsun biasa; pantau MJO untuk perubahan basah/kering jangka pendek.')}
   };
   if(oni>=0.5){ if(roni>=1.0)return F.warmStrong; if(roni>=0.5)return F.warmConfirmed; return F.warmEmerging; }
   if(oni<=-0.5){ if(roni<=-1.0)return F.coolStrong; if(roni<=-0.5)return F.coolConfirmed; return F.coolEmerging; }
@@ -898,11 +1145,11 @@ function fireTrend(hist){
   const arrow=d>0?'↑':d<0?'↓':'→';
   const span=(Date.parse(fresh[fresh.length-1].t)-Date.parse(fresh[0].t))/864e5;
   const spanTxt=isFinite(span)&&span>=1
-    ? L('近 '+Math.round(span)+' 天','last '+Math.round(span)+'d')
-    : L('近几次','recent runs');
+    ? L('近 '+Math.round(span)+' 天','last '+Math.round(span)+'d',Math.round(span)+' hari terakhir')
+    : L('近几次','recent runs','larian terkini');
   return '<div class="spark" style="margin-top:6px">'+sparkline(vals,col)+
-    '<span>'+spanTxt+' · '+arrow+(d===0?L(' 持平',' no change'):' '+(d>0?'+':'')+d)+
-    '<span style="opacity:.6"> ('+L('相邻两次之差；2 日滚动窗口','change between runs; 2-day rolling window')+')</span>'+
+    '<span>'+spanTxt+' · '+arrow+(d===0?L(' 持平',' no change',' tiada perubahan'):' '+(d>0?'+':'')+d)+
+    '<span style="opacity:.6"> ('+L('相邻两次之差；2 日滚动窗口','change between runs; 2-day rolling window','perubahan antara larian; tetingkap bergerak 2 hari')+')</span>'+
     '</span></div>';
 }
 
@@ -922,8 +1169,8 @@ function trendBadge(vals,dp){
   const cur=vals[vals.length-1], prev=vals[vals.length-2];
   const dR=+((cur-prev).toFixed(dp));          // rounded to the shown precision
   const ar=dR>0?'↑':dR<0?'↓':'→';
-  const tail=dR!==0?` (${dR>0?'+':''}${dR.toFixed(dp)})`:L(' 持平',' no change');
-  return L('上期 ','prev ')+prev.toFixed(dp)+' · '+ar+tail;
+  const tail=dR!==0?` (${dR>0?'+':''}${dR.toFixed(dp)})`:L(' 持平',' no change',' tiada perubahan');
+  return L('上期 ','prev ','sebelum ')+prev.toFixed(dp)+' · '+ar+tail;
 }
 function sparkRow(d){
   if(!d.hist||d.hist.length<2) return '';
@@ -946,7 +1193,7 @@ function windArrow(D){
   const head=east?`<polygon points="${x2},${ay} ${x2-12},${ay-6.5} ${x2-12},${ay+6.5}" fill="${col}" stroke="${out}" stroke-width="0.8"/>`
                  :`<polygon points="${x1},${ay} ${x1+12},${ay-6.5} ${x1+12},${ay+6.5}" fill="${col}" stroke="${out}" stroke-width="0.8"/>`;
   const lx=east?x1:x1+12, rx=east?x2-12:x2;
-  const label=east?L('信风减弱 · 暖水东移','weaker trades · warm water shifts east'):L('信风增强 · 暖水西聚','stronger trades · warm water piles west');
+  const label=east?L('信风减弱 · 暖水东移','weaker trades · warm water shifts east','angin pasat lemah · air panas beralih ke timur'):L('信风增强 · 暖水西聚','stronger trades · warm water piles west','angin pasat kuat · air panas bertimbun di barat');
   return `<g><line x1="${lx}" y1="${ay}" x2="${rx}" y2="${ay}" stroke="${out}" stroke-width="5" stroke-linecap="round" opacity="0.5"/>`+
     `<line x1="${lx}" y1="${ay}" x2="${rx}" y2="${ay}" stroke="${col}" stroke-width="2.6" stroke-linecap="round"/>${head}`+
     `<text x="${((x1+x2)/2).toFixed(0)}" y="${ay-10}" font-size="10" font-weight="700" fill="${col}" text-anchor="middle" stroke="${out}" stroke-width="2.4" paint-order="stroke">${label}</text></g>`;
@@ -965,7 +1212,7 @@ function sstMap(D){
   const defs=`<defs>${grd('sW2','#e23b28')}${grd('sW1','#e8913a')}${grd('sC1','#5b9bd0')}${grd('sC2','#2f6fb0')}${grd('sNeu','#8a93a6')}${grd('mcg','#2dd4bf')}</defs>`;
   let grid=''; [70,140,210,280,350,420,490,560,630].forEach(x=>grid+=`<line x1="${x}" y1="0" x2="${x}" y2="272" stroke="#fff" stroke-width="0.5" opacity="0.05"/>`);
   grid+=`<line x1="0" y1="85" x2="700" y2="85" stroke="#fff" stroke-width="0.5" opacity="0.05"/><line x1="0" y1="155" x2="700" y2="155" stroke="#fff" stroke-width="0.5" opacity="0.05"/>`;
-  const tongue = n34>=0.3?L('暖舌 = 厄尔尼诺','warm tongue = El Niño'):n34<=-0.3?L('冷舌 = 拉尼娜','cool tongue = La Niña'):L('接近常年','near-normal');
+  const tongue = n34>=0.3?L('暖舌 = 厄尔尼诺','warm tongue = El Niño','lidah panas = El Niño'):n34<=-0.3?L('冷舌 = 拉尼娜','cool tongue = La Niña','lidah sejuk = La Niña'):L('接近常年','near-normal','hampir normal');
   const tcol = n34>=0.3?'#f0b088':n34<=-0.3?'#8fc0ea':'#aab7cf';
   return `<svg viewBox="0 0 700 272" style="width:100%;height:auto;display:block;border-radius:8px" role="img" aria-label="SST anomaly map centred on the Maritime Continent">
     ${defs}<rect x="0" y="0" width="700" height="272" fill="#152a44"/>
@@ -979,8 +1226,8 @@ function sstMap(D){
     <text x="543" y="98" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">Niño 3.4</text>
     <text x="545" y="160" font-size="11" font-weight="700" fill="${tcol}" text-anchor="middle">${tongue}</text>
     <circle cx="146" cy="109" r="4.5" fill="#2dd4bf" stroke="#0a1420" stroke-width="1"/>
-    <text x="138" y="112" font-size="11" font-weight="700" fill="#5eead4" text-anchor="end">${L('马来西亚','Malaysia')}</text>
-    <text x="258" y="182" font-size="10" fill="#9fe6da" text-anchor="middle">${L('海洋大陆','Maritime Continent')}</text>
+    <text x="138" y="112" font-size="11" font-weight="700" fill="#5eead4" text-anchor="end">${L('马来西亚','Malaysia','Malaysia')}</text>
+    <text x="258" y="182" font-size="10" fill="#9fe6da" text-anchor="middle">${L('海洋大陆','Maritime Continent','Benua Maritim')}</text>
     <g transform="translate(20,247)"><rect width="26" height="9" fill="#2f6fb0"/><rect x="26" width="26" height="9" fill="#7fa8cf"/><rect x="52" width="26" height="9" fill="#8a93a6"/><rect x="78" width="26" height="9" fill="#e8b64e"/><rect x="104" width="26" height="9" fill="#e97b2e"/><rect x="130" width="26" height="9" fill="#e23b28"/><text x="0" y="21" font-size="8.5" fill="#aab7cf">−2°C</text><text x="78" y="21" font-size="8.5" fill="#aab7cf" text-anchor="middle">0</text><text x="156" y="21" font-size="8.5" fill="#aab7cf" text-anchor="end">+2°C</text></g>
   </svg>`;
 }
@@ -997,7 +1244,7 @@ function ensoScale(oni, roni){
     <div class="ebar">${seg(30,'#3b6fd4')}${seg(10,'#35a0a0')}${seg(20,'#55617a')}${seg(10,'#d9922b')}${seg(30,'#d84a3a')}</div>
     <div class="emark eoni" style="left:${pos(oni).toFixed(1)}%"><span>ONI ${_fsig(oni)}</span><i></i></div>
     <div class="emark eroni" style="left:${pos(roni).toFixed(1)}%"><i></i><span>RONI ${_fsig(roni)}</span></div>
-    <div class="ezones"><span>${L('强拉尼娜','Strong La Niña')}</span><span>${L('中性','Neutral')}</span><span>${L('强厄尔尼诺','Strong El Niño')}</span></div>
+    <div class="ezones"><span>${L('强拉尼娜','Strong La Niña','La Niña kuat')}</span><span>${L('中性','Neutral','Neutral')}</span><span>${L('强厄尔尼诺','Strong El Niño','El Niño kuat')}</span></div>
   </div>`;
 }
 function renderAll(D){
@@ -1009,9 +1256,10 @@ function renderAll(D){
     if(ah>STALE_H){ const dys=Math.floor(ah/24);
       const en=dys>=1?(dys+' day'+(dys>1?'s':'')):'over 48 hours';
       const zh=dys>=1?(dys+' 天'):'超过 48 小时';
+      const ms=dys>=1?(dys+' hari'):'lebih 48 jam';
       _sn.style.display='block';
       _sn.innerHTML=L('⚠ 数据已 '+zh+' 未刷新——下方为最后一次快照，部分数值可能已过时。请稍后再查看。',
-        '⚠ Data hasn’t refreshed in '+en+' — showing the last snapshot; some values may be out of date. Check back later.');
+        '⚠ Data hasn’t refreshed in '+en+' — showing the last snapshot; some values may be out of date. Check back later.','⚠ Data tidak dikemas kini selama '+ms+' — memaparkan petikan terakhir; sesetengah nilai mungkin sudah lama. Sila semak semula kemudian.');
     } else { _sn.style.display='none'; _sn.innerHTML=''; }
   }
   // ONE hero: the honest ENSO verdict (ONI+RONI) as headline, an ENSO scale that
@@ -1034,9 +1282,9 @@ function renderAll(D){
     <div class="desc">${vd.why}</div>
     <div class="pills">${b.pills.map(p=>`<span class="pill ${p[0]}">${p[1]}</span>`).join('')}</div>
     <div class="bgrid">
-      <div class="vfarm" style="background:rgba(6,10,20,.45)">${L('🌾 对农田：','🌾 For farms: ')}${vd.farm}</div>
+      <div class="vfarm" style="background:var(--inset2)">${L('🌾 对农田：','🌾 For farms: ','🌾 Untuk ladang: ')}${vd.farm}</div>
       <div class="vshort" style="margin-top:0">${shortTermNote(D)}</div>
-    </div>`;
+    </div>${noaaBulletin(D)}`;
 
   // A field that is ABSENT must LOOK absent.
   //
@@ -1051,32 +1299,31 @@ function renderAll(D){
   // Build one card. Grouped below into the three ENSO pillars + neighbours.
   const cardHtml=(d)=>{
     const info=DRV[d.key]||{h:[d.h,d.h],name:[d.name,d.name],interp:[d.interp,d.interp]};
-    const idx=LANG==='zh'?0:1;
     if(d.key==='mjo'){
       const m=mjoReading(D);
-      const tech=(LANG==='zh'?String(fv(d.value)).replace('Ph ','相位'):fv(d.value));
+      const tech=(LANG==='zh'?String(fv(d.value)).replace('Ph ','相位'):LANG==='ms'?String(fv(d.value)).replace('Ph ','Fasa '):fv(d.value));
       const stCls=m.effect==='dry'?'s-dry':m.effect==='wet'?'s-wet':'s-neu';
-      return `<div class="card"><h3>${info.h[idx]}</h3>
-        <div class="name">${L('短期降雨脉冲','Short-term rain pulse')} · ${tech}</div>
+      return `<div class="card"><h3>${pick(info.h)}</h3>
+        <div class="name">${L('短期降雨脉冲','Short-term rain pulse','Gelombang hujan jangka pendek')} · ${tech}</div>
         <div class="val val-sm">${m.plain}${driverStale(D,'mjo')?staleChip():''}</div><div class="status ${stCls}">${m.tag}</div>
         <div class="gauge"><div class="fill" style="width:${fnum(d.gauge)}%;background:${fv(d.gcol,'var(--muted)')}"></div></div>
         <div class="interp">${m.detail}</div></div>`;
     }
     const valCls=(d.key==='flavor')?'val val-sm':'val';   // flavor value is text, not a number
-    return `<div class="card"><h3>${info.h[idx]}</h3>
-      <div class="name">${info.name[idx]}</div>
+    return `<div class="card"><h3>${pick(info.h)}</h3>
+      <div class="name">${pick(info.name)}</div>
       <div class="${valCls}">${fv(d.value)}${driverStale(D,d.key)?staleChip():''}</div><div class="status ${fv(d.cls,'s-neu')}">${trStatus(fv(d.status,''))}</div>
       ${sparkRow(d)}${d.asOf?`<div class="gsrc" style="margin-top:2px">${asOfLabel(d)}${d.asOf}</div>`:''}
       <div class="gauge"><div class="fill" style="width:${fnum(d.gauge)}%;background:${fv(d.gcol,'var(--muted)')}"></div></div>
-      <div class="interp">${info.interp[idx]}${d.key==='iod'?iodOutlookText(D):''}</div></div>`;
+      <div class="interp">${pick(info.interp)}${d.key==='iod'?iodOutlookText(D):''}</div></div>`;
   };
   // Sensible pillar order: surface ocean -> subsurface (leading) -> atmosphere
   // (the Walker Circulation trio) -> neighbouring drivers.
   const GROUPS=[
-    {label:L('海表海洋','Surface ocean'),                    keys:['oni','roni','enso','flavor']},
-    {label:L('次表层 · 先行信号','Subsurface · leading signal'), keys:['hc']},
-    {label:L('大气 · 沃克环流','Atmosphere · Walker Circulation'), keys:['soi','wind','olr']},
-    {label:L('邻近驱动','Neighbouring drivers'),               keys:['iod','mjo']}
+    {label:L('海表海洋','Surface ocean','Permukaan laut'),                    keys:['oni','roni','enso','flavor']},
+    {label:L('次表层 · 先行信号','Subsurface · leading signal','Bawah permukaan · isyarat pendahulu'), keys:['hc']},
+    {label:L('大气 · 沃克环流','Atmosphere · Walker Circulation','Atmosfera · Peredaran Walker'), keys:['soi','wind','olr']},
+    {label:L('邻近驱动','Neighbouring drivers','Pemacu berdekatan'),               keys:['iod','mjo']}
   ];
   const _byKey=Object.fromEntries(D.drivers.map(d=>[d.key,d]));
   document.getElementById('drivers').innerHTML=GROUPS.map(g=>{
@@ -1089,9 +1336,9 @@ function renderAll(D){
   const _mw=document.getElementById('mjowheel'); if(_mw) _mw.innerHTML=mjoWheelSvg(_mjod);
   const _mwn=document.getElementById('mjowheelnote');
   if(_mwn){ const mr=mjoReading(D);
-    _mwn.innerHTML=`<div style="font-size:13.5px;color:#cbd5e8;margin-bottom:7px"><b>${mr.plain}</b> · <span style="color:#aab7cf">${mr.tag}</span></div><div style="font-size:11px;color:#8a97b2;line-height:1.65">`+
+    _mwn.innerHTML=`<div style="font-size:13.5px;color:var(--ink);margin-bottom:7px"><b>${mr.plain}</b> · <span style="color:var(--muted)">${mr.tag}</span></div><div style="font-size:11px;color:var(--src);line-height:1.65">`+
       L('蓝点＝现在，空心圈＝约40天前，两者之间的蓝线＝走过的路径（由旧到今）。<b>离圆心越远＝越强：</b>弱的 MJO 会挤在虚线“振幅1”圈内、几乎没影响；活跃时则向外推向外缘。它每30–60天绕行热带一圈——逆时针＝向东移动——当它来到右侧“海洋大陆”位相（第4–5位相，也就是我们这里）时，本区偏湿。',
-        'Blue dot = now, hollow ring = ~40 days ago, and the line between is the path it took (then → now). <b>Distance from the centre = strength:</b> a weak MJO huddles inside the dashed “amp 1” ring and barely matters; an active one pushes out toward the rim. It circles the tropics every 30–60 days — counter-clockwise means moving east — and when it reaches the right-hand “Maritime Continent” sectors (phases 4–5, our region here), we get wetter.')+'</div>'; }
+        'Blue dot = now, hollow ring = ~40 days ago, and the line between is the path it took (then → now). <b>Distance from the centre = strength:</b> a weak MJO huddles inside the dashed “amp 1” ring and barely matters; an active one pushes out toward the rim. It circles the tropics every 30–60 days — counter-clockwise means moving east — and when it reaches the right-hand “Maritime Continent” sectors (phases 4–5, our region here), we get wetter.','Titik biru = sekarang, cincin kosong = ~40 hari lalu, dan garis di antaranya ialah laluan yang diambil (dahulu → sekarang). <b>Jarak dari pusat = kekuatan:</b> MJO yang lemah berkumpul di dalam cincin putus-putus “amp 1” dan hampir tidak memberi kesan; yang aktif menolak keluar ke arah bingkai. Ia mengelilingi kawasan tropika setiap 30–60 hari — lawan arah jam bermaksud bergerak ke timur — dan apabila ia sampai ke sektor “Benua Maritim” di sebelah kanan (fasa 4–5, kawasan kita), cuaca kita menjadi lebih basah.')+'</div>'; }
 
   document.getElementById('regions').innerHTML=nar.regions.map(r=>`
     <div class="region"><div class="rn">${fv(r.rn)}</div>
@@ -1109,9 +1356,9 @@ function renderAll(D){
     const w=gW('wind')||gW('oni'), oni=gW('oni');
     const visible=_showWind && Math.abs(w)>=0.3;
     const diverge=visible && ((w>0 && oni<=-0.5) || (w<0 && oni>=0.5));
-    if(diverge){ const st=oni>=0.5?L('厄尔尼诺','El Niño'):L('拉尼娜','La Niña');
+    if(diverge){ const st=oni>=0.5?L('厄尔尼诺','El Niño','El Niño'):L('拉尼娜','La Niña','La Niña');
       _wn.innerHTML=L('⚠ 信号不一致：箭头跟随本周信风，目前方向与'+st+'的海洋状态相反。信风起伏大、可能逐周反转；上方海温暖舌仍代表整体 ENSO 状态。',
-        '⚠ Mixed signal: the arrow follows this week’s trade winds, which right now run counter to the '+st+' ocean state. Trade winds are noisy and can flip week to week — the warm tongue above still reflects the overall ENSO state.'); }
+        '⚠ Mixed signal: the arrow follows this week’s trade winds, which right now run counter to the '+st+' ocean state. Trade winds are noisy and can flip week to week — the warm tongue above still reflects the overall ENSO state.','⚠ Isyarat bercampur: anak panah mengikut angin pasat minggu ini, yang kini bertentangan dengan keadaan laut '+st+'. Angin pasat berubah-ubah dan boleh berbalik dari minggu ke minggu — lidah panas di atas masih menggambarkan keadaan ENSO keseluruhan.'); }
     else _wn.innerHTML='';
   }
 
@@ -1120,7 +1367,7 @@ function renderAll(D){
   const ctx=document.getElementById('nino34chart');
   if(chart) chart.destroy();
   const dotLabels={id:'dotLabels',afterDatasetsDraw(c){const g=c.ctx,ds=c.data.datasets[0],meta=c.getDatasetMeta(0),ar=c.chartArea;
-    g.save();g.font='700 11px sans-serif';g.fillStyle='#eaf0fb';g.textAlign='center';g.textBaseline='bottom';
+    g.save();g.font='700 11px sans-serif';g.fillStyle=cssVar('--ink');g.textAlign='center';g.textBaseline='bottom';
     meta.data.forEach((pt,i)=>{const v=ds.data[i];const lb=(v>=0?'+':'')+v.toFixed(1);const w=g.measureText(lb).width;
       const x=Math.min(Math.max(pt.x,ar.left+w/2+1),ar.right-w/2-1);g.fillText(lb,x,pt.y-8);});g.restore();}};
   const _v=D.nino34history.values;
@@ -1132,9 +1379,9 @@ function renderAll(D){
       backgroundColor:'rgba(239,68,68,.12)',fill:true,tension:.35,pointRadius:3,pointBackgroundColor:'#ef4444',borderWidth:2}]},
     plugins:[dotLabels],
     options:{layout:{padding:{top:16,right:10,left:2}},plugins:{legend:{display:false}},scales:{
-      y:{grid:{color:'#25324b'},ticks:{color:'#93a1bd',callback:v=>(v>0?'+':'')+v},suggestedMin:_min,suggestedMax:_max,
-         title:{display:true,text:L('°C 距平','°C anomaly'),color:'#93a1bd'}},
-      x:{grid:{display:false},ticks:{color:'#93a1bd'}}}}});
+      y:{grid:{color:cssVar('--line')},ticks:{color:cssVar('--muted'),callback:v=>(v>0?'+':'')+v},suggestedMin:_min,suggestedMax:_max,
+         title:{display:true,text:L('°C 距平','°C anomaly','°C anomali'),color:cssVar('--muted')}},
+      x:{grid:{display:false},ticks:{color:cssVar('--muted')}}}}});
 }
 
 async function load(){
@@ -1163,67 +1410,68 @@ const CITIES=[
   {n:'Singapore',z:'新加坡',lat:1.35,lon:103.82}
 ];
 const FIRE_ZH={'Sumatra':'苏门答腊','Kalimantan':'加里曼丹','Peninsular Malaysia':'马来半岛','Sarawak / Sabah':'砂拉越/沙巴'};
+const FIRE_MS={'Sumatra':'Sumatera','Peninsular Malaysia':'Semenanjung Malaysia'};
 function pm25Band(pm){ if(pm==null||isNaN(pm))return{l:'—',c:'s-neu'};
-  if(pm<12)return{l:L('良好','Good'),c:'s-good'}; if(pm<35)return{l:L('中等','Moderate'),c:'s-mod'};
-  if(pm<55)return{l:L('敏感人群不健康','Unhealthy for sensitive'),c:'s-bad'}; if(pm<150)return{l:L('不健康','Unhealthy'),c:'s-danger'};
-  if(pm<250)return{l:L('非常不健康','Very unhealthy'),c:'s-vbad'}; return{l:L('危害','Hazardous'),c:'s-vbad'}; }
+  if(pm<12)return{l:L('良好','Good','Baik'),c:'s-good'}; if(pm<35)return{l:L('中等','Moderate','Sederhana'),c:'s-mod'};
+  if(pm<55)return{l:L('敏感人群不健康','Unhealthy for sensitive','Tidak sihat bagi golongan sensitif'),c:'s-bad'}; if(pm<150)return{l:L('不健康','Unhealthy','Tidak sihat'),c:'s-danger'};
+  if(pm<250)return{l:L('非常不健康','Very unhealthy','Sangat tidak sihat'),c:'s-vbad'}; return{l:L('危害','Hazardous','Berbahaya'),c:'s-vbad'}; }
 function maskAdvice(pm){ if(pm==null||isNaN(pm))return'';
-  if(pm<12)return L('空气清洁——无需防护。','Air is clean — no precautions needed.');
-  if(pm<35)return L('大致良好；极敏感人群需注意。','Generally OK; very sensitive people take note.');
-  if(pm<55)return L('敏感人群：减少长时间户外活动。','Sensitive groups: limit prolonged outdoor exertion.');
-  if(pm<150)return L('不健康——户外佩戴 N95，关好门窗。','Unhealthy — wear an N95 outdoors, keep windows closed.');
-  return L('危害——留在室内，必须外出时戴 N95，开启空气净化器。','Hazardous — stay indoors, N95 if you must go out, run a purifier.'); }
+  if(pm<12)return L('空气清洁——无需防护。','Air is clean — no precautions needed.','Udara bersih — tiada langkah berjaga-jaga diperlukan.');
+  if(pm<35)return L('大致良好；极敏感人群需注意。','Generally OK; very sensitive people take note.','Secara amnya OK; golongan yang sangat sensitif perlu berhati-hati.');
+  if(pm<55)return L('敏感人群：减少长时间户外活动。','Sensitive groups: limit prolonged outdoor exertion.','Golongan sensitif: hadkan aktiviti luar yang berpanjangan.');
+  if(pm<150)return L('不健康——户外佩戴 N95，关好门窗。','Unhealthy — wear an N95 outdoors, keep windows closed.','Tidak sihat — pakai N95 di luar, tutup tingkap.');
+  return L('危害——留在室内，必须外出时戴 N95，开启空气净化器。','Hazardous — stay indoors, N95 if you must go out, run a purifier.','Berbahaya — kekal di dalam rumah, pakai N95 jika perlu keluar, hidupkan penapis udara.'); }
 function uvBand(u){ if(u==null||isNaN(u))return{l:'—',c:'s-neu',a:''};
-  if(u<3)return{l:L('低','Low'),c:'s-good',a:L('无需防晒。','No sun protection needed.')};
-  if(u<6)return{l:L('中等','Moderate'),c:'s-mod',a:L('正午戴帽、涂防晒。','Hat & sunscreen at midday.')};
-  if(u<8)return{l:L('高','High'),c:'s-bad',a:L('上午11时至下午3时找阴凉；SPF30+。','Seek shade 11am–3pm; SPF30+.')};
-  if(u<11)return{l:L('很高','Very high'),c:'s-danger',a:L('避免正午日晒，做好遮挡。','Avoid midday sun; cover up.')};
-  return{l:L('极高','Extreme'),c:'s-vbad',a:L('正午请勿在户外。','Stay out of the sun midday.')}; }
+  if(u<3)return{l:L('低','Low','Rendah'),c:'s-good',a:L('无需防晒。','No sun protection needed.','Tiada perlindungan matahari diperlukan.')};
+  if(u<6)return{l:L('中等','Moderate','Sederhana'),c:'s-mod',a:L('正午戴帽、涂防晒。','Hat & sunscreen at midday.','Topi & pelindung matahari pada waktu tengah hari.')};
+  if(u<8)return{l:L('高','High','Tinggi'),c:'s-bad',a:L('上午11时至下午3时找阴凉；SPF30+。','Seek shade 11am–3pm; SPF30+.','Cari tempat teduh 11 pagi–3 petang; SPF30+.')};
+  if(u<11)return{l:L('很高','Very high','Sangat tinggi'),c:'s-danger',a:L('避免正午日晒，做好遮挡。','Avoid midday sun; cover up.','Elakkan matahari tengah hari; tutup badan.')};
+  return{l:L('极高','Extreme','Melampau'),c:'s-vbad',a:L('正午请勿在户外。','Stay out of the sun midday.','Jangan berada di bawah matahari tengah hari.')}; }
 function heatBand(t){ if(t==null||isNaN(t))return{l:'—',c:'s-neu',a:''};
-  if(t<32)return{l:L('舒适','Comfortable'),c:'s-good',a:L('常规防护即可。','Normal precautions.')};
-  if(t<38)return{l:L('注意','Caution'),c:'s-mod',a:L('多补水；在阴凉处休息。','Hydrate; rest in shade.')};
-  if(t<41)return{l:L('高度注意','Extreme caution'),c:'s-bad',a:L('减少剧烈户外活动。','Limit strenuous outdoor activity.')};
-  if(t<54)return{l:L('危险','Danger'),c:'s-danger',a:L('易中暑衰竭——保持凉爽。','Heat exhaustion likely — stay cool.')};
-  return{l:L('极度危险','Extreme danger'),c:'s-vbad',a:L('有中暑风险——留在室内。','Heat-stroke risk — stay indoors.')}; }
+  if(t<32)return{l:L('舒适','Comfortable','Selesa'),c:'s-good',a:L('常规防护即可。','Normal precautions.','Langkah berjaga-jaga biasa.')};
+  if(t<38)return{l:L('注意','Caution','Berhati-hati'),c:'s-mod',a:L('多补水；在阴凉处休息。','Hydrate; rest in shade.','Minum air secukupnya; berehat di tempat teduh.')};
+  if(t<41)return{l:L('高度注意','Extreme caution','Sangat berhati-hati'),c:'s-bad',a:L('减少剧烈户外活动。','Limit strenuous outdoor activity.','Hadkan aktiviti luar yang berat.')};
+  if(t<54)return{l:L('危险','Danger','Bahaya'),c:'s-danger',a:L('易中暑衰竭——保持凉爽。','Heat exhaustion likely — stay cool.','Keletihan haba berkemungkinan — kekal sejuk.')};
+  return{l:L('极度危险','Extreme danger','Sangat berbahaya'),c:'s-vbad',a:L('有中暑风险——留在室内。','Heat-stroke risk — stay indoors.','Risiko strok haba — kekal di dalam rumah.')}; }
 function hazeRisk(x){ if(x==null||isNaN(x))return{l:'—',c:'s-neu'};
-  if(x<20)return{l:L('低','Low'),c:'s-good'}; if(x<100)return{l:L('中等','Moderate'),c:'s-mod'};
-  if(x<300)return{l:L('偏高','Elevated'),c:'s-bad'}; return{l:L('高','High'),c:'s-danger'}; }
+  if(x<20)return{l:L('低','Low','Rendah'),c:'s-good'}; if(x<100)return{l:L('中等','Moderate','Sederhana'),c:'s-mod'};
+  if(x<300)return{l:L('偏高','Elevated','Meningkat'),c:'s-bad'}; return{l:L('高','High','Tinggi'),c:'s-danger'}; }
 
 async function loadImpact(lat,lon,city){
   LOC={lat,lon,city};
-  document.getElementById('locName').textContent = city ? (LANG==='zh'?(city.z||city.n):city.n) : L('我的定位','My location');
+  document.getElementById('locName').textContent = city ? (LANG==='zh'?(city.z||city.n):city.n) : L('我的定位','My location','Lokasi saya');
   const aqU='https://air-quality-api.open-meteo.com/v1/air-quality?latitude='+lat+'&longitude='+lon+'&current=pm2_5,pm10,us_aqi,dust&timezone=auto';
   const wxU='https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon+'&current=temperature_2m,apparent_temperature,relative_humidity_2m,uv_index&daily=apparent_temperature_max,uv_index_max&forecast_days=1&timezone=auto';
-  const unav=L('无法获取（离线？）','Unavailable (offline?)');
+  const unav=L('无法获取（离线？）','Unavailable (offline?)','Tidak tersedia (luar talian?)');
   try{
     const aq=(await (await fetch(aqU)).json()).current; const b=pm25Band(aq.pm2_5);
     document.getElementById('aqCard').innerHTML=
-      '<h3>'+L('烟霾 · 空气质量','Haze · Air Quality')+'</h3>'+
+      '<h3>'+L('烟霾 · 空气质量','Haze · Air Quality','Jerebu · Kualiti Udara')+'</h3>'+
       '<div class="big">'+Math.round(aq.pm2_5)+'<span style="font-size:13px;color:var(--muted)"> µg/m³ PM2.5</span></div>'+
       '<span class="status '+b.c+'">'+b.l+'</span>'+
-      '<div class="subrow"><span>US AQI <b>'+Math.round(aq.us_aqi)+'</b></span><span>PM10 <b>'+Math.round(aq.pm10)+'</b></span><span>'+L('沙尘','Dust')+' <b>'+Math.round(aq.dust)+'</b></span></div>'+
+      '<div class="subrow"><span>US AQI <b>'+Math.round(aq.us_aqi)+'</b></span><span>PM10 <b>'+Math.round(aq.pm10)+'</b></span><span>'+L('沙尘','Dust','Debu')+' <b>'+Math.round(aq.dust)+'</b></span></div>'+
       '<div class="advice">'+maskAdvice(aq.pm2_5)+'</div>';
-  }catch(e){ document.getElementById('aqCard').innerHTML='<h3>'+L('烟霾 · 空气质量','Haze · Air Quality')+'</h3><div class="advice" style="border:0;padding:0">'+unav+'</div>'; }
+  }catch(e){ document.getElementById('aqCard').innerHTML='<h3>'+L('烟霾 · 空气质量','Haze · Air Quality','Jerebu · Kualiti Udara')+'</h3><div class="advice" style="border:0;padding:0">'+unav+'</div>'; }
   try{
     const _w=await (await fetch(wxU)).json(); const wx=_w.current, dy=_w.daily||{};
     const hb=heatBand(wx.apparent_temperature), ub=uvBand(wx.uv_index);
     const maxFeels=(dy.apparent_temperature_max||[])[0], maxUV=(dy.uv_index_max||[])[0];
-    const peak=(maxFeels!=null)?'<div class="subrow" style="margin-top:4px">☀ '+L('今日峰值：','Today\'s peak: ')+'<b>'+Math.round(maxFeels)+'°</b> '+L('体感','feels-like')+' · '+L('紫外线','UV')+' <b>'+Math.round(maxUV)+'</b> '+uvBand(maxUV).l+'</div>':'';
+    const peak=(maxFeels!=null)?'<div class="subrow" style="margin-top:4px">☀ '+L('今日峰值：','Today\'s peak: ','Puncak hari ini: ')+'<b>'+Math.round(maxFeels)+'°</b> '+L('体感','feels-like','terasa seperti')+' · '+L('紫外线','UV','UV')+' <b>'+Math.round(maxUV)+'</b> '+uvBand(maxUV).l+'</div>':'';
     document.getElementById('heatCard').innerHTML=
-      '<h3>'+L('高温与紫外线','Heat & UV')+'</h3>'+
-      '<div class="big">'+Math.round(wx.apparent_temperature)+'°<span style="font-size:13px;color:var(--muted)"> '+L('体感（现时）','feels-like now')+'</span></div>'+
+      '<h3>'+L('高温与紫外线','Heat & UV','Haba & UV')+'</h3>'+
+      '<div class="big">'+Math.round(wx.apparent_temperature)+'°<span style="font-size:13px;color:var(--muted)"> '+L('体感（现时）','feels-like now','terasa seperti sekarang')+'</span></div>'+
       '<span class="status '+hb.c+'">'+hb.l+'</span>'+
-      '<div class="subrow"><span>'+L('气温','Air')+' <b>'+Math.round(wx.temperature_2m)+'°</b></span><span>'+L('湿度','Humidity')+' <b>'+Math.round(wx.relative_humidity_2m)+'%</b></span><span>'+L('紫外线（现时）','UV now')+' <b>'+Math.round(wx.uv_index)+'</b> '+ub.l+'</span></div>'+
+      '<div class="subrow"><span>'+L('气温','Air','Udara')+' <b>'+Math.round(wx.temperature_2m)+'°</b></span><span>'+L('湿度','Humidity','Kelembapan')+' <b>'+Math.round(wx.relative_humidity_2m)+'%</b></span><span>'+L('紫外线（现时）','UV now','UV sekarang')+' <b>'+Math.round(wx.uv_index)+'</b> '+ub.l+'</span></div>'+
       peak+
       '<div class="advice">'+hb.a+' '+(maxUV>=6?uvBand(maxUV).a:ub.a)+'</div>';
-  }catch(e){ document.getElementById('heatCard').innerHTML='<h3>'+L('高温与紫外线','Heat & UV')+'</h3><div class="advice" style="border:0;padding:0">'+unav+'</div>'; }
+  }catch(e){ document.getElementById('heatCard').innerHTML='<h3>'+L('高温与紫外线','Heat & UV','Haba & UV')+'</h3><div class="advice" style="border:0;padding:0">'+unav+'</div>'; }
 }
 // VIIRS and MODIS passes daily, so fires.json should never be more than a couple of days
 // behind. Past this the workflow has stopped and the counts describe history.
 const FIRE_MAX_AGE_H = 48;
 
 async function loadFires(){
-  const title=L('火点 · 烟霾来源','Fire hotspots · haze source');
+  const title=L('火点 · 烟霾来源','Fire hotspots · haze source','Titik panas kebakaran · punca jerebu');
   try{
     const f=await (await fetch('impact/fires.json?t='+Date.now(),{cache:'no-store'})).json();
     // fetch-fires.js already marks per-region `stale`, sets `partial`, writes a
@@ -1250,67 +1498,67 @@ async function loadFires(){
                  :(f.oldestAsOf?Date.parse(f.oldestAsOf):(f.generated?Date.parse(f.generated):NaN));
     const ageH=isFinite(dataMs)?((Date.now()-dataMs)/3.6e6):null;
     const fileStale=(ageH!=null&&isFinite(ageH))?(ageH>FIRE_MAX_AGE_H):false;
-    const ageWord=(h)=>h<1?L('不到 1 小时','under 1h')
-                    :h<48?L(Math.round(h)+' 小时','~'+Math.round(h)+'h')
-                    :L(Math.round(h/24)+' 天',Math.round(h/24)+' days');
+    const ageWord=(h)=>h<1?L('不到 1 小时','under 1h','kurang 1 j')
+                    :h<48?L(Math.round(h)+' 小时','~'+Math.round(h)+'h','~'+Math.round(h)+' j')
+                    :L(Math.round(h/24)+' 天',Math.round(h/24)+' days',Math.round(h/24)+' hari');
     const anyRegionStale=(f.regions||[]).some(x=>x&&x.stale);
     const trusted = !fileStale && !anyRegionStale && !f.partial;
     // The badge is a risk call, so it only stands on counts we can vouch for.
     // Otherwise show the numbers (still useful) without the verdict.
     const r=trusted?hazeRisk(f.total):null;
     const rows=(f.regions||[]).map(x=>{
-      const nm=LANG==='zh'?(FIRE_ZH[x.name]||x.name):x.name;
+      const nm=LANG==='zh'?(FIRE_ZH[x.name]||x.name):LANG==='ms'?(FIRE_MS[x.name]||x.name):x.name;
       const rAge=(x.stale&&x.asOf)?((Date.now()-Date.parse(x.asOf))/3.6e6):null;
-      const rTip=L('该区本次抓取失败，沿用上一次的数值','this region failed to refresh — showing the last good count')
-        +((rAge!=null&&isFinite(rAge))?L('（该数值来自 '+ageWord(rAge)+'前）',' (that value is '+ageWord(rAge)+' old)'):'');
+      const rTip=L('该区本次抓取失败，沿用上一次的数值','this region failed to refresh — showing the last good count','kawasan ini gagal dikemas kini — memaparkan kiraan baik terakhir')
+        +((rAge!=null&&isFinite(rAge))?L('（该数值来自 '+ageWord(rAge)+'前）',' (that value is '+ageWord(rAge)+' old)',' (nilai itu berusia '+ageWord(rAge)+')'):'');
       const mark=x.stale?'<span class="stalechip" title="'+rTip+'">⚠</span>':'';
       return '<span>'+nm+' <b>'+(x.count==null?'—':x.count)+'</b>'+mark+'</span>';
     }).join('');
-    const ageTxt=(ageH==null||!isFinite(ageH))?'':(ageH<1?L('刚刚更新','updated just now')
-      :L('数据更新于 '+ageWord(ageH)+'前','updated '+ageWord(ageH)+' ago'));
+    const ageTxt=(ageH==null||!isFinite(ageH))?'':(ageH<1?L('刚刚更新','updated just now','dikemas kini sebentar tadi')
+      :L('数据更新于 '+ageWord(ageH)+'前','updated '+ageWord(ageH)+' ago','dikemas kini '+ageWord(ageH)+' lalu'));
     let note;
     if(f.total==null){
-      note=L('火点数据尚未配置——请添加 NASA FIRMS 密钥（见 README）。',(f.note||'Fire data not configured yet — add a NASA FIRMS key (see README).'));
+      note=L('火点数据尚未配置——请添加 NASA FIRMS 密钥（见 README）。',(f.note||'Fire data not configured yet — add a NASA FIRMS key (see README).'),(f.note||'Data kebakaran belum dikonfigurasi — tambah kunci NASA FIRMS (lihat README).'));
     } else if(fileStale){
       note='⚠ '+L('火点数据已停更（最新数值来自 '+ageWord(ageH)+'前），下列数字属于过去，不代表现在——暂不给出烟霾风险判断。',
-                  'Fire data has stopped updating (the newest number is '+ageWord(ageH)+' old). The counts below describe the past, not now — no haze-risk verdict is shown.');
+                  'Fire data has stopped updating (the newest number is '+ageWord(ageH)+' old). The counts below describe the past, not now — no haze-risk verdict is shown.','Data kebakaran berhenti dikemas kini (angka terbaharu berusia '+ageWord(ageH)+'). Kiraan di bawah menggambarkan masa lalu, bukan sekarang — tiada keputusan risiko jerebu ditunjukkan.');
     } else if(anyRegionStale||f.partial){
       // No raw f.reason here: it is an internal English string and this UI is
       // bilingual. What the user needs is HOW OLD the kept numbers are.
       note='⚠ '+L('部分地区本次未能刷新（标 ⚠ 者沿用上一次数值），总数不完整——暂不给出烟霾风险判断。',
-                  'Some regions did not refresh this run (marked ⚠ keep their last good count), so the total is incomplete — no haze-risk verdict is shown.')
+                  'Some regions did not refresh this run (marked ⚠ keep their last good count), so the total is incomplete — no haze-risk verdict is shown.','Sesetengah kawasan tidak dikemas kini dalam larian ini (bertanda ⚠ mengekalkan kiraan baik terakhir), jadi jumlahnya tidak lengkap — tiada keputusan risiko jerebu ditunjukkan.')
            +((ageH!=null&&isFinite(ageH))
               ? '<br>'+L('其中最旧的数值来自 '+ageWord(ageH)+'前。',
-                         'The oldest of these numbers is '+ageWord(ageH)+' old.')
+                         'The oldest of these numbers is '+ageWord(ageH)+' old.','Angka paling lama berusia '+ageWord(ageH)+'.')
               : '');
     } else {
-      note=L('NASA FIRMS VIIRS+MODIS · 近'+(f.day_range||1)+'日 · 苏门答腊/加里曼丹为上风向来源。','NASA FIRMS VIIRS+MODIS · last '+(f.day_range||1)+'d · Sumatra/Kalimantan are the upwind sources.')
+      note=L('NASA FIRMS VIIRS+MODIS · 近'+(f.day_range||1)+'日 · 苏门答腊/加里曼丹为上风向来源。','NASA FIRMS VIIRS+MODIS · last '+(f.day_range||1)+'d · Sumatra/Kalimantan are the upwind sources.','NASA FIRMS VIIRS+MODIS · '+(f.day_range||1)+' hari terakhir · Sumatera/Kalimantan ialah punca dari arah angin.')
            +(ageTxt?' · '+ageTxt:'');
     }
     document.getElementById('fireCard').innerHTML=
       '<h3>'+title+'</h3>'+
-      '<div class="big"'+(trusted?'':' style="opacity:.6"')+'>'+(f.total==null?'—':f.total)+'<span style="font-size:13px;color:var(--muted)"> '+L('个火点','hotspots')+'</span>'+(trusted?'':staleChip())+'</div>'+
-      (r?'<span class="status '+r.c+'">'+L('烟霾风险：','Haze risk: ')+r.l+'</span>':'')+
+      '<div class="big"'+(trusted?'':' style="opacity:.6"')+'>'+(f.total==null?'—':f.total)+'<span style="font-size:13px;color:var(--muted)"> '+L('个火点','hotspots','titik panas')+'</span>'+(trusted?'':staleChip())+'</div>'+
+      (r?'<span class="status '+r.c+'">'+L('烟霾风险：','Haze risk: ','Risiko jerebu: ')+r.l+'</span>':'')+
       fireTrend(fhist)+
       '<div class="subrow">'+rows+'</div>'+
       '<div class="advice">'+note+'</div>';
-  }catch(e){ document.getElementById('fireCard').innerHTML='<h3>'+title+'</h3><div class="advice" style="border:0;padding:0">'+L('火点数据暂不可用。','Fire data not available yet.')+'</div>'; }
+  }catch(e){ document.getElementById('fireCard').innerHTML='<h3>'+title+'</h3><div class="advice" style="border:0;padding:0">'+L('火点数据暂不可用。','Fire data not available yet.','Data kebakaran belum tersedia.')+'</div>'; }
 }
 
 // City selector + geolocation
 (function(){
   const sel=document.getElementById('citySel');
-  function fillCities(){ const ph=LANG==='zh'?'预设':'Preset'; sel.innerHTML='<option value="">'+ph+'</option>'+CITIES.map((c,i)=>`<option value="${i}">${LANG==='zh'?c.z:c.n}</option>`).join(''); }
+  function fillCities(){ const ph=L('预设','Preset','Pilih bandar'); sel.innerHTML='<option value="">'+ph+'</option>'+CITIES.map((c,i)=>`<option value="${i}">${LANG==='zh'?c.z:c.n}</option>`).join(''); }
   fillCities();
   window._fillCities=fillCities;
   function saveLoc(o){ try{localStorage.setItem('suhu_loc',JSON.stringify(o));}catch(e){} }
   function savedLoc(){ try{return JSON.parse(localStorage.getItem('suhu_loc'));}catch(e){return null;} }
   sel.onchange=()=>{ if(sel.value==='')return; const i=+sel.value, c=CITIES[i]; saveLoc({mode:'city',idx:i}); loadImpact(c.lat,c.lon,c); };
   document.getElementById('geoBtn').onclick=()=>{
-    if(!navigator.geolocation){alert(L('此设备不支持定位。','Geolocation not supported on this device.'));return;}
+    if(!navigator.geolocation){alert(L('此设备不支持定位。','Geolocation not supported on this device.','Geolokasi tidak disokong pada peranti ini.'));return;}
     navigator.geolocation.getCurrentPosition(
       p=>{ sel.value=''; saveLoc({mode:'gps',lat:p.coords.latitude,lon:p.coords.longitude}); loadImpact(p.coords.latitude,p.coords.longitude,null); },
-      ()=>alert(L('定位权限被拒绝——请改选城市。','Location permission denied — pick a city instead.')));
+      ()=>alert(L('定位权限被拒绝——请改选城市。','Location permission denied — pick a city instead.','Kebenaran lokasi ditolak — pilih bandar sebagai ganti.')));
   };
   // restore the last choice (preset city or GPS), else default to the first city
   const sv=savedLoc();
@@ -1325,10 +1573,26 @@ function openGuide(){document.getElementById('guide').classList.add('open');docu
 function closeGuide(){document.getElementById('guide').classList.remove('open');document.body.classList.remove('noscroll');}
 document.addEventListener('keydown',function(e){if(e.key==='Escape')closeGuide();});
 
+// ============ First launch: one tap to pick a language, then straight in ============
+function startOnboarding(){
+  const ov=document.getElementById('onboard'), box=document.getElementById('obLangs');
+  box.innerHTML=LANGS.map(k=>`<button type="button" data-lang="${k}" lang="${k}" aria-pressed="${k===LANG}">${LANG_NATIVE[k]}<span>${LANG_LBL[k]}</span></button>`).join('');
+  box.onclick=e=>{
+    const b=e.target.closest('[data-lang]'); if(!b) return;
+    try{localStorage.setItem('suhu_onboarded','1');}catch(err){}
+    ov.hidden=true; document.body.classList.remove('noscroll');
+    setLang(b.dataset.lang);   // saves it and re-renders everything
+  };
+  ov.hidden=false; document.body.classList.add('noscroll');
+  const cur=box.querySelector('[aria-pressed="true"]'); if(cur) cur.focus();
+}
+
 // ============ Init ============
+applyTheme();              // saved theme or follow the phone
 applyLang();               // apply saved/default language to all static text
 if(window._fillCities) window._fillCities();
 load();
+if(FIRST_RUN) startOnboarding();   // data loads behind it meanwhile
 
 if('serviceWorker' in navigator){
   // Reload once when a NEW service worker takes control, so the fresh app shell shows
