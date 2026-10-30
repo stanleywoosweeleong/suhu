@@ -138,7 +138,7 @@
   .region{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}
   .region .rn{font-weight:700;font-size:14px;margin-bottom:6px}
   .risk{font-size:11px;font-weight:700;padding:2px 8px;border-radius:5px;text-transform:uppercase;letter-spacing:.5px}
-  .r-high{background:rgba(239,68,68,.18);color:var(--hot)} .r-mod{background:rgba(245,158,11,.18);color:var(--dry)} .r-low{background:rgba(34,197,94,.16);color:var(--wet)}
+  .r-high{background:rgba(239,68,68,.18);color:var(--hot)} .r-mod{background:rgba(245,158,11,.18);color:var(--dry)} .r-low{background:rgba(34,197,94,.16);color:var(--wet)} .r-na{background:rgba(148,163,184,.16);color:var(--muted)}
   .region p{font-size:12.5px;color:var(--muted);margin:8px 0 0}
 
   .two{display:grid;grid-template-columns:1.3fr 1fr;gap:14px}
@@ -1029,14 +1029,16 @@ function renderGuideDiagrams(){
 // ground-level outlook instead of only decorating the hero.
 function driverContribs(D){
   const gv=k=>{const c=(D.drivers||[]).find(d=>d.key===k);return c?(parseFloat(String(c.value).replace('−','-'))||0):0;};
-  const oni=gv('oni'), dmi=usableDmi(D); const m=mjoReading(D);
+  // A stale ONI or flavor must not keep steering risk -- same rule as usableDmi/mjoReading.
+  const oniStale=driverStale(D,'oni');
+  const oni=oniStale?0:gv('oni'), dmi=usableDmi(D); const m=mjoReading(D);
   const mjo=m.effect==='dry'?0.4:(m.effect==='wet'?-0.4:0);   // MJO is a short-term nudge, not a dominant term
   // ENSO flavor: a Central-Pacific (Modoki) El Niño concentrates the subsidence over
   // the Maritime Continent, so it deepens drought here beyond what ONI alone implies.
-  const fstat=((D.drivers||[]).find(d=>d.key==='flavor')||{}).status||'';
+  const fstat=driverStale(D,'flavor')?'':(((D.drivers||[]).find(d=>d.key==='flavor')||{}).status||'');
   const cp=/Central-Pacific/i.test(fstat);
   const flavorDry=(oni>=0.5 && cp)?0.3:0;
-  return {oni,dmi,mjo,mjoEffect:m.effect,cp,flavorDry};
+  return {oni,oniStale,dmi,mjo,mjoEffect:m.effect,cp,flavorDry};
 }
 function riskFromNet(n){const a=Math.abs(n);return a>=1.5?'r-high':a>=0.7?'r-mod':'r-low';}
 function driverClause(oni,dmi,mjoEffect,monTag,cp){
@@ -1050,7 +1052,7 @@ function driverClause(oni,dmi,mjoEffect,monTag,cp){
   return L('驱动因子：','Driven by: ','Dipacu oleh: ')+d.join(' + ')+'.';
 }
 function holisticRegions(D){
-  const {oni,dmi,mjo,mjoEffect,cp,flavorDry}=driverContribs(D);
+  const {oni,oniStale,dmi,mjo,mjoEffect,cp,flavorDry}=driverContribs(D);
   const month=dataMonth(D);
   const mon=MON(month), ml=monLabel(mon), monTag=(mon!=='INTER')?ml:null;
   const base=oni+dmi+mjo+flavorDry;   // basin-scale + short-term drivers + flavor, dry = positive
@@ -1068,6 +1070,9 @@ function holisticRegions(D){
      dry:L('泥炭地火灾与烟霾风险；关注热点。','Peatland fire & haze risk; monitor hotspots.','Risiko kebakaran tanah gambut & jerebu; pantau titik panas.'),
      wet:L('内陆河流洪水与滑坡风险。','River flooding and landslide risk in the interior.','Risiko banjir sungai dan tanah runtuh di kawasan pedalaman.')}
   ];
+  // ONI is the dominant term; without a current value any level would be a guess.
+  if(oniStale) return defs.map(r=>({rn:r.rn,risk:'r-na',label:L('暂不可用','Unavailable','Tidak tersedia'),
+    p:L('ENSO（ONI）数据已过期，暂不评估本区风险。','The ENSO (ONI) data is out of date, so no risk level is given for this region.','Data ENSO (ONI) sudah lama, jadi tiada tahap risiko diberikan untuk kawasan ini.')}));
   return defs.map(r=>{
     const net=base+r.seas, risk=riskFromNet(net), dryH=net>=0;
     const head = risk==='r-high' ? (dryH?L('高干旱与烟霾风险。','High drought & haze risk. ','Risiko kemarau & jerebu tinggi. '):L('高洪灾与滑坡风险。','High flood & landslide risk. ','Risiko banjir & tanah runtuh tinggi. '))

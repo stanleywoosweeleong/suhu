@@ -127,25 +127,29 @@ async function fetchCsv(url, tries = 4) {
 }
 
 // One request per sensor over the union box; bin the rows into the region
-// boxes ourselves. A point inside two overlapping boxes counts in both, which
-// is what four separate queries did too -- kept identical so the numbers stay
-// comparable with the history already committed.
+// boxes ourselves. A point inside two overlapping boxes counts in both
+// regions (kept so per-region numbers stay comparable with history), but the
+// box-overlaps double count, so `unique` -- detections inside ANY box, each
+// counted once -- is what the total is built from.
 function binRows(lines) {
   const head = lines[0].split(',').map((h) => h.trim().toLowerCase());
   const iLat = head.indexOf('latitude'), iLon = head.indexOf('longitude');
   if (iLat < 0 || iLon < 0) throw new Error('CSV has no latitude/longitude column');
   const counts = {};
+  let unique = 0;
   REGIONS.forEach((r) => { counts[r.name] = 0; });
   for (let i = 1; i < lines.length; i++) {
     const c = lines[i].split(',');
     const la = parseFloat(c[iLat]), lo = parseFloat(c[iLon]);
     if (!Number.isFinite(la) || !Number.isFinite(lo)) continue;
+    let hit = false;
     for (const r of REGIONS) {
       const [w, so, e, n] = r.box;
-      if (lo >= w && lo <= e && la >= so && la <= n) counts[r.name]++;
+      if (lo >= w && lo <= e && la >= so && la <= n) { counts[r.name]++; hit = true; }
     }
+    if (hit) unique++;
   }
-  return counts;
+  return { counts, unique };
 }
 
 async function countFromSensor(src) {
@@ -160,20 +164,21 @@ async function countFromSensor(src) {
 // Only throws if they ALL fail.
 async function countAllRegions() {
   const best = {}, seen = [];
-  let anyOk = false, lastErr = 'no sensor tried';
+  let anyOk = false, lastErr = 'no sensor tried', bestTotal = 0;
   for (const src of SRCS) {
     const tag = src.replace('VIIRS_', '').replace('_NRT', '');
     try {
-      const c = await countFromSensor(src);
+      const { counts: c, unique } = await countFromSensor(src);
       anyOk = true;
-      seen.push(tag + '=' + REGIONS.map((r) => c[r.name]).join('/'));
+      seen.push(tag + '=' + REGIONS.map((r) => c[r.name]).join('/') + ' (' + unique + ' unique)');
       REGIONS.forEach((r) => {
         if (best[r.name] === undefined || c[r.name] > best[r.name]) best[r.name] = c[r.name];
       });
+      if (unique > bestTotal) bestTotal = unique;
     } catch (err) { lastErr = err.message; seen.push(tag + '=ERR'); }
   }
   if (!anyOk) throw new Error(lastErr);
-  return { best, seen: seen.join('  ') + '   [regions: ' + REGIONS.map((r) => r.name).join('/') + ']' };
+  return { best, bestTotal, seen: seen.join('  ') + '   [regions: ' + REGIONS.map((r) => r.name).join('/') + ']' };
 }
 
 (async () => {
@@ -214,10 +219,10 @@ async function countAllRegions() {
   // burst came from.
   const regions = [];
   let total = 0, freshAny = false, staleAny = false, firstErr = null;
-  let best = null;
+  let best = null, bestTotal = null;
   try {
     const r = await countAllRegions();
-    best = r.best;
+    best = r.best; bestTotal = r.bestTotal;
     console.log('OK  sensors: ' + r.seen);
   } catch (e) {
     firstErr = e.message;
@@ -240,6 +245,12 @@ async function countAllRegions() {
     }
   }
 
+  // Regions are summed above only as a fallback. Overlapping boxes count a
+  // detection once per box, so a fresh total is the deduplicated sensor count,
+  // and a stale one is the last published total (already deduplicated).
+  if (best) total = bestTotal;
+  else if (staleAny && prevTotal !== null) total = prevTotal;
+
   // Implausibility guard. Four independent regions across Sumatra, Kalimantan,
   // the Peninsula and Borneo do not all go from hundreds of hotspots to exactly
   // zero overnight -- especially not in August under a strong El Nino. A total
@@ -253,7 +264,7 @@ async function countAllRegions() {
       if (r.name in prev) { r.count = prev[r.name]; r.stale = true; r.asOf = prevAsOf[r.name] || null; }
       else { r.count = null; r.stale = true; r.asOf = null; }
     });
-    total = regions.reduce((a, r) => a + (typeof r.count === 'number' ? r.count : 0), 0);
+    total = prevTotal;
     staleAny = true;
     firstErr = firstErr || ('all regions returned 0 against a previous total of ' + prevTotal);
   }

@@ -388,6 +388,9 @@ async function fetchNino34Monthly() {
   const rows = parseErsstNino(txt);
   if (!rows.length) throw new Error('no monthly Niño rows parsed');
   const last = rows[rows.length - 1];
+  // Same gate as every other monthly feed: an old file must not replace the
+  // last good snapshot and be marked live.
+  assertFresh('ERSST Niño 3.4', last.year, last.mon, MAX_AGE_DAYS.monthly);
   const points = rows.slice(-12).map(r => ({ label: MON[r.mon - 1], value: Math.round(r.n34 * 10) / 10 }));
   return buildNinoCard(points, {
     asOf: MON[last.mon - 1] + ' ' + last.year, basis: 'monthly',
@@ -414,10 +417,11 @@ async function fetchSeasonal(url) {
     .filter(r => r.length >= 3 && /^[A-Za-z]{3}$/.test(r[0]) && /^\d{4}$/.test(r[1]));
   if (!rows.length) throw new Error('no seasonal rows parsed');
   const last = rows[rows.length - 1];
-  // DJF is centred on January of the FOLLOWING year (CPC labels it with December's year).
+  // CPC labels DJF with its January year (DJF 2026 = Dec 2025-Feb 2026), so the
+  // row's year is already the centre month's year -- no adjustment.
   const code = last[0].toUpperCase(), cm = SEAS_CENTRE[code];
   if (!cm) throw new Error('unknown season code ' + last[0]);
-  assertFresh('seasonal ' + code + ' ' + last[1], +last[1] + (code === 'DJF' ? 1 : 0), cm, MAX_AGE_DAYS.seasonal);
+  assertFresh('seasonal ' + code + ' ' + last[1], +last[1], cm, MAX_AGE_DAYS.seasonal);
   return { seas: last[0], anom: parseFloat(last[last.length - 1]), hist: lastN(seasonalSeries(txt), 12) };
 }
 async function fetchONI() {
