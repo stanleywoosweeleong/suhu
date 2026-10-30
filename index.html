@@ -34,28 +34,28 @@
     color-scheme:dark;
   }
   @media (prefers-color-scheme: light){ :root:not([data-theme="dark"]){
-    --bg:#f4f7fb;--panel:#ffffff;--panel2:#eef2f8;--line:#d8e0ec;--ink:#0f172a;--muted:#52607a;
+    --bg:#f3efe6;--panel:#fbf8f2;--panel2:#efe9dd;--line:#e0d8c8;--ink:#1f1c17;--muted:#5d564a;
     --accent:#2563eb;--dry:#b45309;--hot:#dc2626;--wet:#15803d;--neutral:#64748b;--red:#dc2626;
-    --soft:rgba(15,23,42,.08);--src:#64748b;--sub:#334155;--neu-ink:#475569;--on-wet:#ffffff;
+    --soft:rgba(60,45,20,.10);--src:#6a6357;--sub:#3a352d;--neu-ink:#5d564a;--on-wet:#fbf8f2;
     --stale-ink:#92400e;--stale-chip:#a16207;
-    --inset:rgba(15,23,42,.05);--inset2:rgba(255,255,255,.75);
-    --bw1:#fff1e8;--bw2:#fde4e1;--bwb:#f5c4b0;--bc1:#e8f2fd;--bc2:#e3edfb;--bcb:#bcd3f0;--bn1:#f1f4f8;--bn2:#eceff5;--bnb:#d5dce8;
-    --b-tag:#475569;--b-desc:#1e293b;--b-trend:#9a3412;--b-mark:#0f172a;--b-mark2:#475569;--b-zone:#64748b;
-    --pill-bg:rgba(15,23,42,.07);--pill-watch:rgba(15,23,42,.1);--pill-ink:#0f172a;
+    --inset:rgba(60,45,20,.05);--inset2:rgba(251,248,242,.85);
+    --bw1:#fff1e8;--bw2:#fde4e1;--bwb:#f5c4b0;--bc1:#e8f2fd;--bc2:#e3edfb;--bcb:#bcd3f0;--bn1:#f4f0e7;--bn2:#eee8dc;--bnb:#dcd3c2;
+    --b-tag:#5d564a;--b-desc:#2a261f;--b-trend:#9a3412;--b-mark:#1f1c17;--b-mark2:#5d564a;--b-zone:#6a6357;
+    --pill-bg:rgba(60,45,20,.08);--pill-watch:rgba(60,45,20,.11);--pill-ink:#1f1c17;
     --v-warm:rgba(254,215,200,.55);--v-cool:rgba(219,234,254,.7);
     --aq-good:#15803d;--aq-mod:#a16207;--aq-bad:#c2410c;--aq-danger:#dc2626;--aq-vbad:#7e22ce;
     --fig-bg:#0f1a2e;--fig-line:#0f1a2e;--fig-ink:#e2e8f0;--fig-pad:8px;
     color-scheme:light;
   } }
   :root[data-theme="light"]{
-    --bg:#f4f7fb;--panel:#ffffff;--panel2:#eef2f8;--line:#d8e0ec;--ink:#0f172a;--muted:#52607a;
+    --bg:#f3efe6;--panel:#fbf8f2;--panel2:#efe9dd;--line:#e0d8c8;--ink:#1f1c17;--muted:#5d564a;
     --accent:#2563eb;--dry:#b45309;--hot:#dc2626;--wet:#15803d;--neutral:#64748b;--red:#dc2626;
-    --soft:rgba(15,23,42,.08);--src:#64748b;--sub:#334155;--neu-ink:#475569;--on-wet:#ffffff;
+    --soft:rgba(60,45,20,.10);--src:#6a6357;--sub:#3a352d;--neu-ink:#5d564a;--on-wet:#fbf8f2;
     --stale-ink:#92400e;--stale-chip:#a16207;
-    --inset:rgba(15,23,42,.05);--inset2:rgba(255,255,255,.75);
-    --bw1:#fff1e8;--bw2:#fde4e1;--bwb:#f5c4b0;--bc1:#e8f2fd;--bc2:#e3edfb;--bcb:#bcd3f0;--bn1:#f1f4f8;--bn2:#eceff5;--bnb:#d5dce8;
-    --b-tag:#475569;--b-desc:#1e293b;--b-trend:#9a3412;--b-mark:#0f172a;--b-mark2:#475569;--b-zone:#64748b;
-    --pill-bg:rgba(15,23,42,.07);--pill-watch:rgba(15,23,42,.1);--pill-ink:#0f172a;
+    --inset:rgba(60,45,20,.05);--inset2:rgba(251,248,242,.85);
+    --bw1:#fff1e8;--bw2:#fde4e1;--bwb:#f5c4b0;--bc1:#e8f2fd;--bc2:#e3edfb;--bcb:#bcd3f0;--bn1:#f4f0e7;--bn2:#eee8dc;--bnb:#dcd3c2;
+    --b-tag:#5d564a;--b-desc:#2a261f;--b-trend:#9a3412;--b-mark:#1f1c17;--b-mark2:#5d564a;--b-zone:#6a6357;
+    --pill-bg:rgba(60,45,20,.08);--pill-watch:rgba(60,45,20,.11);--pill-ink:#1f1c17;
     --v-warm:rgba(254,215,200,.55);--v-cool:rgba(219,234,254,.7);
     --aq-good:#15803d;--aq-mod:#a16207;--aq-bad:#c2410c;--aq-danger:#dc2626;--aq-vbad:#7e22ce;
     --fig-bg:#0f1a2e;--fig-line:#0f1a2e;--fig-ink:#e2e8f0;--fig-pad:8px;
@@ -227,6 +227,20 @@
   .ob-langs button span{font-weight:500;color:var(--muted);font-size:13px}
   .ob-langs button[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.3)}
   .ob-langs button:active{transform:scale(.98)}
+  /* Phones: reading text 15px, headings 16px, labels never under 12px.
+     Controls at 16px so iOS does not zoom in when one is tapped. */
+  @media (max-width:600px){
+    .banner .desc,.card .interp,.region p,.vshort,.vnoaa,.vfarm,.vwhy,.advice,
+    .guide p,.guide li,.guide .gitem p,#staleNotice,.sat .msg{font-size:15px;line-height:1.6}
+    .section-title,.region .rn,.guide h3{font-size:16px}
+    .panel h4,.guide .gitem .gt,.card .name,.btrend{font-size:15px}
+    .card h3,.status,.subrow,.vnoaa .nd,.sub{font-size:13.5px}
+    .pill,.hbtn,.btn,.windtgl,.gmap .gmt,table,.impact-ctrl label{font-size:14px}
+    .banner .tag,.dgroup,.risk,th,.spark,.emark span,.gsrc{font-size:12.5px}
+    .ezones,.satstamp,.stalechip{font-size:12px}
+    .sat .live{font-size:11px}
+    .impact-ctrl select,select,input{font-size:16px}
+  }
 </style>
 </head>
 <body>
@@ -279,7 +293,7 @@
     <h4 data-i18n="panel_sst">海表温度距平 · 太平洋</h4>
     <div id="sstmap"></div>
     <label class="windtgl"><input type="checkbox" id="windChk" onchange="toggleWind()"><span data-i18n="wind_arrow">显示信风 / 暖水推移箭头</span></label>
-    <div id="windnote" style="margin-top:8px;font-size:11px;line-height:1.55;color:var(--stale-chip)"></div>
+    <div id="windnote" style="margin-top:8px;font-size:13px;line-height:1.55;color:var(--stale-chip)"></div>
     <div class="gsrc" style="margin-top:8px" data-i18n="sst_note"></div>
   </div>
   <div class="panel" style="margin-top:14px">
@@ -348,7 +362,7 @@
       <div class="gitem" data-i18n-html="g_i_haze"></div>
       <div class="gitem" data-i18n-html="g_i_heat"></div>
       <div class="gitem" data-i18n-html="g_i_fire"></div>
-      <p style="font-size:12px;color:var(--muted)" data-i18n="g_impact_note"></p>
+      <p style="font-size:13px;color:var(--muted)" data-i18n="g_impact_note"></p>
       <h3 data-i18n="g_engine_h"></h3>
       <p data-i18n="g_engine_p"></p>
       <table id="rules"></table>
@@ -358,7 +372,7 @@
       <h3 data-i18n="g_noaa_h"></h3>
       <div data-i18n-html="g_noaa_body"></div>
       <h3 data-i18n="g_attr_h"></h3>
-      <p style="font-size:12px;color:var(--muted)" data-i18n="g_attr_p"></p>
+      <p style="font-size:13px;color:var(--muted)" data-i18n="g_attr_p"></p>
     </div>
   </div>
 </div>
@@ -830,7 +844,8 @@ function mjoWheelSvg(d){
   const PH={1:[180,225],2:[225,270],3:[270,315],4:[315,360],5:[0,45],6:[45,90],7:[90,135],8:[135,180]};
   const eff=ph=>([3,4,5].includes(ph)?'wet':([7,8,1].includes(ph)?'dry':'trans'));
   const active = amp>=1;
-  let svg=`<svg viewBox="0 0 540 268" role="img" aria-label="MJO phase wheel" style="width:100%;height:auto;display:block">`;
+  const crop=PHONE_MQ.matches;   // phone: crop to the disc, side labels become a key below
+  let svg=`<svg viewBox="${crop?'150 0 240 268':'0 0 540 268'}" role="img" aria-label="MJO phase wheel" style="width:100%;height:auto;display:block">`;
   for(let ph=1; ph<=8; ph++){
     const a=PH[ph]; let fill='rgba(148,163,184,.10)';
     if(ph===4||ph===5) fill='rgba(245,158,11,.18)';                    // Maritime band
@@ -844,13 +859,13 @@ function mjoWheelSvg(d){
     svg+=`<text x="${lp[0].toFixed(1)}" y="${(lp[1]+4).toFixed(1)}" font-size="13" font-weight="bold" fill="#aab7cf" text-anchor="middle">${ph}</text>`;
   }
   svg+=`<circle cx="${cx}" cy="${cy}" r="${rIn}" fill="rgba(8,12,22,.6)" stroke="rgba(255,255,255,.30)" stroke-width="1" stroke-dasharray="2 2"/>`;
-  svg+=`<text x="${cx}" y="${cy+rIn-5}" font-size="9" fill="#8493ad" text-anchor="middle">${L('振幅1','amp 1','amp 1')}</text>`;
+  svg+=`<text x="${cx}" y="${cy+rIn-5}" font-size="${crop?10:9}" fill="#8493ad" text-anchor="middle">${L('振幅1','amp 1','amp 1')}</text>`;
   // Region labels follow the standard WH04 geography: phases 6–7 top (W. Pacific),
   // 4–5 right (Maritime Continent = us, amber), 2–3 bottom (Indian Ocean), 8–1 left.
-  svg+=`<text x="${cx}" y="21" font-size="11" fill="#a7b4cc" text-anchor="middle">${L('西太平洋','Western Pacific','Pasifik Barat')}</text>`;
-  svg+=`<text x="${cx}" y="260" font-size="11" fill="#a7b4cc" text-anchor="middle">${L('印度洋','Indian Ocean','Lautan Hindi')}</text>`;
-  svg+=`<text x="6" y="${cy+4}" font-size="11" fill="#a7b4cc" text-anchor="start">${L('西半球 / 非洲','Western Hemisphere / Africa','Hemisfera Barat / Afrika')}</text>`;
-  svg+=`<text x="534" y="${cy+4}" font-size="11" font-weight="bold" fill="#f5b301" text-anchor="end">${L('海洋大陆（这里）','Maritime Continent (here)','Benua Maritim (di sini)')}</text>`;
+  svg+=`<text x="${cx}" y="21" font-size="${crop?12:11}" fill="#a7b4cc" text-anchor="middle">${L('西太平洋','Western Pacific','Pasifik Barat')}</text>`;
+  svg+=`<text x="${cx}" y="260" font-size="${crop?12:11}" fill="#a7b4cc" text-anchor="middle">${L('印度洋','Indian Ocean','Lautan Hindi')}</text>`;
+  if(!crop) svg+=`<text x="6" y="${cy+4}" font-size="${fz(11,1.4)}" fill="#a7b4cc" text-anchor="start">${L('西半球 / 非洲','Western Hemisphere / Africa','Hemisfera Barat / Afrika')}</text>`;
+  if(!crop) svg+=`<text x="534" y="${cy+4}" font-size="${fz(11,1.4)}" font-weight="bold" fill="#f5b301" text-anchor="end">${L('海洋大陆（这里）','Maritime Continent (here)','Benua Maritim (di sini)')}</text>`;
   // A track point plots in true RMM space: angle = atan2(rmm2,rmm1), radius from amplitude
   // (amp 1 sits on the dashed ring rIn; stronger pushes outward). Dot = last point exactly.
   const plot=(r1,r2,a)=>{ let rr=rIn+((a!=null?a:Math.hypot(r1,r2))-1)*((R-rIn)/2); rr=Math.max(3,Math.min(R,rr));
@@ -868,8 +883,18 @@ function mjoWheelSvg(d){
     svg+=`<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="5" fill="#38bdf8" stroke="#0a0f19" stroke-width="1.5"/>`;  // now
   }
   svg+='</svg>';
+  // On phones the side regions are named in a key instead (too wide to sit beside the disc).
+  if(crop) svg+='<div style="font-size:13px;line-height:1.6;color:var(--fig-ink);padding:2px 8px 6px;text-align:center">'
+    +'<b style="color:#f5b301">'+L('第4–5位相：海洋大陆（这里）','Phases 4–5: Maritime Continent (here)','Fasa 4–5: Benua Maritim (di sini)')+'</b><br>'
+    +L('第8–1位相：西半球 / 非洲','Phases 8–1: Western Hemisphere / Africa','Fasa 8–1: Hemisfera Barat / Afrika')+'</div>';
   return svg;
 }
+
+// Diagrams are drawn at a fixed width and scaled down to fit, so on a phone
+// their text shrinks with them. fz() enlarges a label by k on phones only.
+const PHONE_MQ = window.matchMedia ? matchMedia('(max-width:600px)') : { matches:false };
+const fz = (n,k) => PHONE_MQ.matches ? +(n*k).toFixed(1) : n;
+if (PHONE_MQ.addEventListener) PHONE_MQ.addEventListener('change', () => { renderGuideDiagrams(); if (DATA) renderAll(DATA); });
 
 // ===== Educational SVG diagrams (ported from the enso app, dark-themed) =====
 // Niño-region map: shows where the four monitoring boxes sit across the Pacific.
@@ -878,29 +903,29 @@ function ninoMapSvg(){
   return `<svg viewBox="0 0 360 250" style="width:100%;height:auto;display:block" role="img" aria-label="Niño regions map">`
     +`<rect x="6" y="70" width="348" height="86" rx="7" fill="rgba(56,189,248,.10)" stroke="rgba(56,189,248,.30)"/>`
     +`<line x1="6" y1="113" x2="354" y2="113" stroke="rgba(125,211,252,.5)" stroke-width="1" stroke-dasharray="3 3"/>`
-    +`<text x="30" y="129" font-size="8" fill="#7dd3fc">${eq}</text>`
+    +`<text x="30" y="129" font-size="${fz(8,1.25)}" fill="#7dd3fc">${eq}</text>`
     +`<rect x="6" y="86" width="20" height="54" rx="3" fill="rgba(148,163,184,.16)" stroke="rgba(148,163,184,.3)"/>`
-    +`<text x="16" y="64" font-size="9" fill="#93a1bd" text-anchor="middle">${L('西','West','Barat')}</text>`
+    +`<text x="16" y="64" font-size="${fz(9,1.25)}" fill="#93a1bd" text-anchor="middle">${L('西','West','Barat')}</text>`
     +`<rect x="334" y="86" width="20" height="54" rx="3" fill="rgba(148,163,184,.16)" stroke="rgba(148,163,184,.3)"/>`
-    +`<text x="344" y="64" font-size="9" fill="#93a1bd" text-anchor="middle">${L('东','East','Timur')}</text>`
+    +`<text x="344" y="64" font-size="${fz(9,1.25)}" fill="#93a1bd" text-anchor="middle">${L('东','East','Timur')}</text>`
     +`<rect x="70" y="86" width="88" height="30" rx="4" fill="rgba(45,212,191,.16)" stroke="rgba(45,212,191,.5)"/>`
-    +`<text x="114" y="99" font-size="10" font-weight="bold" fill="#5eead4" text-anchor="middle">Niño 4</text>`
-    +`<text x="114" y="111" font-size="7.5" fill="#5eead4" text-anchor="middle">${L('中部，近亚洲','central, near Asia','tengah, dekat Asia')}</text>`
+    +`<text x="114" y="99" font-size="${fz(10,1.25)}" font-weight="bold" fill="#5eead4" text-anchor="middle">Niño 4</text>`
+    +`<text x="114" y="111" font-size="${fz(7.5,1.15)}" fill="#5eead4" text-anchor="middle">${L('中部，近亚洲','central, near Asia','tengah, dekat Asia')}</text>`
     +`<rect x="205" y="124" width="108" height="28" rx="4" fill="rgba(251,146,60,.16)" stroke="rgba(251,146,60,.5)"/>`
-    +`<text x="259" y="137" font-size="10" font-weight="bold" fill="#fdba8c" text-anchor="middle">Niño 3</text>`
-    +`<text x="259" y="148" font-size="7.5" fill="#fdba8c" text-anchor="middle">${L('东太平洋','eastern Pacific','Pasifik timur')}</text>`
+    +`<text x="259" y="137" font-size="${fz(10,1.25)}" font-weight="bold" fill="#fdba8c" text-anchor="middle">Niño 3</text>`
+    +`<text x="259" y="148" font-size="${fz(7.5,1.15)}" fill="#fdba8c" text-anchor="middle">${L('东太平洋','eastern Pacific','Pasifik timur')}</text>`
     +`<rect x="158" y="90" width="112" height="34" rx="4" fill="rgba(245,158,11,.22)" stroke="#f59e0b" stroke-width="2"/>`
-    +`<text x="214" y="104" font-size="10.5" font-weight="bold" fill="#fbbf24" text-anchor="middle">Niño 3.4 ★</text>`
-    +`<text x="214" y="116" font-size="7.5" fill="#fbbf24" text-anchor="middle">${L('主指标','the main one','yang utama')}</text>`
+    +`<text x="214" y="104" font-size="${fz(10.5,1.25)}" font-weight="bold" fill="#fbbf24" text-anchor="middle">Niño 3.4 ★</text>`
+    +`<text x="214" y="116" font-size="${fz(7.5,1.15)}" fill="#fbbf24" text-anchor="middle">${L('主指标','the main one','yang utama')}</text>`
     +`<rect x="316" y="86" width="34" height="30" rx="3" fill="rgba(244,114,182,.16)" stroke="rgba(244,114,182,.5)"/>`
-    +`<text x="333" y="99" font-size="9" font-weight="bold" fill="#f0abcc" text-anchor="middle">1+2</text>`
-    +`<text x="333" y="110" font-size="7" fill="#f0abcc" text-anchor="middle">${L('近岸','coast','pantai')}</text>`
+    +`<text x="333" y="99" font-size="${fz(9,1.25)}" font-weight="bold" fill="#f0abcc" text-anchor="middle">1+2</text>`
+    +`<text x="333" y="110" font-size="${fz(7,1.15)}" fill="#f0abcc" text-anchor="middle">${L('近岸','coast','pantai')}</text>`
     +`<circle cx="16" cy="180" r="5" fill="#2dd4bf"/>`
-    +`<text x="26" y="177" font-size="9" font-weight="bold" fill="#2dd4bf">${L('马来西亚','Malaysia','Malaysia')}</text>`
-    +`<text x="26" y="190" font-size="7.5" fill="#93a1bd">${L('最西端 — 厄尔尼诺时偏干','far west — drier in El Niño','paling barat — lebih kering semasa El Niño')}</text>`
+    +`<text x="26" y="177" font-size="${fz(9,1.25)}" font-weight="bold" fill="#2dd4bf">${L('马来西亚','Malaysia','Malaysia')}</text>`
+    +`<text x="26" y="190" font-size="${fz(7.5,1.15)}" fill="#93a1bd">${L('最西端 — 厄尔尼诺时偏干','far west — drier in El Niño','paling barat — lebih kering semasa El Niño')}</text>`
     +`<circle cx="344" cy="210" r="5" fill="#fb923c"/>`
-    +`<text x="336" y="207" font-size="9" font-weight="bold" fill="#fdba8c" text-anchor="end">${L('南美洲','S. America','Amerika Selatan')}</text>`
-    +`<text x="180" y="238" font-size="8" fill="#fbbf24" text-anchor="middle">★ ${L('Niño 3.4 跨在 Niño 3 与 4 之间','Niño 3.4 straddles Niño 3 and 4','Niño 3.4 merentasi Niño 3 dan 4')}</text>`
+    +`<text x="336" y="207" font-size="${fz(9,1.25)}" font-weight="bold" fill="#fdba8c" text-anchor="end">${L('南美洲','S. America','Amerika Selatan')}</text>`
+    +`<text x="180" y="238" font-size="${fz(8,1.25)}" fill="#fbbf24" text-anchor="middle">★ ${L('Niño 3.4 跨在 Niño 3 与 4 之间','Niño 3.4 straddles Niño 3 and 4','Niño 3.4 merentasi Niño 3 dan 4')}</text>`
     +`</svg>`;
 }
 // Walker Circulation in the EL NIÑO state: sinking/dry over Malaysia (west),
@@ -911,7 +936,7 @@ function walkerSvg(){
   s+=`<rect x="0" y="0" width="${W}" height="${oceanY}" fill="rgba(56,189,248,.06)" rx="6"/>`;
   s+=`<rect x="0" y="${oceanY}" width="${W}" height="${H-oceanY}" fill="rgba(37,99,235,.16)"/>`;
   s+=`<rect x="150" y="${oceanY}" width="150" height="${H-oceanY}" fill="rgba(239,68,68,.22)"/>`;
-  s+=`<text x="225" y="${oceanY+34}" font-size="8.5" fill="#fca5a5" text-anchor="middle">${L('暖海东移 →','warm water shifts east →','air panas beralih ke timur →')}</text>`;
+  s+=`<text x="225" y="${oceanY+34}" font-size="${fz(8.5,1.25)}" fill="#fca5a5" text-anchor="middle">${L('暖海东移 →','warm water shifts east →','air panas beralih ke timur →')}</text>`;
   s+=`<line x1="${loopR}" y1="${oceanY-6}" x2="${loopR}" y2="${loopTop}" stroke="#3b82f6" stroke-width="3"/>`;
   s+=`<polygon points="${loopR},${loopTop-2} ${loopR-5},${loopTop+8} ${loopR+5},${loopTop+8}" fill="#3b82f6"/>`;
   s+=`<line x1="${loopR}" y1="${loopTop}" x2="${loopL}" y2="${loopTop}" stroke="#60a5fa" stroke-width="3"/>`;
@@ -921,11 +946,11 @@ function walkerSvg(){
   s+=`<line x1="${loopL}" y1="${oceanY-6}" x2="${loopR}" y2="${oceanY-6}" stroke="rgba(148,163,184,.55)" stroke-width="2" stroke-dasharray="4 3"/>`;
   s+=`<polygon points="${loopR},${oceanY-6} ${loopR-9},${oceanY-11} ${loopR-9},${oceanY-1}" fill="rgba(148,163,184,.7)"/>`; // return flow → east, completes the loop
   for(let i=0;i<4;i++){const rx=loopR-32+i*7; s+=`<line x1="${rx}" y1="${oceanY-30}" x2="${rx-3}" y2="${oceanY-14}" stroke="#60a5fa" stroke-width="1.5"/>`;}
-  s+=`<text x="${loopR}" y="${loopTop+22}" font-size="8.5" font-weight="bold" fill="#93c5fd" text-anchor="middle">${L('上升 · 多雨','rising · rainy','naik · berhujan')}</text>`;
+  s+=`<text x="${loopR}" y="${loopTop+22}" font-size="${fz(8.5,1.25)}" font-weight="bold" fill="#93c5fd" text-anchor="middle">${L('上升 · 多雨','rising · rainy','naik · berhujan')}</text>`;
   s+=`<circle cx="${loopL}" cy="${loopTop+26}" r="7" fill="#f59e0b"/>`;
-  s+=`<text x="${loopL}" y="${loopTop+48}" font-size="8.5" font-weight="bold" fill="#fbbf24" text-anchor="middle">${L('下沉 · 干燥','sinking · dry','turun · kering')}</text>`;
-  s+=`<text x="${loopL}" y="${H-8}" font-size="9" font-weight="bold" fill="#2dd4bf" text-anchor="middle">★ ${L('马来西亚','Malaysia','Malaysia')}</text>`;
-  s+=`<text x="${loopR}" y="${H-8}" font-size="8.5" fill="#cbd5e1" text-anchor="middle">${L('中太平洋 (Niño 3.4)','Central Pacific (Niño 3.4)','Pasifik Tengah (Niño 3.4)')}</text>`;
+  s+=`<text x="${loopL}" y="${loopTop+48}" font-size="${fz(8.5,1.25)}" font-weight="bold" fill="#fbbf24" text-anchor="middle">${L('下沉 · 干燥','sinking · dry','turun · kering')}</text>`;
+  s+=`<text x="${loopL}" y="${H-8}" font-size="${fz(9,1.25)}" font-weight="bold" fill="#2dd4bf" text-anchor="middle">★ ${L('马来西亚','Malaysia','Malaysia')}</text>`;
+  s+=`<text x="${PHONE_MQ.matches?W-4:loopR}" y="${H-8}" font-size="${fz(8.5,1.25)}" fill="#cbd5e1" text-anchor="${PHONE_MQ.matches?'end':'middle'}">${L('中太平洋 (Niño 3.4)','Central Pacific (Niño 3.4)','Pasifik Tengah (Niño 3.4)')}</text>`;
   s+=`</svg>`; return s;
 }
 // Indian Ocean Dipole: west pole vs east pole (off Sumatra, next to us).
@@ -934,21 +959,21 @@ function iodMapSvg(){
   return `<svg viewBox="0 0 360 250" style="width:100%;height:auto;display:block" role="img" aria-label="Indian Ocean Dipole map">`
     +`<rect x="6" y="70" width="348" height="92" rx="7" fill="rgba(56,189,248,.10)" stroke="rgba(56,189,248,.30)"/>`
     +`<line x1="6" y1="150" x2="354" y2="150" stroke="rgba(125,211,252,.5)" stroke-width="1" stroke-dasharray="3 3"/>`
-    +`<text x="46" y="160" font-size="8" fill="#7dd3fc" text-anchor="middle">${eq}</text>`
+    +`<text x="46" y="160" font-size="${fz(8,1.25)}" fill="#7dd3fc" text-anchor="middle">${eq}</text>`
     +`<rect x="10" y="80" width="20" height="64" rx="3" fill="rgba(148,163,184,.16)" stroke="rgba(148,163,184,.3)"/>`
-    +`<text x="20" y="64" font-size="8.5" fill="#93a1bd" text-anchor="middle">${L('非洲','Africa','Afrika')}</text>`
+    +`<text x="20" y="64" font-size="${fz(8.5,1.25)}" fill="#93a1bd" text-anchor="middle">${L('非洲','Africa','Afrika')}</text>`
     +`<rect x="330" y="80" width="20" height="64" rx="3" fill="rgba(148,163,184,.16)" stroke="rgba(148,163,184,.3)"/>`
-    +`<text x="340" y="64" font-size="8.5" fill="#93a1bd" text-anchor="middle">${L('苏门答腊','Sumatra','Sumatera')}</text>`
+    +`<text x="${PHONE_MQ.matches?354:340}" y="64" font-size="${fz(8.5,1.25)}" fill="#93a1bd" text-anchor="${PHONE_MQ.matches?'end':'middle'}">${L('苏门答腊','Sumatra','Sumatera')}</text>`
     +`<rect x="44" y="86" width="100" height="44" rx="4" fill="rgba(59,130,246,.16)" stroke="rgba(147,197,253,.6)" stroke-width="1.5"/>`
-    +`<text x="94" y="103" font-size="10" font-weight="bold" fill="#93c5fd" text-anchor="middle">${L('西极','West pole','Kutub barat')}</text>`
-    +`<text x="94" y="116" font-size="7.5" fill="#93c5fd" text-anchor="middle">${L('阿拉伯海一带','Arabian Sea side','sebelah Laut Arab')}</text>`
+    +`<text x="94" y="103" font-size="${fz(10,1.25)}" font-weight="bold" fill="#93c5fd" text-anchor="middle">${L('西极','West pole','Kutub barat')}</text>`
+    +`<text x="94" y="116" font-size="${fz(7.5,1.15)}" fill="#93c5fd" text-anchor="middle">${L('阿拉伯海一带','Arabian Sea side','sebelah Laut Arab')}</text>`
     +`<rect x="216" y="84" width="100" height="48" rx="4" fill="rgba(245,158,11,.22)" stroke="#f59e0b" stroke-width="2"/>`
-    +`<text x="266" y="101" font-size="10" font-weight="bold" fill="#fbbf24" text-anchor="middle">${L('东极','East pole','Kutub timur')} ★</text>`
-    +`<text x="266" y="114" font-size="7.5" fill="#fbbf24" text-anchor="middle">${L('苏门答腊外海','off Sumatra','luar pantai Sumatera')}</text>`
+    +`<text x="266" y="101" font-size="${fz(10,1.25)}" font-weight="bold" fill="#fbbf24" text-anchor="middle">${L('东极','East pole','Kutub timur')} ★</text>`
+    +`<text x="266" y="114" font-size="${fz(7.5,1.15)}" fill="#fbbf24" text-anchor="middle">${L('苏门答腊外海','off Sumatra','luar pantai Sumatera')}</text>`
     +`<circle cx="318" cy="184" r="5" fill="#2dd4bf"/>`
-    +`<text x="308" y="181" font-size="9" font-weight="bold" fill="#2dd4bf" text-anchor="end">${L('马来西亚','Malaysia','Malaysia')}</text>`
-    +`<text x="308" y="194" font-size="7.5" fill="#93a1bd" text-anchor="end">${L('紧邻东极','next to the east pole','bersebelahan kutub timur')}</text>`
-    +`<text x="180" y="240" font-size="8" fill="#fbbf24" text-anchor="middle">★ ${L('DMI = 西极减东极海温；正值＝偏干','DMI = west-pole minus east-pole SST; positive = drier','DMI = SST kutub barat tolak kutub timur; positif = lebih kering')}</text>`
+    +`<text x="308" y="181" font-size="${fz(9,1.25)}" font-weight="bold" fill="#2dd4bf" text-anchor="end">${L('马来西亚','Malaysia','Malaysia')}</text>`
+    +`<text x="308" y="194" font-size="${fz(7.5,1.15)}" fill="#93a1bd" text-anchor="end">${L('紧邻东极','next to the east pole','bersebelahan kutub timur')}</text>`
+    +`<text x="180" y="240" font-size="${fz(8,1.25)}" fill="#fbbf24" text-anchor="middle">★ ${L('DMI = 西极减东极海温；正值＝偏干','DMI = west-pole minus east-pole SST; positive = drier','DMI = SST kutub barat tolak kutub timur; positif = lebih kering')}</text>`
     +`</svg>`;
 }
 function renderGuideDiagrams(){
@@ -1196,7 +1221,13 @@ function windArrow(D){
   const label=east?L('信风减弱 · 暖水东移','weaker trades · warm water shifts east','angin pasat lemah · air panas beralih ke timur'):L('信风增强 · 暖水西聚','stronger trades · warm water piles west','angin pasat kuat · air panas bertimbun di barat');
   return `<g><line x1="${lx}" y1="${ay}" x2="${rx}" y2="${ay}" stroke="${out}" stroke-width="5" stroke-linecap="round" opacity="0.5"/>`+
     `<line x1="${lx}" y1="${ay}" x2="${rx}" y2="${ay}" stroke="${col}" stroke-width="2.6" stroke-linecap="round"/>${head}`+
-    `<text x="${((x1+x2)/2).toFixed(0)}" y="${ay-10}" font-size="10" font-weight="700" fill="${col}" text-anchor="middle" stroke="${out}" stroke-width="2.4" paint-order="stroke">${label}</text></g>`;
+    (PHONE_MQ.matches?'':`<text x="${((x1+x2)/2).toFixed(0)}" y="${ay-10}" font-size="10" font-weight="700" fill="${col}" text-anchor="middle" stroke="${out}" stroke-width="2.4" paint-order="stroke">${label}</text>`)+`</g>`;
+}
+// Phone caption text for the wind arrow (same wording as the in-map label).
+function windLabel(D){
+  const g=k=>{const c=D.drivers.find(d=>d.key===k);return c?(parseFloat(String(c.value).replace('−','-'))||0):0;};
+  let w=g('wind'); if(!w) w=g('oni'); if(Math.abs(w)<0.3) return '';
+  return w>0?L('信风减弱 · 暖水东移','weaker trades · warm water shifts east','angin pasat lemah · air panas beralih ke timur'):L('信风增强 · 暖水西聚','stronger trades · warm water piles west','angin pasat kuat · air panas bertimbun di barat');
 }
 function toggleWind(){ const c=document.getElementById('windChk'); _showWind=c?c.checked:!_showWind; try{localStorage.setItem('suhu_wind',_showWind?'1':'0');}catch(e){} const el=document.getElementById('sstmap'); if(el&&DATA) el.innerHTML=sstMap(DATA); }
 function sstMap(D){
@@ -1214,22 +1245,27 @@ function sstMap(D){
   grid+=`<line x1="0" y1="85" x2="700" y2="85" stroke="#fff" stroke-width="0.5" opacity="0.05"/><line x1="0" y1="155" x2="700" y2="155" stroke="#fff" stroke-width="0.5" opacity="0.05"/>`;
   const tongue = n34>=0.3?L('暖舌 = 厄尔尼诺','warm tongue = El Niño','lidah panas = El Niño'):n34<=-0.3?L('冷舌 = 拉尼娜','cool tongue = La Niña','lidah sejuk = La Niña'):L('接近常年','near-normal','hampir normal');
   const tcol = n34>=0.3?'#f0b088':n34<=-0.3?'#8fc0ea':'#aab7cf';
+  // Phones: the map is drawn 700 wide and shown ~300px, so labels are enlarged and
+  // the two sentence-length labels move into a caption below instead of colliding.
+  const ph=PHONE_MQ.matches;
+  const cap=ph?`<div style="font-size:13.5px;line-height:1.55;margin-top:6px;color:var(--muted)">${[_showWind?windLabel(D):'',tongue].filter(Boolean).map(t=>'• '+t).join('<br>')}</div>`:'';
   return `<svg viewBox="0 0 700 272" style="width:100%;height:auto;display:block;border-radius:8px" role="img" aria-label="SST anomaly map centred on the Maritime Continent">
     ${defs}<rect x="0" y="0" width="700" height="272" fill="#152a44"/>
     <ellipse cx="210" cy="120" rx="150" ry="86" fill="url(#mcg)" opacity="0.45"/>
     ${anom}${grid}
-    <text x="210" y="12" font-size="9" fill="#7f8ca6" text-anchor="middle">120°E</text><text x="420" y="12" font-size="9" fill="#7f8ca6" text-anchor="middle">180°</text><text x="630" y="12" font-size="9" fill="#7f8ca6" text-anchor="middle">120°W</text>
+    ${ph?'':`<text x="210" y="${ph?27:12}" font-size="${fz(9,3)}" fill="#7f8ca6" text-anchor="middle">120°E</text><text x="420" y="${ph?27:12}" font-size="${fz(9,3)}" fill="#7f8ca6" text-anchor="middle">180°</text><text x="${ph?694:630}" y="${ph?27:12}" font-size="${fz(9,3)}" fill="#7f8ca6" text-anchor="${ph?'end':'middle'}">120°W</text>`}
     <line x1="0" y1="120" x2="700" y2="120" stroke="#dfe8f5" stroke-width="1" stroke-dasharray="5 4" opacity="0.4"/>
     ${land}
+    ${ph?`<text x="210" y="${ph?27:12}" font-size="${fz(9,3)}" fill="#7f8ca6" text-anchor="middle">120°E</text><text x="420" y="${ph?27:12}" font-size="${fz(9,3)}" fill="#7f8ca6" text-anchor="middle">180°</text><text x="${ph?694:630}" y="${ph?27:12}" font-size="${fz(9,3)}" fill="#7f8ca6" text-anchor="${ph?'end':'middle'}">120°W</text>`:''}
     ${_showWind?windArrow(D):''}
     <rect x="455" y="103" width="175" height="35" fill="none" stroke="#fff" stroke-width="1.5" stroke-dasharray="5 3"/>
-    <text x="543" y="98" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">Niño 3.4</text>
-    <text x="545" y="160" font-size="11" font-weight="700" fill="${tcol}" text-anchor="middle">${tongue}</text>
+    <text x="543" y="98" font-size="${fz(11,2.6)}" font-weight="700" fill="#fff" text-anchor="middle">Niño 3.4</text>
+    ${ph?'':`<text x="545" y="160" font-size="11" font-weight="700" fill="${tcol}" text-anchor="middle">${tongue}</text>`}
     <circle cx="146" cy="109" r="4.5" fill="#2dd4bf" stroke="#0a1420" stroke-width="1"/>
-    <text x="138" y="112" font-size="11" font-weight="700" fill="#5eead4" text-anchor="end">${L('马来西亚','Malaysia','Malaysia')}</text>
-    <text x="258" y="182" font-size="10" fill="#9fe6da" text-anchor="middle">${L('海洋大陆','Maritime Continent','Benua Maritim')}</text>
-    <g transform="translate(20,247)"><rect width="26" height="9" fill="#2f6fb0"/><rect x="26" width="26" height="9" fill="#7fa8cf"/><rect x="52" width="26" height="9" fill="#8a93a6"/><rect x="78" width="26" height="9" fill="#e8b64e"/><rect x="104" width="26" height="9" fill="#e97b2e"/><rect x="130" width="26" height="9" fill="#e23b28"/><text x="0" y="21" font-size="8.5" fill="#aab7cf">−2°C</text><text x="78" y="21" font-size="8.5" fill="#aab7cf" text-anchor="middle">0</text><text x="156" y="21" font-size="8.5" fill="#aab7cf" text-anchor="end">+2°C</text></g>
-  </svg>`;
+    <text x="138" y="112" font-size="${fz(11,2.6)}" font-weight="700" fill="#5eead4" text-anchor="end">${L('马来西亚','Malaysia','Malaysia')}</text>
+    <text x="258" y="182" font-size="${fz(10,2.6)}" fill="#9fe6da" text-anchor="middle">${L('海洋大陆','Maritime Continent','Benua Maritim')}</text>
+    <g transform="translate(20,${ph?226:247})"><rect width="26" height="9" fill="#2f6fb0"/><rect x="26" width="26" height="9" fill="#7fa8cf"/><rect x="52" width="26" height="9" fill="#8a93a6"/><rect x="78" width="26" height="9" fill="#e8b64e"/><rect x="104" width="26" height="9" fill="#e97b2e"/><rect x="130" width="26" height="9" fill="#e23b28"/><text x="0" y="${ph?34:21}" font-size="${fz(8.5,3.1)}" fill="#aab7cf">−2°C</text><text x="78" y="${ph?34:21}" font-size="${fz(8.5,3.1)}" fill="#aab7cf" text-anchor="middle">0</text><text x="156" y="${ph?34:21}" font-size="${fz(8.5,3.1)}" fill="#aab7cf" text-anchor="end">+2°C</text></g>
+  </svg>`+cap;
 }
 // Colour of the headline status dot, keyed off the verdict icon.
 const DOTCOL={'🔴':'#ef4444','🟠':'#f59e0b','🟡':'#f2b01e','🔵':'#3b82f6','🟦':'#60a5fa','🟢':'#22c55e','⚪':'#94a3b8'};
@@ -1336,7 +1372,7 @@ function renderAll(D){
   const _mw=document.getElementById('mjowheel'); if(_mw) _mw.innerHTML=mjoWheelSvg(_mjod);
   const _mwn=document.getElementById('mjowheelnote');
   if(_mwn){ const mr=mjoReading(D);
-    _mwn.innerHTML=`<div style="font-size:13.5px;color:var(--ink);margin-bottom:7px"><b>${mr.plain}</b> · <span style="color:var(--muted)">${mr.tag}</span></div><div style="font-size:11px;color:var(--src);line-height:1.65">`+
+    _mwn.innerHTML=`<div style="font-size:15px;color:var(--ink);margin-bottom:7px"><b>${mr.plain}</b> · <span style="color:var(--muted)">${mr.tag}</span></div><div style="font-size:13px;color:var(--src);line-height:1.65">`+
       L('蓝点＝现在，空心圈＝约40天前，两者之间的蓝线＝走过的路径（由旧到今）。<b>离圆心越远＝越强：</b>弱的 MJO 会挤在虚线“振幅1”圈内、几乎没影响；活跃时则向外推向外缘。它每30–60天绕行热带一圈——逆时针＝向东移动——当它来到右侧“海洋大陆”位相（第4–5位相，也就是我们这里）时，本区偏湿。',
         'Blue dot = now, hollow ring = ~40 days ago, and the line between is the path it took (then → now). <b>Distance from the centre = strength:</b> a weak MJO huddles inside the dashed “amp 1” ring and barely matters; an active one pushes out toward the rim. It circles the tropics every 30–60 days — counter-clockwise means moving east — and when it reaches the right-hand “Maritime Continent” sectors (phases 4–5, our region here), we get wetter.','Titik biru = sekarang, cincin kosong = ~40 hari lalu, dan garis di antaranya ialah laluan yang diambil (dahulu → sekarang). <b>Jarak dari pusat = kekuatan:</b> MJO yang lemah berkumpul di dalam cincin putus-putus “amp 1” dan hampir tidak memberi kesan; yang aktif menolak keluar ke arah bingkai. Ia mengelilingi kawasan tropika setiap 30–60 hari — lawan arah jam bermaksud bergerak ke timur — dan apabila ia sampai ke sektor “Benua Maritim” di sebelah kanan (fasa 4–5, kawasan kita), cuaca kita menjadi lebih basah.')+'</div>'; }
 
@@ -1367,8 +1403,11 @@ function renderAll(D){
   const ctx=document.getElementById('nino34chart');
   if(chart) chart.destroy();
   const dotLabels={id:'dotLabels',afterDatasetsDraw(c){const g=c.ctx,ds=c.data.datasets[0],meta=c.getDatasetMeta(0),ar=c.chartArea;
-    g.save();g.font='700 11px sans-serif';g.fillStyle=cssVar('--ink');g.textAlign='center';g.textBaseline='bottom';
-    meta.data.forEach((pt,i)=>{const v=ds.data[i];const lb=(v>=0?'+':'')+v.toFixed(1);const w=g.measureText(lb).width;
+    // Phones: 12 labels do not fit side by side, so label every other point,
+    // counting back from the latest so the newest value is always shown.
+    const ph=PHONE_MQ.matches, last=meta.data.length-1;
+    g.save();g.font=(ph?'700 12px':'700 11px')+' sans-serif';g.fillStyle=cssVar('--ink');g.textAlign='center';g.textBaseline='bottom';
+    meta.data.forEach((pt,i)=>{if(ph&&(last-i)%2) return;const v=ds.data[i];const lb=(v>=0?'+':'')+v.toFixed(1);const w=g.measureText(lb).width;
       const x=Math.min(Math.max(pt.x,ar.left+w/2+1),ar.right-w/2-1);g.fillText(lb,x,pt.y-8);});g.restore();}};
   const _v=D.nino34history.values;
   const _dmin=Math.min(..._v), _dmax=Math.max(..._v);
@@ -1379,9 +1418,9 @@ function renderAll(D){
       backgroundColor:'rgba(239,68,68,.12)',fill:true,tension:.35,pointRadius:3,pointBackgroundColor:'#ef4444',borderWidth:2}]},
     plugins:[dotLabels],
     options:{layout:{padding:{top:16,right:10,left:2}},plugins:{legend:{display:false}},scales:{
-      y:{grid:{color:cssVar('--line')},ticks:{color:cssVar('--muted'),callback:v=>(v>0?'+':'')+v},suggestedMin:_min,suggestedMax:_max,
-         title:{display:true,text:L('°C 距平','°C anomaly','°C anomali'),color:cssVar('--muted')}},
-      x:{grid:{display:false},ticks:{color:cssVar('--muted')}}}}});
+      y:{grid:{color:cssVar('--line')},ticks:{color:cssVar('--muted'),font:{size:PHONE_MQ.matches?12.5:11},callback:v=>(v>0?'+':'')+v},suggestedMin:_min,suggestedMax:_max,
+         title:{display:true,text:L('°C 距平','°C anomaly','°C anomali'),color:cssVar('--muted'),font:{size:PHONE_MQ.matches?12.5:11}}},
+      x:{grid:{display:false},ticks:{color:cssVar('--muted'),font:{size:PHONE_MQ.matches?12.5:11}}}}}});
 }
 
 async function load(){
