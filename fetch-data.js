@@ -275,7 +275,22 @@ const MAX_AGE_DAYS = {
   iodMonthly: 110,
   iodMonthlyAdvice: 75,
   mjo:        10,   // BoM RMM is daily — an old phase is worse than none
+  // Monthly index files (SOI, WWV, wpac850 winds, OLR, ERSST Niño regions):
+  // published about two weeks after the month ends, plus one missed cycle.
+  monthly:    75,
+  // 3-month ONI/RONI, dated by the centre month: ~45-75 days back when healthy.
+  seasonal:  100,
 };
+// Mid-month timestamp for a year + month (1-12).
+const monthTs = (y, m) => Date.UTC(y, m - 1, 15);
+// Throw when a feed answered but its newest month is too old. runDriver then
+// keeps the previous value and flags the source stale, instead of presenting
+// a frozen file as live.
+function assertFresh(label, y, m, maxDays) {
+  const age = ageDays(monthTs(y, m));
+  if (!(age <= maxDays)) throw new Error(label + ': newest month ' + y + '-' + String(m).padStart(2, '0') + ' is ' + age + 'd old (limit ' + maxDays + 'd)');
+}
+const SEAS_CENTRE = { DJF:1, JFM:2, FMA:3, MAM:4, AMJ:5, MJJ:6, JJA:7, JAS:8, ASO:9, SON:10, OND:11, NDJ:12 };
 
 // CPC WEEKLY file (wksst9120.for). Region order in the file is
 //   Nino1+2, Nino3, Nino3.4, Nino4  -- verified against the CPC header.
@@ -399,6 +414,10 @@ async function fetchSeasonal(url) {
     .filter(r => r.length >= 3 && /^[A-Za-z]{3}$/.test(r[0]) && /^\d{4}$/.test(r[1]));
   if (!rows.length) throw new Error('no seasonal rows parsed');
   const last = rows[rows.length - 1];
+  // DJF is centred on January of the FOLLOWING year (CPC labels it with December's year).
+  const code = last[0].toUpperCase(), cm = SEAS_CENTRE[code];
+  if (!cm) throw new Error('unknown season code ' + last[0]);
+  assertFresh('seasonal ' + code + ' ' + last[1], +last[1] + (code === 'DJF' ? 1 : 0), cm, MAX_AGE_DAYS.seasonal);
   return { seas: last[0], anom: parseFloat(last[last.length - 1]), hist: lastN(seasonalSeries(txt), 12) };
 }
 async function fetchONI() {
@@ -423,7 +442,7 @@ async function fetchSOI() {
   try {
     const txt = await getText('https://www.bom.gov.au/climate/enso/soiplaintext.html');
     const b = latestMonthly(txt, v => Math.abs(v) >= 90); // 999 / -999 = missing
-    if (b && Math.abs(b.value) <= 60) {
+    if (b && Math.abs(b.value) <= 60 && ageDays(monthTs(b.year, b.month)) <= MAX_AGE_DAYS.monthly) {
       const [status, cls, gcol, gauge] = classifySOI(b.value);
       return { patch: { value: fmt(b.value), status, cls, gcol, gauge, src: 'Australia BoM (Troup) · fallback NOAA CPC', hist: lastN(monthlySeries(txt, v => Math.abs(v) >= 90), 12) } };
     }
@@ -431,6 +450,7 @@ async function fetchSOI() {
   const cpcTxt = await getText('https://www.cpc.ncep.noaa.gov/data/indices/soi');
   const s = latestCpcStd(cpcTxt);
   if (!s) throw new Error('SOI: BoM empty and CPC parse failed');
+  assertFresh('SOI (CPC)', s.year, s.month, MAX_AGE_DAYS.monthly);
   const troup = Math.round((Math.abs(s.value) <= 6 ? s.value * 10 : s.value) * 10) / 10; // standardized -> Troup
   const [status, cls, gcol, gauge] = classifySOI(troup);
   return { patch: { value: fmt(troup), status, cls, gcol, gauge, src: 'NOAA CPC SOI ×10 (BoM fallback)', hist: lastN(cpcStdSeries(cpcTxt).map(v => v * 10), 12) } };
@@ -683,6 +703,8 @@ async function fetchWWV() {
   const rows = txt.split(NL).map(l => l.trim().split(/\s+/)).filter(r => /^\d{6}$/.test(r[0]));
   const series = rows.map(r => parseFloat(r[r.length - 1]) / 1e14).filter(Number.isFinite); // ×10^14 m^3
   if (!series.length) throw new Error('no WWV row parsed');
+  const lastYm = rows[rows.length - 1][0];
+  assertFresh('WWV', +lastYm.slice(0, 4), +lastYm.slice(4, 6), MAX_AGE_DAYS.monthly);
   const val = series[series.length - 1];
   const [status, cls, gcol, gauge] = classifyWWV(val);
   return { patch: { value: fmt(val, 1), status, cls, gcol, gauge, hist: lastN(series, 12),
@@ -691,8 +713,11 @@ async function fetchWWV() {
 
 // 850-hPa West-Pacific trade winds — CPC wpac850 (standardized anomaly).
 async function fetchWind() {
-  const series = cpcStdSeries(await getText('https://www.cpc.ncep.noaa.gov/data/indices/wpac850'));
+  const txt = await getText('https://www.cpc.ncep.noaa.gov/data/indices/wpac850');
+  const series = cpcStdSeries(txt);
   if (!series.length) throw new Error('no wind value parsed');
+  const lw = latestCpcStd(txt); if (!lw) throw new Error('wind: no dated value');
+  assertFresh('wpac850', lw.year, lw.month, MAX_AGE_DAYS.monthly);
   const val = series[series.length - 1];
   const [status, cls, gcol, gauge] = classifyWind(val);
   return { patch: { value: fmt(val, 1) + 'σ', status, cls, gcol, gauge, hist: lastN(series, 12),
@@ -701,25 +726,43 @@ async function fetchWind() {
 
 // Dateline OLR (convection) — CPC olr (standardized anomaly).
 async function fetchOLR() {
-  const series = cpcStdSeries(await getText('https://www.cpc.ncep.noaa.gov/data/indices/olr'));
+  const txt = await getText('https://www.cpc.ncep.noaa.gov/data/indices/olr');
+  const series = cpcStdSeries(txt);
   if (!series.length) throw new Error('no OLR value parsed');
+  const lo = latestCpcStd(txt); if (!lo) throw new Error('OLR: no dated value');
+  assertFresh('OLR', lo.year, lo.month, MAX_AGE_DAYS.monthly);
   const val = series[series.length - 1];
   const [status, cls, gcol, gauge] = classifyOLR(val);
   return { patch: { value: fmt(val, 1) + 'σ', status, cls, gcol, gauge, hist: lastN(series, 12),
                     src: 'NOAA CPC OLR at the dateline (olr) · standardised' } };
 }
 
-// ENSO flavor (EP vs CP) — CPC ERSSTv5 Niño regions, monthly.
-// Columns: YR MON  NINO1+2 ANOM  NINO3 ANOM  NINO4 ANOM  NINO3.4 ANOM
+// ENSO flavor (EP vs CP) — monthly Niño-region SST anomalies.
+// Columns (both files): YR MON  NINO1+2 ANOM  NINO3 ANOM  NINO4 ANOM  NINO3.4 ANOM
+// Primary: CPC's OISST file (sstoi.indices), current. The ERSSTv5 file stopped
+// updating in Aug 2026 (newest month 2026-06) when CPC moved to ERSST v6, but
+// went on returning HTTP 200 -- so the card showed a June reading as "live".
+// It stays as a fallback; assertFresh rejects it while it is frozen.
+const FLAVOR_SOURCES = [
+  { url: 'https://www.cpc.ncep.noaa.gov/data/indices/sstoi.indices', name: 'NOAA CPC OISST', label: 'NOAA CPC OISST monthly Niño regions (sstoi.indices)' },
+  { url: 'https://www.cpc.ncep.noaa.gov/data/indices/ersst5.nino.mth.91-20.ascii', name: 'NOAA CPC ERSSTv5', label: 'NOAA CPC ERSSTv5 monthly Niño regions' },
+];
 async function fetchFlavor() {
-  const txt = await getText('https://www.cpc.ncep.noaa.gov/data/indices/ersst5.nino.mth.91-20.ascii');
-  const rows = parseErsstNino(txt);
-  if (!rows.length) throw new Error('no Niño-region rows parsed');
-  const r = rows[rows.length - 1];
-  const [status, cls, gcol, gauge] = classifyFlavor(r.n12, r.n3, r.n4, r.n34);
-  const nreg = { n12: +r.n12.toFixed(2), n3: +r.n3.toFixed(2), n4: +r.n4.toFixed(2), n34: +r.n34.toFixed(2) };
-  return { patch: { value: 'Niño4 ' + fmt(r.n4, 1) + ' · N1+2 ' + fmt(r.n12, 1), status, cls, gcol, gauge, nreg,
-                    src: 'NOAA CPC ERSSTv5 monthly Niño regions · ' + MON[r.mon - 1] + ' ' + r.year } };
+  let lastErr;
+  for (const src of FLAVOR_SOURCES) {
+    try {
+      const rows = parseErsstNino(await getText(src.url));
+      if (!rows.length) throw new Error('no Niño-region rows parsed');
+      const r = rows[rows.length - 1];
+      assertFresh(src.name, r.year, r.mon, MAX_AGE_DAYS.monthly);
+      const [status, cls, gcol, gauge] = classifyFlavor(r.n12, r.n3, r.n4, r.n34);
+      const nreg = { n12: +r.n12.toFixed(2), n3: +r.n3.toFixed(2), n4: +r.n4.toFixed(2), n34: +r.n34.toFixed(2) };
+      return { patch: { value: 'Niño4 ' + fmt(r.n4, 1) + ' · N1+2 ' + fmt(r.n12, 1), status, cls, gcol, gauge, nreg,
+                        src: src.label + ' · ' + MON[r.mon - 1] + ' ' + r.year },
+               srcNames: [src.name, src === FLAVOR_SOURCES[0] ? 'NOAA CPC ERSSTv5' : 'NOAA CPC OISST'] };
+    } catch (e) { lastErr = e; console.warn('WARN flavor ' + src.name + ': ' + e.message); }
+  }
+  throw lastErr;
 }
 
 // ---- driver runner --------------------------------------------------------
@@ -766,9 +809,12 @@ async function fetchOutlook() {
            issued: o.issued, next: o.next || null, via };
 }
 
+const FAILED_ROWS = new Set();   // rows that failed during this run
 function setSource(data, name, ok, names) {
   const row = data.sources.find(s => s[0].startsWith(name));
-  if (!row) return;
+  if (!row) { console.warn('WARN no source row for "' + name + '"'); return; }
+  if (!ok) FAILED_ROWS.add(row);
+  else if (FAILED_ROWS.has(row)) return;   // a shared row stays stale if any of its feeds failed
   row[3] = ok ? 'live' : 'stale';
   if (ok) row[4] = 'just now';
   if (names) { if (names[0]) row[1] = names[0]; if (names[1] !== undefined) row[2] = names[1]; }
@@ -894,8 +940,8 @@ async function main() {
       if (h.basis === 'monthly') h.labels[h.labels.length - 1] += '*';
     }
   });
-  await runDriver(data, 'oni', 'ONI', fetchONI);
-  await runDriver(data, 'roni', 'RONI', fetchRONI);
+  await runDriver(data, 'oni', 'Niño', fetchONI);
+  await runDriver(data, 'roni', 'Niño', fetchRONI);
   await runDriver(data, 'flavor', 'ENSO flavor', fetchFlavor);
   await runDriver(data, 'hc', 'Heat content', fetchWWV);
   await runDriver(data, 'soi', 'SOI', fetchSOI);

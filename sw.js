@@ -1,5 +1,5 @@
 // SUHU service worker — offline app shell + fresh-data strategy
-const VERSION = 'suhu-v73';
+const VERSION = 'suhu-v75';
 const APP_SHELL = [
   './',
   './index.html',
@@ -49,11 +49,18 @@ self.addEventListener('fetch', (e) => {
     const cacheKey = isData ? new Request(url.origin + url.pathname) : e.request;
     e.respondWith(
       fetch(e.request).then((res) => {
-        const copy = res.clone();
-        caches.open(VERSION).then((c) => c.put(cacheKey, copy));
+        // Only a good response may replace the saved copy: one 404/5xx from
+        // GitHub Pages must not overwrite the last good data for offline use.
+        if (res.ok) { const copy = res.clone(); caches.open(VERSION).then((c) => c.put(cacheKey, copy)); }
         return res;
       }).catch(() =>
-        caches.match(cacheKey).then((r) => r || caches.match('./index.html') || caches.match('./'))
+        caches.match(cacheKey).then((r) => {
+          if (r) return r;
+          // Offline with nothing saved: a page falls back to the app shell, but a
+          // data file gets a plain error (never the HTML page in its place).
+          if (isData) return new Response('offline', { status: 503, statusText: 'Offline' });
+          return caches.match('./index.html').then((p) => p || caches.match('./'));
+        })
       )
     );
     return;
@@ -63,7 +70,7 @@ self.addEventListener('fetch', (e) => {
     caches.match(e.request).then((cached) =>
       cached || fetch(e.request).then((res) => {
         // runtime-cache same-origin GETs
-        if (e.request.method === 'GET' && url.origin === self.location.origin) {
+        if (res.ok && e.request.method === 'GET' && url.origin === self.location.origin) {
           const copy = res.clone();
           caches.open(VERSION).then((c) => c.put(e.request, copy));
         }

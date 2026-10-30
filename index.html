@@ -64,7 +64,7 @@
   *{box-sizing:border-box}
   /* Safe area: keep content clear of the iPhone Dynamic Island / notch */
   body{margin:0;background:var(--bg);color:var(--ink);
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",Helvetica,Arial,sans-serif;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei UI","Microsoft YaHei","Noto Sans SC",Helvetica,Arial,sans-serif;
     line-height:1.5;font-size:15px;
     padding-top:max(env(safe-area-inset-top),6px);
     padding-left:env(safe-area-inset-left);
@@ -228,19 +228,36 @@
   .ob-langs button span{font-weight:500;color:var(--muted);font-size:13px}
   .ob-langs button[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.3)}
   .ob-langs button:active{transform:scale(.98)}
-  /* Phones: reading text 15px, headings 16px, labels never under 12px.
-     Controls at 16px so iOS does not zoom in when one is tapped. */
+  /* Type scale for every screen: reading text 15px, headings 16px, labels
+     never under 12px; wide screens step up once more. Paragraphs people read
+     use --sub (darker than --muted) so CJK text at regular weight does not
+     look washed out; --muted stays for secondary bits like dates and sources. */
+  .banner .desc,.card .interp,.region p,.vshort,.vnoaa,.vfarm,.vwhy,.advice,
+  .guide p,.guide li,.guide .gitem p,#staleNotice,.sat .msg{font-size:15px;line-height:1.6}
+  .card .interp,.region p,.advice,.card .name{color:var(--sub)}
+  .section-title,.region .rn,.guide h3{font-size:16px}
+  .panel h4,.guide .gitem .gt,.card .name,.btrend{font-size:15px}
+  .card h3,.status,.subrow,.vnoaa .nd,.sub{font-size:13.5px}
+  .pill,.hbtn,.btn,.windtgl,.gmap .gmt,table,.impact-ctrl label{font-size:14px}
+  .banner .tag,.dgroup,.risk,th,.spark,.emark span,.gsrc{font-size:12.5px}
+  .ezones,.satstamp,.stalechip{font-size:12px}
+  .sat .live{font-size:11px}
+  .impact-ctrl select{font-size:15px}
+  /* Phones: controls at 16px so iOS does not zoom in when one is tapped. */
   @media (max-width:600px){
-    .banner .desc,.card .interp,.region p,.vshort,.vnoaa,.vfarm,.vwhy,.advice,
-    .guide p,.guide li,.guide .gitem p,#staleNotice,.sat .msg{font-size:15px;line-height:1.6}
-    .section-title,.region .rn,.guide h3{font-size:16px}
-    .panel h4,.guide .gitem .gt,.card .name,.btrend{font-size:15px}
-    .card h3,.status,.subrow,.vnoaa .nd,.sub{font-size:13.5px}
-    .pill,.hbtn,.btn,.windtgl,.gmap .gmt,table,.impact-ctrl label{font-size:14px}
-    .banner .tag,.dgroup,.risk,th,.spark,.emark span,.gsrc{font-size:12.5px}
-    .ezones,.satstamp,.stalechip{font-size:12px}
-    .sat .live{font-size:11px}
     .impact-ctrl select,select,input{font-size:16px}
+  }
+  /* Wide screens: one step larger. */
+  @media (min-width:900px){
+    body{font-size:16px}
+    .banner .desc,.card .interp,.region p,.vshort,.vnoaa,.vfarm,.vwhy,.advice,
+    .guide p,.guide li,.guide .gitem p,#staleNotice,.sat .msg{font-size:16px}
+    .section-title{font-size:18px}
+    .region .rn,.guide h3,.panel h4,.card .name{font-size:16.5px}
+    .card h3,.status,.subrow,.vnoaa .nd,.sub{font-size:14px}
+    .pill,.hbtn,.btn,.windtgl,.gmap .gmt,table,.impact-ctrl label,.impact-ctrl select{font-size:15px}
+    .banner .tag,.dgroup,.risk,th,.spark,.emark span,.gsrc{font-size:13px}
+    .ezones,.satstamp,.stalechip{font-size:12.5px}
   }
 </style>
 </head>
@@ -265,7 +282,7 @@
     <div>
       <h1>SUHU-ENSO</h1>
     </div>
-    <button class="iconbtn" onclick="openGuide()" style="margin-left:auto" aria-label="Guide" title="Guide">
+    <button class="iconbtn" id="guideBtn" onclick="openGuide()" style="margin-left:auto" aria-label="Guide" title="Guide">
       <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
         <circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><circle cx="12" cy="7.6" r="1.1" fill="currentColor" stroke="none"/>
       </svg>
@@ -295,7 +312,7 @@
     <div id="sstmap"></div>
     <label class="windtgl"><input type="checkbox" id="windChk" onchange="toggleWind()"><span data-i18n="wind_arrow">显示信风 / 暖水推移箭头</span></label>
     <div id="windnote" style="margin-top:8px;font-size:13px;line-height:1.55;color:var(--stale-chip)"></div>
-    <div class="gsrc" style="margin-top:8px" data-i18n="sst_note"></div>
+    <div class="gsrc" style="margin-top:8px" data-i18n="sat_note"></div>
   </div>
   <div class="panel" style="margin-top:14px">
     <h4 data-i18n="panel_chart">Niño 3.4 海温距平 — 最近 12 周</h4>
@@ -330,7 +347,7 @@
   <div class="sheet">
     <div class="sheet-head">
       <h2 data-i18n="guide_title">指南 — 如何读懂 SUHU</h2>
-      <button class="sheet-close" onclick="closeGuide()" aria-label="Close">✕</button>
+      <button class="sheet-close" id="guideClose" onclick="closeGuide()" aria-label="Close">✕</button>
     </div>
     <div class="sheet-body guide">
       <p data-i18n-html="g_intro"></p>
@@ -441,15 +458,21 @@ function cycleTheme(){
 if(darkMQ&&darkMQ.addEventListener) darkMQ.addEventListener('change',()=>{ if(THEME==='auto') applyTheme(); });
 // Table lookup with an English fallback for keys not yet in Malay.
 const tk = k => (T[LANG]&&T[LANG][k]!=null) ? T[LANG][k] : T.en[k];
-function applyLang(){
+// refetch=false at startup: the location setup has already loaded the local
+// air/heat and fire data once, so only the text needs applying.
+function applyLang(refetch=true){
   document.documentElement.lang = LANG;
   document.getElementById('langBtn').textContent = LANG_LBL[LANG];
   if(typeof paintThemeBtn==='function') paintThemeBtn();
+  // Icon-only buttons need a spoken name in the current language.
+  [['guideBtn',L('指南','Guide','Panduan')],['guideClose',L('关闭','Close','Tutup')],['langBtn',L('切换语言','Change language','Tukar bahasa')]]
+    .forEach(([id,t])=>{ const b=document.getElementById(id); if(b){ b.setAttribute('aria-label',t); b.title=t; } });
   document.querySelectorAll('[data-i18n]').forEach(el=>{ const v=tk(el.dataset.i18n); if(v!=null) el.textContent=v; });
   document.querySelectorAll('[data-i18n-html]').forEach(el=>{ const v=tk(el.dataset.i18nHtml); if(v!=null) el.innerHTML=v; });
   const _cs=document.getElementById('citySel'); if(_cs&&window._fillCities){const _v=_cs.value;window._fillCities();_cs.value=_v;}
   renderGuideDiagrams();
   if(DATA) renderAll(DATA);
+  if(!refetch) return;
   if(LOC) loadImpact(LOC.lat,LOC.lon,LOC.city);
   loadFires();
 }
@@ -670,9 +693,8 @@ function deriveInputs(D){
   const v=D.nino34history.values, a=v[v.length-1], p=v.length>=2?v[v.length-2]:a;
   const mag=Math.round((Math.abs(a)-Math.abs(p))*10)/10;
   const trend=mag>=0.1?'up':(mag<=-0.1?'down':'flat');
-  const month=D.generated?new Date(D.generated).getUTCMonth()+1:(new Date()).getUTCMonth()+1;
-  const iod=(D.drivers.find(d=>d.key==='iod')||{}).value||'0';
-  const dmi=parseFloat(String(iod).replace('−','-'))||0;
+  const month=dataMonth(D);
+  const dmi=usableDmi(D);
   return {a,dmi,month,trend};
 }
 function trendWord(t){return t==='up'?L('增强中','strengthening','semakin kuat'):t==='down'?L('减弱中','easing','semakin reda'):L('保持稳定','holding steady','kekal stabil');}
@@ -733,10 +755,10 @@ function buildNarrative(D){
 function ruleRows(D){
   D = D || (typeof DATA!=='undefined'?DATA:null);
   const gv=k=>{const c=((D&&D.drivers)||[]).find(d=>d.key===k);return c?(parseFloat(String(c.value).replace('−','-'))||0):0;};
-  const oni=gv('oni'), dmi=gv('iod');
+  const oni=gv('oni'), dmi=usableDmi(D);
   const mjoC=((D&&D.drivers)||[]).find(d=>d.key==='mjo')||{};
   const ph=mjoC.phase, amp=(typeof mjoC.amp==='number'?mjoC.amp:0);
-  const mo=new Date().getMonth()+1;
+  const mo=dataMonth(D);
   const mon=[11,12,1,2,3].includes(mo)?'NE':([5,6,7,8,9].includes(mo)?'SW':'INTER');
   const elnino=oni>=0.5, lanina=oni<=-0.5, dry=(mon==='SW'||mon==='INTER');
   const staleN=((D&&D.sources)||[]).filter(s=>Array.isArray(s)&&s[3]==='stale').length;
@@ -745,7 +767,7 @@ function ruleRows(D){
   const s1 = elnino&&dry ? [HOT,L('生效','ACTIVE','AKTIF')] : elnino ? [WARM,L('待命·非旱季','armed · wet season','bersedia · musim hujan')] : [OFF,L('未触发（ONI '+oniS+'）','off (ONI '+oniS+')','tidak aktif (ONI '+oniS+')')];
   const s2 = elnino&&dmi>=0.4 ? [HOT,L('生效 · IOD '+dmiS,'ACTIVE · IOD '+dmiS,'AKTIF · IOD '+dmiS)] : elnino ? [WARM,L('待命 · IOD '+dmiS,'armed · IOD '+dmiS,'bersedia · IOD '+dmiS)] : [OFF,L('未触发','off','tidak aktif')];
   const s3 = lanina&&mon==='NE' ? [HOT,L('生效','ACTIVE','AKTIF')] : lanina ? [WARM,L('待命·非东北季风','armed · not NE','bersedia · bukan Timur Laut')] : [OFF,L('未触发（ONI '+oniS+'）','off (ONI '+oniS+')','tidak aktif (ONI '+oniS+')')];
-  const s4 = (amp>=1&&(ph===4||ph===5)) ? [HOT,L('生效 · 第'+ph+'位相','ACTIVE · Ph '+ph,'AKTIF · Fasa '+ph)] : [OFF,(typeof ph==='number'?L('未触发 · 第'+ph+'位相'+(amp>=1?'':'·弱'),'off · Ph '+ph+(amp>=1?'':', weak'),'tidak aktif · Fasa '+ph+(amp>=1?'':', lemah')):L('未触发','off','tidak aktif'))];
+  const s4 = (!driverStale(D,'mjo')&&amp>=1&&(ph===4||ph===5)) ? [HOT,L('生效 · 第'+ph+'位相','ACTIVE · Ph '+ph,'AKTIF · Fasa '+ph)] : [OFF,(typeof ph==='number'?L('未触发 · 第'+ph+'位相'+(amp>=1?'':'·弱'),'off · Ph '+ph+(amp>=1?'':', weak'),'tidak aktif · Fasa '+ph+(amp>=1?'':', lemah')):L('未触发','off','tidak aktif'))];
   const s5 = staleN>0 ? [WARM,L(staleN+' 项标记',staleN+' flag'+(staleN>1?'s':''),staleN+' tanda')] : [OFF,L('无','none','tiada')];
   const R=[
     [L('厄尔尼诺 + 旱季季风','El Niño + dry-season monsoon','El Niño + monsun musim kering'),L('→ 高干旱与烟霾风险','→ High drought & haze','→ Kemarau & jerebu tinggi'),s1],
@@ -766,7 +788,7 @@ function trSrc(x){ if(LANG!=='zh'||x==null) return x; return SRCZH[x]!=null?SRCZ
 function renderSources(D){
   const sT=document.getElementById('sources'); if(!sT) return;
   sT.innerHTML=`<tr><th>${L('指标','Indicator','Penunjuk')}</th><th>${L('主来源','Primary','Utama')}</th><th>${L('备用','Fallback','Sandaran')}</th><th>${L('状态','Status','Status')}</th><th>${L('更新','Updated','Dikemas kini')}</th></tr>`+
-    (D.sources||[]).map(s=>`<tr><td>${trSrc(s[0])}</td><td>${trSrc(s[1])}</td><td style="color:var(--muted)">${trSrc(s[2])}</td>`+
+    (D.sources||[]).map(s=>{ if(fileStale(D)){ const h=fileAgeH(D); s=[s[0],s[1],s[2],'stale',h<48?Math.round(h)+' h ago':Math.round(h/24)+' d ago']; } return s; }).map(s=>`<tr><td>${trSrc(s[0])}</td><td>${trSrc(s[1])}</td><td style="color:var(--muted)">${trSrc(s[2])}</td>`+
       `<td><span class="dot ${s[3]==='live'?'live-dot':'stale-dot'}"></span>${s[3]==='live'?L('实时','live','langsung'):L('过期','stale','lama')}</td>`+
       `<td style="color:var(--muted)">${trUpdated(s[4])}</td></tr>`).join('');
 }
@@ -806,7 +828,23 @@ function trUpdated(s){ if(LANG==='en')return s;
 
 // Plain-language MJO reading — turns "Ph 6–7 · ~1.3" + status into "is it raining on us now?"
 // MJO phases 4–5 sit the wet pulse over the Maritime Continent (our region); 6–7–8–1 suppress it.
+// One month for every monsoon decision, in Malaysia time (UTC+8), taken from
+// when the data was built. The rules table used the device's local month while
+// the banner and regions used UTC, so around the 1st they could disagree.
+function dataMonth(D){
+  const t=(D&&D.generated)?Date.parse(D.generated):Date.now();
+  return new Date((isFinite(t)?t:Date.now())+8*3600e3).getUTCMonth()+1;
+}
+// The DMI the app may act on: neutral (0) when the feed is stale or the value is
+// an old monthly reading (adviceOk false) -- the same rule the data job applies.
+function usableDmi(D){
+  const c=((D&&D.drivers)||[]).find(d=>d.key==='iod'); if(!c) return 0;
+  if(driverStale(D,'iod')||c.adviceOk===false) return 0;
+  return parseFloat(String(c.value).replace('−','-'))||0;
+}
 function mjoReading(D){
+  // A frozen MJO value must not keep steering advice or regional risk.
+  if(D&&driverStale(D,'mjo')) return {effect:'neu',stale:true,plain:L('数据未更新','Data out of date','Data sudah lama'),tag:L('暂不判断短期走向','No short-term call','Tiada ramalan jangka pendek'),detail:L('MJO 数据已过期，暂不据此判断未来1–2周。','The MJO data is out of date, so it is not used for the next 1–2 weeks.','Data MJO sudah lama, jadi ia tidak digunakan untuk 1–2 minggu akan datang.')};
   const c=(D.drivers||[]).find(d=>d.key==='mjo'); if(!c) return {effect:'neu',plain:L('中性','Neutral','Neutral'),tag:L('无短期信号','No short-term signal','Tiada isyarat jangka pendek'),detail:L('MJO 数据暂缺。','MJO data unavailable.','Data MJO tidak tersedia.')};
   const st=String(c.status||''), val=String(c.value||'');
   const amp=parseFloat((val.match(/([\d.]+)\s*$/)||[])[1])||0;      // amplitude, e.g. ~1.3
@@ -991,7 +1029,7 @@ function renderGuideDiagrams(){
 // ground-level outlook instead of only decorating the hero.
 function driverContribs(D){
   const gv=k=>{const c=(D.drivers||[]).find(d=>d.key===k);return c?(parseFloat(String(c.value).replace('−','-'))||0):0;};
-  const oni=gv('oni'), dmi=gv('iod'); const m=mjoReading(D);
+  const oni=gv('oni'), dmi=usableDmi(D); const m=mjoReading(D);
   const mjo=m.effect==='dry'?0.4:(m.effect==='wet'?-0.4:0);   // MJO is a short-term nudge, not a dominant term
   // ENSO flavor: a Central-Pacific (Modoki) El Niño concentrates the subsidence over
   // the Maritime Continent, so it deepens drought here beyond what ONI alone implies.
@@ -1013,7 +1051,7 @@ function driverClause(oni,dmi,mjoEffect,monTag,cp){
 }
 function holisticRegions(D){
   const {oni,dmi,mjo,mjoEffect,cp,flavorDry}=driverContribs(D);
-  const month=D.generated?new Date(D.generated).getUTCMonth()+1:(new Date()).getUTCMonth()+1;
+  const month=dataMonth(D);
   const mon=MON(month), ml=monLabel(mon), monTag=(mon!=='INTER')?ml:null;
   const base=oni+dmi+mjo+flavorDry;   // basin-scale + short-term drivers + flavor, dry = positive
   const defs=[
@@ -1107,16 +1145,41 @@ function noaaBulletin(D){
     +`</div>`;
 }
 
+// The 1–2 week signal (MJO). Stale MJO data never drives advice.
+function shortTermEffect(D){
+  return mjoReading(D).effect;   // already 'neu' when the MJO feed is stale   // 'wet' | 'dry' | 'neu'
+}
 function shortTermNote(D){
-  const gv=k=>{const c=(D.drivers||[]).find(d=>d.key===k);return c?(parseFloat(String(c.value).replace('−','-'))||0):0;};
-  const dmi=gv('iod'); const m=mjoReading(D);
-  const iodTxt = dmi>=0.4 ? L('印度洋偶极子转正，正加重干旱','a positive Indian Ocean Dipole is adding to the drying','Dipol Lautan Hindi yang positif sedang menambah kekeringan')
-             : dmi<=-0.4 ? L('印度洋偶极子转负，正带来额外降雨','a negative Indian Ocean Dipole is adding extra rain','Dipol Lautan Hindi yang negatif sedang menambah hujan')
-             : L('印度洋偶极子中性（暂不加码）','the Indian Ocean Dipole is neutral (not adding either way)','Dipol Lautan Hindi neutral (tidak menambah ke mana-mana arah)');
-  const mjoTxt = m.effect==='dry' ? L('MJO 正压制降雨，未来1–2周更干','the MJO is holding rain back, so the next 1–2 weeks lean drier','MJO sedang menahan hujan, jadi 1–2 minggu akan datang cenderung lebih kering')
-             : m.effect==='wet' ? L('MJO 正增强降雨，未来1–2周更湿','the MJO is boosting rain, so the next 1–2 weeks lean wetter','MJO sedang menambah hujan, jadi 1–2 minggu akan datang cenderung lebih basah')
-             : L('MJO 目前很弱，短期无明显推动','the MJO is weak now, no clear short-term push','MJO lemah sekarang, tiada tolakan jangka pendek yang jelas');
-  return L('🌀 <b>短期叠加：</b>','🌀 <b>Short-term, on top of the season:</b> ','🌀 <b>Jangka pendek, di atas musim:</b> ')+iodTxt+L('；','; ','; ')+mjoTxt+L('。','.','.');
+  const e=shortTermEffect(D);
+  const mjoTxt = e==='dry' ? L('MJO 干位相正压制降雨，偏干','The MJO is holding rain back — expect drier days','MJO sedang menahan hujan — jangkakan hari yang lebih kering')
+             : e==='wet' ? L('MJO 湿位相正经过本区，降雨偏多','The MJO’s wet phase is over us — expect more rain','Fasa basah MJO berada di atas kita — jangkakan lebih banyak hujan')
+             : driverStale(D,'mjo') ? L('MJO 数据未更新，暂不判断','MJO data is out of date, so no call is made','Data MJO sudah lama, jadi tiada ramalan dibuat')
+             : L('MJO 很弱，无明显推动','The MJO is weak — no clear push either way','MJO lemah — tiada tolakan yang jelas');
+  return L('🌀 <b>未来1–2周：</b>','🌀 <b>Next 1–2 weeks:</b> ','🌀 <b>1–2 minggu akan datang:</b> ')+mjoTxt+L('。','.','.');
+}
+// The IOD is a seasonal driver, so it belongs with the season, not the 1–2 week note.
+function seasonIodNote(D){
+  if(driverStale(D,'iod')) return '';
+  const c=(D.drivers||[]).find(d=>d.key==='iod'); if(!c||c.adviceOk===false) return '';
+  const dmi=parseFloat(String(c.value).replace('−','-'));
+  if(!(Math.abs(dmi)>=0.4)) return '';
+  return L('',' ',' ')+(dmi>0 ? L('正印度洋偶极子在未来数月进一步加重干旱。','A positive Indian Ocean Dipole adds to the drying over the coming months.','Dipol Lautan Hindi yang positif menambah kekeringan dalam beberapa bulan akan datang.')
+                    : L('负印度洋偶极子在未来数月带来额外降雨。','A negative Indian Ocean Dipole adds extra rain over the coming months.','Dipol Lautan Hindi yang negatif menambah hujan dalam beberapa bulan akan datang.'));
+}
+// What to DO now. When the season and the next 1–2 weeks point opposite ways,
+// the action follows the short-term signal and the season is kept as "later",
+// so the farm advice never contradicts the box beside it.
+function farmAdvice(D, vd){
+  const e=shortTermEffect(D), t=vd.tone;
+  if(t==='warm'&&e==='wet') return L('未来1–2周偏湿：暂不需灌溉，可趁雨蓄水、检查排水。这波雨过后，厄尔尼诺的偏干偏热仍会回来——继续做好用水与防火准备。',
+    'Next 1–2 weeks wetter: no need to irrigate now — use the rain to fill storage and check drainage. El Niño’s dry, hot lean returns after this spell, so keep water and fire plans ready.',
+    '1–2 minggu akan datang lebih basah: tidak perlu menyiram sekarang — gunakan hujan untuk mengisi simpanan air dan semak saliran. Kecenderungan kering dan panas El Niño kembali selepas tempoh ini, jadi kekalkan persediaan air dan kebakaran.');
+  if(t==='cool'&&e==='dry') return L('未来1–2周偏干：适合喷药、施肥与采收，并趁机清理排水沟。这段干期过后，拉尼娜的偏湿仍会回来——提前做好防涝。',
+    'Next 1–2 weeks drier: a good window for spraying, fertilising and harvest, and for clearing drains. La Niña’s wet lean returns after this dry spell, so get flood prep ready.',
+    '1–2 minggu akan datang lebih kering: masa sesuai untuk meracun, membaja dan menuai, serta membersihkan longkang. Kecenderungan basah La Niña kembali selepas tempoh kering ini, jadi bersedia menghadapi banjir.');
+  if(t==='warm'&&e==='dry') return vd.farm+' '+L('未来1–2周 MJO 也偏干，旱情会更集中：灌溉优先。','The MJO adds a drier 1–2 weeks on top — irrigation first.','MJO turut menambah 1–2 minggu yang lebih kering — utamakan pengairan.');
+  if(t==='cool'&&e==='wet') return vd.farm+' '+L('未来1–2周 MJO 也偏湿，雨水会更集中：优先排水。','The MJO adds a wetter 1–2 weeks on top — drainage first.','MJO turut menambah 1–2 minggu yang lebih basah — utamakan saliran.');
+  return vd.farm;
 }
 
 // Plain-language ENSO verdict — reconciles the official ONI with the relative RONI
@@ -1316,10 +1379,10 @@ function renderAll(D){
       <h2>${vd.title}</h2>
       ${Math.abs(oni)>=0.3?`<span class="btrend">${arrow} ${tw}</span>`:''}</div>
     ${ensoScale(oni, roni)}
-    <div class="desc">${vd.why}</div>
+    <div class="desc">${vd.why}${seasonIodNote(D)}</div>
     <div class="pills">${b.pills.map(p=>`<span class="pill ${p[0]}">${p[1]}</span>`).join('')}</div>
     <div class="bgrid">
-      <div class="vfarm" style="background:var(--inset2)">${L('🌾 对农田：','🌾 For farms: ','🌾 Untuk ladang: ')}${vd.farm}</div>
+      <div class="vfarm" style="background:var(--inset2)">${L('🌾 对农田：','🌾 For farms: ','🌾 Untuk ladang: ')}${farmAdvice(D, vd)}</div>
       <div class="vshort" style="margin-top:0">${shortTermNote(D)}</div>
     </div>${noaaBulletin(D)}`;
 
@@ -1477,34 +1540,41 @@ function hazeRisk(x){ if(x==null||isNaN(x))return{l:'—',c:'s-neu'};
   if(x<20)return{l:L('低','Low','Rendah'),c:'s-good'}; if(x<100)return{l:L('中等','Moderate','Sederhana'),c:'s-mod'};
   if(x<300)return{l:L('偏高','Elevated','Meningkat'),c:'s-bad'}; return{l:L('高','High','Tinggi'),c:'s-danger'}; }
 
+// Local air/heat for one place. Calls can overlap (quick city changes, a
+// language switch), so each one takes a ticket and only the latest may draw.
+let _impactSeq=0;
+const getJson=async u=>{ const r=await fetch(u); if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); };
+const nr=v=>(typeof v==='number'&&isFinite(v))?Math.round(v):'—';   // missing values show a dash, not 0/NaN
 async function loadImpact(lat,lon,city){
+  const my=++_impactSeq;
   LOC={lat,lon,city};
   document.getElementById('locName').textContent = city ? (LANG==='zh'?(city.z||city.n):city.n) : L('我的定位','My location','Lokasi saya');
   const aqU='https://air-quality-api.open-meteo.com/v1/air-quality?latitude='+lat+'&longitude='+lon+'&current=pm2_5,pm10,us_aqi,dust&timezone=auto';
   const wxU='https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon+'&current=temperature_2m,apparent_temperature,relative_humidity_2m,uv_index&daily=apparent_temperature_max,uv_index_max&forecast_days=1&timezone=auto';
   const unav=L('无法获取（离线？）','Unavailable (offline?)','Tidak tersedia (luar talian?)');
+  const aqP=getJson(aqU), wxP=getJson(wxU);   // both requests start now
   try{
-    const aq=(await (await fetch(aqU)).json()).current; const b=pm25Band(aq.pm2_5);
+    const aq=(await aqP).current; if(my!==_impactSeq) return; if(!aq) throw new Error('no current block'); const b=pm25Band(aq.pm2_5);
     document.getElementById('aqCard').innerHTML=
       '<h3>'+L('烟霾 · 空气质量','Haze · Air Quality','Jerebu · Kualiti Udara')+'</h3>'+
-      '<div class="big">'+Math.round(aq.pm2_5)+'<span style="font-size:13px;color:var(--muted)"> µg/m³ PM2.5</span></div>'+
+      '<div class="big">'+nr(aq.pm2_5)+'<span style="font-size:13px;color:var(--muted)"> µg/m³ PM2.5</span></div>'+
       '<span class="status '+b.c+'">'+b.l+'</span>'+
-      '<div class="subrow"><span>US AQI <b>'+Math.round(aq.us_aqi)+'</b></span><span>PM10 <b>'+Math.round(aq.pm10)+'</b></span><span>'+L('沙尘','Dust','Debu')+' <b>'+Math.round(aq.dust)+'</b></span></div>'+
+      '<div class="subrow"><span>US AQI <b>'+nr(aq.us_aqi)+'</b></span><span>PM10 <b>'+nr(aq.pm10)+'</b></span><span>'+L('沙尘','Dust','Debu')+' <b>'+nr(aq.dust)+'</b></span></div>'+
       '<div class="advice">'+maskAdvice(aq.pm2_5)+'</div>';
-  }catch(e){ document.getElementById('aqCard').innerHTML='<h3>'+L('烟霾 · 空气质量','Haze · Air Quality','Jerebu · Kualiti Udara')+'</h3><div class="advice" style="border:0;padding:0">'+unav+'</div>'; }
+  }catch(e){ if(my!==_impactSeq) return; document.getElementById('aqCard').innerHTML='<h3>'+L('烟霾 · 空气质量','Haze · Air Quality','Jerebu · Kualiti Udara')+'</h3><div class="advice" style="border:0;padding:0">'+unav+'</div>'; }
   try{
-    const _w=await (await fetch(wxU)).json(); const wx=_w.current, dy=_w.daily||{};
+    const _w=await wxP; if(my!==_impactSeq) return; const wx=_w.current, dy=_w.daily||{}; if(!wx) throw new Error('no current block');
     const hb=heatBand(wx.apparent_temperature), ub=uvBand(wx.uv_index);
     const maxFeels=(dy.apparent_temperature_max||[])[0], maxUV=(dy.uv_index_max||[])[0];
-    const peak=(maxFeels!=null)?'<div class="subrow" style="margin-top:4px">☀ '+L('今日峰值：','Today\'s peak: ','Puncak hari ini: ')+'<b>'+Math.round(maxFeels)+'°</b> '+L('体感','feels-like','terasa seperti')+' · '+L('紫外线','UV','UV')+' <b>'+Math.round(maxUV)+'</b> '+uvBand(maxUV).l+'</div>':'';
+    const peak=(maxFeels!=null)?'<div class="subrow" style="margin-top:4px">☀ '+L('今日峰值：','Today\'s peak: ','Puncak hari ini: ')+'<b>'+nr(maxFeels)+'°</b> '+L('体感','feels-like','terasa seperti')+' · '+L('紫外线','UV','UV')+' <b>'+nr(maxUV)+'</b> '+uvBand(maxUV).l+'</div>':'';
     document.getElementById('heatCard').innerHTML=
       '<h3>'+L('高温与紫外线','Heat & UV','Haba & UV')+'</h3>'+
-      '<div class="big">'+Math.round(wx.apparent_temperature)+'°<span style="font-size:13px;color:var(--muted)"> '+L('体感（现时）','feels-like now','terasa seperti sekarang')+'</span></div>'+
+      '<div class="big">'+nr(wx.apparent_temperature)+'°<span style="font-size:13px;color:var(--muted)"> '+L('体感（现时）','feels-like now','terasa seperti sekarang')+'</span></div>'+
       '<span class="status '+hb.c+'">'+hb.l+'</span>'+
-      '<div class="subrow"><span>'+L('气温','Air','Udara')+' <b>'+Math.round(wx.temperature_2m)+'°</b></span><span>'+L('湿度','Humidity','Kelembapan')+' <b>'+Math.round(wx.relative_humidity_2m)+'%</b></span><span>'+L('紫外线（现时）','UV now','UV sekarang')+' <b>'+Math.round(wx.uv_index)+'</b> '+ub.l+'</span></div>'+
+      '<div class="subrow"><span>'+L('气温','Air','Udara')+' <b>'+nr(wx.temperature_2m)+'°</b></span><span>'+L('湿度','Humidity','Kelembapan')+' <b>'+nr(wx.relative_humidity_2m)+'%</b></span><span>'+L('紫外线（现时）','UV now','UV sekarang')+' <b>'+nr(wx.uv_index)+'</b> '+ub.l+'</span></div>'+
       peak+
       '<div class="advice">'+hb.a+' '+(maxUV>=6?uvBand(maxUV).a:ub.a)+'</div>';
-  }catch(e){ document.getElementById('heatCard').innerHTML='<h3>'+L('高温与紫外线','Heat & UV','Haba & UV')+'</h3><div class="advice" style="border:0;padding:0">'+unav+'</div>'; }
+  }catch(e){ if(my!==_impactSeq) return; document.getElementById('heatCard').innerHTML='<h3>'+L('高温与紫外线','Heat & UV','Haba & UV')+'</h3><div class="advice" style="border:0;padding:0">'+unav+'</div>'; }
 }
 // VIIRS and MODIS passes daily, so fires.json should never be more than a couple of days
 // behind. Past this the workflow has stopped and the counts describe history.
@@ -1572,7 +1642,9 @@ async function loadFires(){
                          'The oldest of these numbers is '+ageWord(ageH)+' old.','Angka paling lama berusia '+ageWord(ageH)+'.')
               : '');
     } else {
-      note=L('NASA FIRMS VIIRS+MODIS · 近'+(f.day_range||1)+'日 · 苏门答腊/加里曼丹为上风向来源。','NASA FIRMS VIIRS+MODIS · last '+(f.day_range||1)+'d · Sumatra/Kalimantan are the upwind sources.','NASA FIRMS VIIRS+MODIS · '+(f.day_range||1)+' hari terakhir · Sumatera/Kalimantan ialah punca dari arah angin.')
+      // The instrument comes from the data file (it says VIIRS; the label used to claim VIIRS+MODIS).
+      const fsrc=f.source?String(f.source).split(' — ')[0]:'NASA FIRMS';
+      note=L(fsrc+' · 近'+(f.day_range||1)+'日 · 苏门答腊/加里曼丹为上风向来源。',fsrc+' · last '+(f.day_range||1)+'d · Sumatra/Kalimantan are the upwind sources.',fsrc+' · '+(f.day_range||1)+' hari terakhir · Sumatera/Kalimantan ialah punca dari arah angin.')
            +(ageTxt?' · '+ageTxt:'');
     }
     document.getElementById('fireCard').innerHTML=
@@ -1641,10 +1713,20 @@ function startOnboarding(){
 
 // ============ Init ============
 applyTheme();              // saved theme or follow the phone
-applyLang();               // apply saved/default language to all static text
+applyLang(false);          // apply saved/default language to all static text (data already loading)
 if(window._fillCities) window._fillCities();
 load();
 if(FIRST_RUN) startOnboarding();   // data loads behind it meanwhile
+
+// An installed app is suspended rather than closed, so it can come back days
+// later still showing the old snapshot. Refresh everything when it returns to
+// the screen after a while (the data job itself runs every 6 hours).
+let _lastRefresh=Date.now();
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState!=='visible' || Date.now()-_lastRefresh<30*60e3) return;
+  _lastRefresh=Date.now();
+  load(); loadFires(); if(LOC) loadImpact(LOC.lat,LOC.lon,LOC.city);
+});
 
 if('serviceWorker' in navigator){
   // Reload once when a NEW service worker takes control, so the fresh app shell shows
