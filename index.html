@@ -151,6 +151,7 @@
   .satstamp{position:absolute;bottom:8px;left:8px;right:8px;font-size:10.5px;color:#dfe8f7;background:rgba(6,10,20,.6);padding:4px 8px;border-radius:6px}
   .btnrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
   .btn{font-size:12px;font-weight:600;padding:7px 12px;border-radius:8px;background:var(--panel2);border:1px solid var(--line);color:var(--ink);cursor:pointer}
+  .btn:disabled{opacity:.7;cursor:progress}
   .btn:hover{border-color:var(--accent)}
   table{width:100%;border-collapse:collapse;font-size:12.5px}
   th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line)}
@@ -1593,11 +1594,23 @@ async function loadFires(){
   function saveLoc(o){ try{localStorage.setItem('suhu_loc',JSON.stringify(o));}catch(e){} }
   function savedLoc(){ try{return JSON.parse(localStorage.getItem('suhu_loc'));}catch(e){return null;} }
   sel.onchange=()=>{ if(sel.value==='')return; const i=+sel.value, c=CITIES[i]; saveLoc({mode:'city',idx:i}); loadImpact(c.lat,c.lon,c); };
-  document.getElementById('geoBtn').onclick=()=>{
+  const geoBtn=document.getElementById('geoBtn');
+  geoBtn.onclick=()=>{
     if(!navigator.geolocation){alert(L('此设备不支持定位。','Geolocation not supported on this device.','Geolokasi tidak disokong pada peranti ini.'));return;}
+    // Show that something is happening; a GPS fix indoors can take a while.
+    const label=geoBtn.textContent; geoBtn.disabled=true;
+    geoBtn.textContent=L('📍 正在定位…','📍 Locating…','📍 Mencari lokasi…');
+    const done=()=>{ geoBtn.disabled=false; geoBtn.textContent=label; };
     navigator.geolocation.getCurrentPosition(
-      p=>{ sel.value=''; saveLoc({mode:'gps',lat:p.coords.latitude,lon:p.coords.longitude}); loadImpact(p.coords.latitude,p.coords.longitude,null); },
-      ()=>alert(L('定位权限被拒绝——请改选城市。','Location permission denied — pick a city instead.','Kebenaran lokasi ditolak — pilih bandar sebagai ganti.')));
+      p=>{ done(); sel.value=''; saveLoc({mode:'gps',lat:p.coords.latitude,lon:p.coords.longitude}); loadImpact(p.coords.latitude,p.coords.longitude,null); },
+      e=>{ done();
+        // Say which failure it was: only code 1 is a permission problem.
+        alert(e&&e.code===1 ? L('定位权限被拒绝。请在浏览器或手机设置中允许定位，或改选城市。','Location permission was refused. Allow location for this site in your browser or phone settings, or pick a city instead.','Kebenaran lokasi ditolak. Benarkan lokasi untuk laman ini dalam tetapan pelayar atau telefon, atau pilih bandar sebagai ganti.')
+            : e&&e.code===3 ? L('定位超时。请到户外或开启 GPS 后再试，或改选城市。','Finding your location took too long. Try again outdoors or with GPS on, or pick a city instead.','Mencari lokasi mengambil masa terlalu lama. Cuba lagi di luar atau dengan GPS dihidupkan, atau pilih bandar sebagai ganti.')
+            : L('暂时无法确定位置。请确认手机已开启定位（GPS），或改选城市。','Your location could not be found right now. Check that location (GPS) is switched on, or pick a city instead.','Lokasi anda tidak dapat ditentukan sekarang. Pastikan lokasi (GPS) dihidupkan, atau pilih bandar sebagai ganti.')); },
+      // City-level air and heat data: a fix up to 10 min old is fine, and
+      // never wait more than 15 s (the default is to wait forever).
+      {enableHighAccuracy:false, timeout:15000, maximumAge:600000});
   };
   // restore the last choice (preset city or GPS), else default to the first city
   const sv=savedLoc();
