@@ -1,12 +1,12 @@
 {
-  "generated": "2026-10-31T21:18:55.548Z",
-  "snapshotDate": "31 October 2026",
+  "generated": "2026-11-01T05:39:02.588Z",
+  "snapshotDate": "1 November 2026",
   "note": "Seed only. Overwritten by fetch-data.js on each scheduled run. Values here are a past snapshot, so every source ships flagged 'stale' — the app shows a stale chip until the pipeline has actually run. Card labels (name/heading/interpretation) live in DRV in index.html and the rules table is computed live by ruleRows(); neither is stored here, so neither can go stale.",
   "banner": {
     "tone": "warm",
-    "tag": "National Climate-Driver Status · Inter-monsoon",
+    "tag": "National Climate-Driver Status · Northeast Monsoon",
     "title": "El Niño — Strengthening",
-    "desc": "El Niño is strengthening during Malaysia's drier season. Expect a warm, dry bias with elevated drought and transboundary-haze risk.",
+    "desc": "El Niño is strengthening during the northeast monsoon, tending to suppress rainfall — a drier-than-normal wet season. Lower flood risk, but watch for water stress.",
     "pills": [
       [
         "hot",
@@ -14,11 +14,7 @@
       ],
       [
         "dry",
-        "Drought risk"
-      ],
-      [
-        "watch",
-        "🔥 Haze watch"
+        "Drier wet season"
       ]
     ]
   },
@@ -445,15 +441,15 @@
   "regions": [
     {
       "rn": "Peninsula — West Coast",
-      "risk": "r-high",
-      "label": "High risk",
-      "p": "Driest & most haze-prone zone now. Heat + reduced rainfall; watch Klang Valley/Melaka air quality."
+      "risk": "r-mod",
+      "label": "Moderate",
+      "p": "Drier than normal; reduced rainfall, limited flood risk. Watch water supply."
     },
     {
       "rn": "Peninsula — East Coast",
       "risk": "r-mod",
       "label": "Moderate",
-      "p": "Near-normal to drier; main flood season is Nov–Mar."
+      "p": "NE monsoon suppressed by El Niño — a drier wet season, lower flood risk than usual."
     },
     {
       "rn": "Sabah",
@@ -463,8 +459,8 @@
     },
     {
       "rn": "Sarawak",
-      "risk": "r-high",
-      "label": "High risk",
+      "risk": "r-mod",
+      "label": "Moderate",
       "p": "Peatland fire & haze risk elevated under prolonged dry conditions; monitor hotspots."
     }
   ],
