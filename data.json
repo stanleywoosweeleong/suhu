@@ -1,12 +1,12 @@
 {
-  "generated": "2026-11-02T05:37:20.740Z",
+  "generated": "2026-11-02T15:26:59.271Z",
   "snapshotDate": "2 November 2026",
   "note": "Seed only. Overwritten by fetch-data.js on each scheduled run. Values here are a past snapshot, so every source ships flagged 'stale' — the app shows a stale chip until the pipeline has actually run. Card labels (name/heading/interpretation) live in DRV in index.html and the rules table is computed live by ruleRows(); neither is stored here, so neither can go stale.",
   "banner": {
     "tone": "warm",
     "tag": "National Climate-Driver Status · Northeast Monsoon",
-    "title": "El Niño — Strengthening",
-    "desc": "El Niño is strengthening during the northeast monsoon, tending to suppress rainfall — a drier-than-normal wet season. Lower flood risk, but watch for water stress.",
+    "title": "El Niño — Holding steady",
+    "desc": "El Niño is holding steady during the northeast monsoon, tending to suppress rainfall — a drier-than-normal wet season. Lower flood risk, but watch for water stress.",
     "pills": [
       [
         "hot",
@@ -15,6 +15,10 @@
       [
         "dry",
         "Drier wet season"
+      ],
+      [
+        "dry",
+        "Positive IOD"
       ]
     ]
   },
@@ -23,12 +27,11 @@
       "key": "enso",
       "value": "+3.4°C",
       "cls": "s-hot",
-      "status": "Very strong El Niño (\"super\") · strengthening",
+      "status": "Very strong El Niño (\"super\") · holding steady",
       "gauge": 95,
       "gcol": "var(--hot)",
-      "src": "NOAA CPC weekly OISSTv2.1 (wksst9120.for) · 1991-2020 base · week centred 21OCT2026",
+      "src": "NOAA CPC weekly OISSTv2.1 (wksst9120.for) · 1991-2020 base · week centred 28OCT2026",
       "hist": [
-        2.5,
         2.6,
         2.6,
         2.6,
@@ -37,12 +40,13 @@
         3,
         3.1,
         3.2,
+        3.2,
         3.3,
-        3.3,
+        3.4,
         3.4
       ],
       "basis": "weekly",
-      "asOf": "21OCT2026"
+      "asOf": "28OCT2026"
     },
     {
       "key": "oni",
@@ -115,28 +119,15 @@
     },
     {
       "key": "iod",
-      "value": "+0.54°C",
+      "value": "+1.04°C",
       "cls": "s-dry",
       "status": "Positive IOD · drier for SE Asia",
-      "gauge": 76.95,
+      "gauge": 100,
       "gcol": "var(--dry)",
-      "src": "Monthly DMI 2026-07 — NOAA PSL (monthly) (older than usual)",
-      "hist": [
-        -0.42,
-        -0.47,
-        -0.45,
-        -0.26,
-        -0.02,
-        0.12,
-        0.53,
-        0.28,
-        0.28,
-        0.15,
-        0.27,
-        0.54
-      ],
+      "src": "DMI computed from NOAA OISST — 2026-10-31 (nrt/coastwatch)",
+      "hist": [],
       "asOf": "2026-10-31",
-      "adviceOk": false,
+      "adviceOk": true,
       "computed": true
     },
     {
@@ -466,7 +457,6 @@
   ],
   "nino34history": {
     "labels": [
-      "05AUG",
       "12AUG",
       "19AUG",
       "26AUG",
@@ -477,10 +467,10 @@
       "30SEP",
       "07OCT",
       "14OCT",
-      "21OCT"
+      "21OCT",
+      "28OCT"
     ],
     "values": [
-      2.5,
       2.6,
       2.6,
       2.6,
@@ -489,8 +479,9 @@
       3,
       3.1,
       3.2,
+      3.2,
       3.3,
-      3.3,
+      3.4,
       3.4
     ],
     "basis": "weekly"
@@ -540,8 +531,8 @@
     ],
     [
       "DMI (IOD)",
+      "NOAA OISST (computed)",
       "NOAA PSL monthly",
-      "NOAA PSL (monthly)",
       "live",
       "just now"
     ],
