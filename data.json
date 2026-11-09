@@ -1,12 +1,12 @@
 {
-  "generated": "2026-11-09T05:50:20.559Z",
+  "generated": "2026-11-09T15:53:23.531Z",
   "snapshotDate": "9 November 2026",
   "note": "Seed only. Overwritten by fetch-data.js on each scheduled run. Values here are a past snapshot, so every source ships flagged 'stale' — the app shows a stale chip until the pipeline has actually run. Card labels (name/heading/interpretation) live in DRV in index.html and the rules table is computed live by ruleRows(); neither is stored here, so neither can go stale.",
   "banner": {
     "tone": "warm",
     "tag": "National Climate-Driver Status · Northeast Monsoon",
-    "title": "El Niño — Holding steady",
-    "desc": "El Niño is holding steady during the northeast monsoon, tending to suppress rainfall — a drier-than-normal wet season. Lower flood risk, but watch for water stress.",
+    "title": "El Niño — Easing",
+    "desc": "El Niño is easing during the northeast monsoon, tending to suppress rainfall — a drier-than-normal wet season. Lower flood risk, but watch for water stress.",
     "pills": [
       [
         "hot",
@@ -25,14 +25,13 @@
   "drivers": [
     {
       "key": "enso",
-      "value": "+3.4°C",
+      "value": "+3.3°C",
       "cls": "s-hot",
-      "status": "Very strong El Niño (\"super\") · holding steady",
+      "status": "Very strong El Niño (\"super\") · easing",
       "gauge": 95,
       "gcol": "var(--hot)",
-      "src": "NOAA CPC weekly OISSTv2.1 (wksst9120.for) · 1991-2020 base · week centred 28OCT2026",
+      "src": "NOAA CPC weekly OISSTv2.1 (wksst9120.for) · 1991-2020 base · week centred 04NOV2026",
       "hist": [
-        2.6,
         2.6,
         2.6,
         2.8,
@@ -41,12 +40,13 @@
         3.1,
         3.2,
         3.2,
-        3.3,
+        3.2,
         3.4,
-        3.4
+        3.4,
+        3.3
       ],
       "basis": "weekly",
-      "asOf": "28OCT2026"
+      "asOf": "04NOV2026"
     },
     {
       "key": "oni",
@@ -457,7 +457,6 @@
   ],
   "nino34history": {
     "labels": [
-      "12AUG",
       "19AUG",
       "26AUG",
       "02SEP",
@@ -468,10 +467,10 @@
       "07OCT",
       "14OCT",
       "21OCT",
-      "28OCT"
+      "28OCT",
+      "04NOV"
     ],
     "values": [
-      2.6,
       2.6,
       2.6,
       2.8,
@@ -480,9 +479,10 @@
       3.1,
       3.2,
       3.2,
-      3.3,
+      3.2,
       3.4,
-      3.4
+      3.4,
+      3.3
     ],
     "basis": "weekly"
   },
