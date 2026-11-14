@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-14T13:22:18.040Z",
+  "generated": "2026-11-14T22:13:06.409Z",
   "snapshotDate": "14 November 2026",
   "note": "Seed only. Overwritten by fetch-data.js on each scheduled run. Values here are a past snapshot, so every source ships flagged 'stale' — the app shows a stale chip until the pipeline has actually run. Card labels (name/heading/interpretation) live in DRV in index.html and the rules table is computed live by ruleRows(); neither is stored here, so neither can go stale.",
   "banner": {
@@ -119,32 +119,27 @@
     },
     {
       "key": "iod",
-      "value": "+0.56°C",
+      "value": "+0.50°C",
       "cls": "s-dry",
       "status": "Positive IOD · drier for SE Asia",
-      "gauge": 78.17351063829787,
+      "gauge": 75.03542553191488,
       "gcol": "var(--dry)",
-      "src": "DMI computed from NOAA OISST — 2026-11-12 (nrt/coastwatch)",
+      "src": "DMI computed from NOAA OISST — 2026-11-13 (nrt/upwell)",
       "hist": [],
-      "asOf": "2026-11-12",
+      "asOf": "2026-11-13",
       "adviceOk": true,
       "computed": true
     },
     {
       "key": "mjo",
-      "value": "Ph 4 · 0.8",
-      "cls": "s-neu",
-      "status": "Weak · little MJO influence",
-      "gauge": 36.45,
-      "gcol": "var(--neutral)",
+      "value": "Ph 4 · 1.1",
+      "cls": "s-wet",
+      "status": "Active · wet pulse over Maritime Continent",
+      "gauge": 48.6,
+      "gcol": "var(--wet)",
       "phase": 4,
-      "amp": 0.81,
+      "amp": 1.08,
       "track": [
-        {
-          "rmm1": -0.74,
-          "rmm2": -0.882,
-          "amp": 1.15
-        },
         {
           "rmm1": -0.753,
           "rmm2": -0.821,
@@ -321,28 +316,33 @@
           "amp": 0.55
         },
         {
-          "rmm1": 0.415,
-          "rmm2": -0.466,
-          "amp": 0.62
+          "rmm1": 0.541,
+          "rmm2": -0.467,
+          "amp": 0.71
         },
         {
-          "rmm1": 0.455,
-          "rmm2": -0.515,
-          "amp": 0.69
+          "rmm1": 0.593,
+          "rmm2": -0.511,
+          "amp": 0.78
         },
         {
-          "rmm1": 0.55,
-          "rmm2": -0.505,
-          "amp": 0.75
+          "rmm1": 0.695,
+          "rmm2": -0.502,
+          "amp": 0.86
         },
         {
-          "rmm1": 0.645,
+          "rmm1": 0.799,
           "rmm2": -0.494,
-          "amp": 0.81
+          "amp": 0.94
+        },
+        {
+          "rmm1": 0.952,
+          "rmm2": -0.505,
+          "amp": 1.08
         }
       ],
-      "src": "NOAA PSL ROMI (OLR-based, RMM-equivalent per Kiladis 2014) · 2026-11-09",
-      "asOf": "2026-11-09"
+      "src": "NOAA PSL ROMI (OLR-based, RMM-equivalent per Kiladis 2014) · 2026-11-10",
+      "asOf": "2026-11-10"
     },
     {
       "key": "flavor",
