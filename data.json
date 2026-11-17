@@ -1,6 +1,6 @@
 {
-  "generated": "2026-11-16T15:32:56.235Z",
-  "snapshotDate": "16 November 2026",
+  "generated": "2026-11-17T01:48:23.724Z",
+  "snapshotDate": "17 November 2026",
   "note": "Seed only. Overwritten by fetch-data.js on each scheduled run. Values here are a past snapshot, so every source ships flagged 'stale' — the app shows a stale chip until the pipeline has actually run. Card labels (name/heading/interpretation) live in DRV in index.html and the rules table is computed live by ruleRows(); neither is stored here, so neither can go stale.",
   "banner": {
     "tone": "warm",
@@ -15,10 +15,6 @@
       [
         "dry",
         "Drier wet season"
-      ],
-      [
-        "dry",
-        "Positive IOD"
       ]
     ]
   },
@@ -119,32 +115,27 @@
     },
     {
       "key": "iod",
-      "value": "+0.47°C",
-      "cls": "s-dry",
-      "status": "Positive IOD · drier for SE Asia",
-      "gauge": 73.25946808510639,
-      "gcol": "var(--dry)",
-      "src": "DMI computed from NOAA OISST — 2026-11-14 (nrt/coastwatch)",
+      "value": "+0.37°C",
+      "cls": "s-neu",
+      "status": "Neutral",
+      "gauge": 68.38319148936168,
+      "gcol": "var(--neutral)",
+      "src": "DMI computed from NOAA OISST — 2026-11-15 (nrt/coastwatch)",
       "hist": [],
-      "asOf": "2026-11-14",
+      "asOf": "2026-11-15",
       "adviceOk": true,
       "computed": true
     },
     {
       "key": "mjo",
-      "value": "Ph 4 · 1.3",
+      "value": "Ph 4 · 1.5",
       "cls": "s-wet",
       "status": "Active · wet pulse over Maritime Continent",
-      "gauge": 58.95,
+      "gauge": 68.4,
       "gcol": "var(--wet)",
       "phase": 4,
-      "amp": 1.31,
+      "amp": 1.52,
       "track": [
-        {
-          "rmm1": -0.777,
-          "rmm2": -0.799,
-          "amp": 1.12
-        },
         {
           "rmm1": -0.777,
           "rmm2": -0.759,
@@ -321,28 +312,33 @@
           "amp": 0.86
         },
         {
-          "rmm1": 0.823,
-          "rmm2": -0.458,
-          "amp": 0.94
+          "rmm1": 0.933,
+          "rmm2": -0.368,
+          "amp": 1
         },
         {
-          "rmm1": 0.931,
-          "rmm2": -0.444,
-          "amp": 1.03
+          "rmm1": 1.042,
+          "rmm2": -0.344,
+          "amp": 1.1
         },
         {
-          "rmm1": 1.081,
-          "rmm2": -0.445,
-          "amp": 1.17
+          "rmm1": 1.185,
+          "rmm2": -0.329,
+          "amp": 1.23
         },
         {
-          "rmm1": 1.187,
-          "rmm2": -0.543,
-          "amp": 1.31
+          "rmm1": 1.294,
+          "rmm2": -0.412,
+          "amp": 1.36
+        },
+        {
+          "rmm1": 1.416,
+          "rmm2": -0.555,
+          "amp": 1.52
         }
       ],
-      "src": "NOAA PSL ROMI (OLR-based, RMM-equivalent per Kiladis 2014) · 2026-11-11",
-      "asOf": "2026-11-11"
+      "src": "NOAA PSL ROMI (OLR-based, RMM-equivalent per Kiladis 2014) · 2026-11-12",
+      "asOf": "2026-11-12"
     },
     {
       "key": "flavor",
@@ -361,14 +357,13 @@
     },
     {
       "key": "hc",
-      "value": "+3.2",
+      "value": "+2.8",
       "cls": "s-dry",
       "status": "Strongly recharged · El Niño-favourable",
       "gauge": 100,
       "gcol": "var(--dry)",
       "src": "NOAA PMEL TAO — warm water volume (wwv.dat) · ×10^14 m³",
       "hist": [
-        -0.12,
         -0.16,
         0.2,
         1.02,
@@ -379,7 +374,8 @@
         3,
         3.24,
         3.46,
-        3.16
+        3.16,
+        2.84
       ]
     },
     {
